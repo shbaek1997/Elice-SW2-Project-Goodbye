@@ -4,13 +4,13 @@
     "version": "1.0.0",
     "private": true,
     "scripts": {
-      "start": "babel-node index.js"
+      "start": "babel-node index.js",
+      "lint": "eslint ."
     },
     "dependencies": {
       "cookie-parser": "~1.4.4",
       "debug": "~2.6.9",
       "dotenv": "^16.0.1",
-      "eslint-config-airbnb-base": "^15.0.0",
       "express": "~4.16.1",
       "http-errors": "~1.6.3",
       "jade": "~1.11.0",
@@ -25,7 +25,13 @@
       "@babel/preset-env": "^7.16.11",
       "eslint": "^8.19.0",
       "eslint-config-prettier": "^8.5.0",
+      "eslint-config-airbnb-base": "^15.0.0",
+      "eslint-config-next": "12.2.0",
+      "eslint-plugin-import": "^2.25.4",
+      "eslint-plugin-moment": "^0.0.2",
       "eslint-plugin-prettier": "^4.2.1",
+      "eslint-plugin-react": "^7.29.4",
+      "eslint-plugin-react-hooks": "^4.3.0",
       "prettier": "2.7.1"
     }
   }
