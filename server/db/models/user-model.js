@@ -18,11 +18,6 @@ export class UserModel {
         const createdNewUser = await User.create(userInfo);
         return createdNewUser;
     }
-    // find All이 필요한가?
-    // async findAll() {
-    //     const users = await User.find({});
-    //     return users;
-    // }
 
     async updateById({ userId, update }) {
         const filter = { _id: userId };
@@ -38,7 +33,38 @@ export class UserModel {
     }
 
     //관련된 user의 will 추가, 수정, 삭제
+    async addWill(userId, willId) {
+        console.log('userId: ' + userId + 'willData: ' + willId);
+        const willAddedUser = await User.updateOne(
+            { _id: userId },
+            { $push: { wills: willId } },
+        );
+        return willAddedUser;
+    }
+
+    async deleteWill(userId, willId) {
+        console.log('userId: ' + userId + 'willData: ' + willId);
+        const willDeletedUser = await User.updateOne(
+            { _id: userId },
+            { $pull: { wills: willId } },
+        );
+        return willDeletedUser;
+    }
     //관련된 user의 receiver 추가, 수정, 삭제
+    async addReceiver(userId, receiverId) {
+        const receiverAddedUser = await User.updateOne(
+            { _id: userId },
+            { $push: { receivers: receiverId } },
+        );
+        return receiverAddedUser;
+    }
+    async deleteReceiver(userId, receiverId) {
+        const receiverDeletedUser = await User.updateOne(
+            { _id: userId },
+            { $pull: { receivers: receiverId } },
+        );
+        return receiverDeletedUser;
+    }
 }
 
 const userModel = new UserModel();

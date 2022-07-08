@@ -25,18 +25,17 @@ const UserSchema = new Schema(
             type: String,
             required: false,
         },
-        wills: [
-            {
-                type: WillSchema,
-                required: false,
-            },
-        ],
-        receivers: [
-            {
-                type: ReceiverSchema,
-                required: false,
-            },
-        ],
+        //will과 receivers 둘다 id만 담는 것이 효율적일까?
+        wills: {
+            type: [String],
+            required: false,
+            default: [],
+        },
+        receivers: {
+            type: [String],
+            required: false,
+            default: [],
+        },
     },
     {
         collection: 'users',

@@ -30,6 +30,12 @@ class ReceiverService {
         return updatedReceiver;
     }
     // 더 필요한 부분있으면 추가로 작성
+    async findReceiversForOneUser(userId) {
+        const foundReceivers = await this.receiverModel.findReceiversByUserId(
+            userId,
+        );
+        return foundReceivers;
+    }
 }
 
 const receiverService = new ReceiverService(receiverModel);

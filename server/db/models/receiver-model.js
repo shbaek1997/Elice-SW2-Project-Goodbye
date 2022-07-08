@@ -24,12 +24,16 @@ export class RecieverModel {
     async updateById(receiverId, update) {
         const filter = { _id: receiverId };
         const option = { returnOriginal: false };
-        const updatedReceiver = await Reciever.findOneAndUpdate(
+        const updatedReceiver = await Receiver.findOneAndUpdate(
             filter,
             update,
             option,
         );
         return updatedReceiver;
+    }
+    async findReceiversByUserId(userId) {
+        const receivers = await Receiver.find({ userId });
+        return receivers;
     }
 }
 

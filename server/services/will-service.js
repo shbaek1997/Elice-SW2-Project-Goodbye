@@ -25,6 +25,10 @@ class WillService {
         return updatedWill;
     }
     // 더 필요한 부분있으면 추가로 작성
+    async findWillsForOneUser(userId) {
+        const foundWills = await this.willModel.findWillsByUserId(userId);
+        return foundWills;
+    }
 }
 
 const willService = new WillService(willModel);

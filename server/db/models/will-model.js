@@ -25,6 +25,10 @@ export class WillModel {
         const updatedWill = await Will.findOneAndUpdate(filter, update, option);
         return updatedWill;
     }
+    async findWillsByUserId(userId) {
+        const wills = await Will.find({ userId });
+        return wills;
+    }
 }
 
 const willModel = new WillModel();
