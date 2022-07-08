@@ -13,7 +13,8 @@
     "rules": {
         "prettier/prettier": ["error"],
         "import/no-unresolved": "off",
-        "endOfLine": 2,
-        "no-multiple-empty-lines": 2
+        "import/prefer-default-export": "off",
+        "no-multiple-empty-lines": 2,
+        "no-underscore-dangle": "warn"
     }
 }
