@@ -8,53 +8,6 @@ import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 
 
-const adBoxStyle = css`
-  display: flex;
-  width: 100%;
-  height: 30rem;
-  margin: 10rem 0;
-  padding: 2rem;
-  align-item: center;
-  &:nth-of-type(even) {
-    flex-direction: row-reverse;
-  }
-`
-
-const adContentStyle = css`
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-`
-
-const imageStyle = css`
-  position: relative;
-  width: 50%;
-  line-height: 10rem;
-  background-color: silver;
-`
-const currentProgress = css`
-  width: 100%;
-  text-align: center;
-  p {
-    margin: 3rem 1rem;
-  }
-`
-
-const progessCard = css`
-  width: 5rem;
-  height: 5rem;
-  background-color: silver;
-`
-
-const CardGroup = css`
-  display: grid;
-  grid-template-columns: repeat(4, 1rem);
-  grid-column-gap: 10rem;
-  grid-row-gap: 3rem;
-  place-content: center;
-`
 
 const Home = () => {
   const [isSSR, setIsSSR] = useState(true);
@@ -122,3 +75,53 @@ const Home = () => {
 }
 
 export default Home;
+
+
+// 중복 코드 수정 예정
+const adBoxStyle = css`
+  display: flex;
+  width: 100%;
+  height: 30rem;
+  margin: 10rem 0;
+  padding: 2rem;
+  align-item: center;
+  &:nth-of-type(even) {
+    flex-direction: row-reverse;
+  }
+`
+
+const adContentStyle = css`
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`
+
+const imageStyle = css`
+  position: relative;
+  width: 50%;
+  line-height: 10rem;
+  background-color: silver;
+`
+const currentProgress = css`
+  width: 100%;
+  text-align: center;
+  p {
+    margin: 3rem 1rem;
+  }
+`
+
+const progessCard = css`
+  width: 5rem;
+  height: 5rem;
+  background-color: silver;
+`
+
+const CardGroup = css`
+  display: grid;
+  grid-template-columns: repeat(4, 1rem);
+  grid-column-gap: 10rem; 
+  grid-row-gap: 3rem;
+  place-content: center;
+`

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { css, jsx } from '@emotion/react';
 
+import Link from 'next/link';
+
 import {
     Button,
     Container,
@@ -44,7 +46,13 @@ const navBarStyle = css`
 
 const logoStyle = css`
     width: 100px;
+    color: #3E606F;
 `
+
+const menuStyle = css`
+    padding: 0.5rem;  
+    color: rgba(0,0,0,.55);                                                          
+`       
 
 
 
@@ -55,7 +63,8 @@ const NavBar = () => {
         <>
             <Navbar bg="light" expand="md" className="mb-3">
                 <Container fluid>
-                    <Navbar.Brand href="#" css={logoStyle}>GoodBye</Navbar.Brand>
+                    <Navbar.Brand><Link href="/"><a css={logoStyle}>GoodBye</a></Link></Navbar.Brand>
+                    {/* <Link href="/"><a>GoodBye</a></Link> */}
                     <Navbar.Toggle aria-controls={`offcanvasNavbar-expand-md`} />
                     <Navbar.Offcanvas
                         id={`offcanvasNavbar-expand-md`}
@@ -70,9 +79,12 @@ const NavBar = () => {
                         </Offcanvas.Header>
                         <Offcanvas.Body>
                             <Nav className="pe-3" css={navStyle}>
-                                <Nav.Link href="#action1">유언장 작성 / 확인</Nav.Link>
+                                <Link href="/my_will"><a css={menuStyle}>유언장 작성 / 확인</a></Link>
+                                <Link href="/#action2" ><a css={menuStyle}>나의 장례식</a></Link>
+                                <Link href="/#action3" ><a css={menuStyle}>부고 작성</a></Link>
+                                {/* <Nav.Link href="my_will">유언장 작성 / 확인</Nav.Link>
                                 <Nav.Link href="#action2">나의 장례식</Nav.Link>
-                                <Nav.Link href="#action3">부고 작성</Nav.Link>
+                                <Nav.Link href="#action3">부고 작성</Nav.Link> */}
                             </Nav>
                             <Form className="d-flex" css={formStyle}>
                                 <Form.Control
