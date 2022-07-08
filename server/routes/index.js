@@ -1,9 +1,13 @@
-var express = require('express');
-var router = express.Router();
+import { Router } from 'express';
+
+const indexRouter = Router();
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+indexRouter.get('/', (req, res) => {
+    res.render('index', { title: 'Express' });
 });
 
-module.exports = router;
+export { indexRouter };
+export * from './user-router';
+export * from './auth-router';
+export * from './remembrance-router';
