@@ -10,6 +10,46 @@ import {
 import styled from '@emotion/styled'
 
 
+
+const Footer = () => {
+    // 로그인 정보를 받아와서 isLogIn에 저장
+    // 로그인 상태에서만 footer 부분 아이콘이 보이게 함
+    // 아이콘 눌렀을 때 동작 => 부고나 추모링크를 sns에 공유하는 동작 중 선택(동시 선택가능)
+    const [isLogIn, setIsLogIn] = useState(true);
+
+
+    const menu = ['서비스 안내', '유언장 보내기', 'GoodBye', '온라인 부고', '추모 공간'];
+
+    return (
+        <Wrapper>
+            <ItemWrapper>
+                <FooterItems>
+                    {menu.map((item, i) => <li key={`footer-menu-${i}`}><a href="#">{item}</a></li>)}
+                </FooterItems>
+            </ItemWrapper>
+            {isLogIn &&
+                <FooterIcons>
+                    <FacebookIcon href="https://www.facebook.com/">
+                        <FaFacebookSquare />
+                    </FacebookIcon>
+                    <TwitterIcon href="https://www.twitter.com/">
+                        <FaTwitter />
+                    </TwitterIcon>
+                    <KakaoIcon href="#">
+                        <RiKakaoTalkFill />
+                    </KakaoIcon>
+                    <InstagramIcon href="https://www.instagram.com/">
+                        <FaInstagram />
+                    </InstagramIcon>
+                </FooterIcons>}
+        </Wrapper>
+    )
+}
+
+
+export default Footer;
+
+
 const ItemWrapper = styled.div`
     width: 100%;
     height: 3rem;
@@ -66,41 +106,3 @@ const KakaoIcon = styled.a`
 const Wrapper = styled.div`
     padding: 1.5rem;
 `
-
-const Footer = () => {
-    // 로그인 정보를 받아와서 isLogIn에 저장
-    // 로그인 상태에서만 footer 부분 아이콘이 보이게 함
-    // 아이콘 눌렀을 때 동작 => 부고나 추모링크를 sns에 공유하는 동작 중 선택(동시 선택가능)
-    const [isLogIn, setIsLogIn] = useState(true);
-
-
-    const menu = ['서비스 안내', '유언장 보내기', 'GoodBye', '온라인 부고', '추모 공간'];
-
-    return (
-        <Wrapper>
-            <ItemWrapper>
-                <FooterItems>
-                    {menu.map((item, i) => <li key={`footer-menu-${i}`}><a href="#">{item}</a></li>)}
-                </FooterItems>
-            </ItemWrapper>
-            {isLogIn &&
-                <FooterIcons>
-                    <FacebookIcon href="https://www.facebook.com/">
-                        <FaFacebookSquare />
-                    </FacebookIcon>
-                    <TwitterIcon href="https://www.twitter.com/">
-                        <FaTwitter />
-                    </TwitterIcon>
-                    <KakaoIcon href="#">
-                        <RiKakaoTalkFill />
-                    </KakaoIcon>
-                    <InstagramIcon href="https://www.instagram.com/">
-                        <FaInstagram />
-                    </InstagramIcon>
-                </FooterIcons>}
-        </Wrapper>
-    )
-}
-
-
-export default Footer;

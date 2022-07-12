@@ -6,7 +6,8 @@ const GroupListModal = () => {
 
     return (
         <>
-            <Modal />
+            <Modal>
+            </Modal>
         </>
     )
 }

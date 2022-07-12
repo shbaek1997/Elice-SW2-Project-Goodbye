@@ -74,7 +74,9 @@ const Button = styled.button`
     border: none;
     color: #3E606F;
     background-color: #D1DBBD;
-
+    &[disabled] {
+        cursor: not-allowed;
+    }
     ${props => props.active && css`
         background-color: #32606F;
         color: #F9FAFC;

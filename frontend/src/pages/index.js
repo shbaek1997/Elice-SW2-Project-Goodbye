@@ -4,21 +4,14 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import Image from 'next/image';
 import AppLayout from '../components/AppLayout';
-import NavBar from '../components/NavBar';
-import Footer from '../components/Footer';
 
 
 
 const Home = () => {
-  const [isSSR, setIsSSR] = useState(true);
-
-  useEffect(() => {
-    setIsSSR(false);
-  }, []);
 
   return (
     <AppLayout>
-      {!isSSR && <NavBar />}
+      {/* {!isSSR && <NavBar />} */}
       <div css={adBoxStyle}>
         <div css={adContentStyle}>
           <h2>온라인으로 보내는 유언장</h2>
@@ -69,7 +62,7 @@ const Home = () => {
           </div>
         </div>
       </div>
-      <Footer />
+      {/* <Footer /> */}
     </AppLayout>
   )
 }
