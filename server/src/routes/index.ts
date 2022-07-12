@@ -8,6 +8,10 @@ indexRouter.get('/', (req, res) => {
 });
 
 export { indexRouter };
+export * from './user-router';
+export * from './auth-router';
+// export * from './remembrance-router';
 // export * from './user-router';
 // export * from './auth-router';
 export * from './remembrance-router';
+

@@ -1,7 +1,13 @@
-//user Schema
 import { Schema } from 'mongoose';
-import { ReceiverSchema } from './receiver-schema';
-const WillSchema = new Schema(
+
+interface InterfaceWill {
+    title: string;
+    content: string;
+    userId: string;
+    receivers: string[];
+}
+
+const WillSchema = new Schema<InterfaceWill>(
     {
         title: {
             type: String,
@@ -11,12 +17,10 @@ const WillSchema = new Schema(
             type: String,
             required: true,
         },
-        //userId가 필요한가? 어차피 유저 DB안에 들어감
         userId: {
             type: String,
             required: true,
         },
-        //Object Id로 된 receivers list
         receivers: {
             type: [String],
             required: true,
@@ -27,5 +31,5 @@ const WillSchema = new Schema(
         timestamps: true,
     },
 );
-
+export type { InterfaceWill };
 export { WillSchema };
