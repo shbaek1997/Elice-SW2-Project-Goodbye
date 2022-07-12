@@ -1,13 +1,19 @@
-import { model } from 'mongoose';
-import { RemembranceSchema } from '../schemas/remembrance-schema';
+import { Model, model } from 'mongoose';
+import { IComment } from '../schemas/comment-schema';
+import { RemembranceSchema, IRemembrance } from '../schemas/remembrance-schema';
 
-class RemembranceModel {
+export class RemembranceModel {
+    Remembrance: Model<IRemembrance>;
+
     constructor() {
-        this.Remembrance = model('remembrances', RemembranceSchema);
+        this.Remembrance = model<IRemembrance>(
+            'remembrances',
+            RemembranceSchema,
+        );
     }
 
     // 새 추모 데이터 생성
-    async create(remembranceInfo) {
+    async create(remembranceInfo: IRemembrance) {
         const createdNewRemembrance = await this.Remembrance.create(
             remembranceInfo,
         );
@@ -16,7 +22,7 @@ class RemembranceModel {
     }
 
     // 최근 업데이트 추모 조회
-    async findRecent(count) {
+    async findRecent(count: number) {
         const recentRemembrances = await this.Remembrance.find()
             .sort({ updatedAt: -1 })
             .limit(count);
@@ -25,7 +31,7 @@ class RemembranceModel {
     }
 
     // objectId를 이용해 특정 추모 조회
-    async findById(remembranceId) {
+    async findById(remembranceId: string) {
         const remembrance = await this.Remembrance.findOne({
             _id: remembranceId,
         });
@@ -36,7 +42,7 @@ class RemembranceModel {
     // 전체 추모글 조회 함수 따로 필요한가? ↑ 얘로 충분?
 
     // ObjectId를 이용해 특정 추모글 조회
-    async findCommentById(remembranceId, commentId) {
+    async findCommentById(remembranceId: string, commentId: string) {
         const comment = await this.Remembrance.findOne(
             {
                 _id: remembranceId,
@@ -51,7 +57,7 @@ class RemembranceModel {
     }
 
     // 추모 데이터 수정
-    async update(remembranceId, update) {
+    async update(remembranceId: string, update: object) {
         const filter = { _id: remembranceId };
         const option = { returnOriginal: false };
 
@@ -65,7 +71,7 @@ class RemembranceModel {
     }
 
     // 추모글 추가
-    async createComment(remembranceId, commentInfo) {
+    async createComment(remembranceId: string, commentInfo: IComment) {
         const filter = { _id: remembranceId };
         const option = { returnOriginal: false };
 
@@ -83,7 +89,11 @@ class RemembranceModel {
     }
 
     // 추모글 수정
-    async updateComment(remembranceId, commentId, update) {
+    async updateComment(
+        remembranceId: string,
+        commentId: string,
+        update: IComment,
+    ) {
         const filter = {
             _id: remembranceId,
             'comments._id': commentId,
@@ -100,7 +110,7 @@ class RemembranceModel {
     }
 
     // 추모글 삭제
-    async deleteComment(remembranceId, commentId) {
+    async deleteComment(remembranceId: string, commentId: string) {
         const filter = { _id: remembranceId };
 
         const deletedRemembrance = await this.Remembrance.findOneAndUpdate(
