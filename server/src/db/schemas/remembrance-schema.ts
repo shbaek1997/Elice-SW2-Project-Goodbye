@@ -1,7 +1,16 @@
 import { Schema } from 'mongoose';
-import { CommentSchema } from './comment-schema';
+import { CommentSchema, IComment } from './comment-schema';
 
-const RemembranceSchema = new Schema(
+export interface IRemembrance {
+    fullName: string;
+    dateOfBirth: string;
+    dateOfDeath?: string;
+    isPublic?: boolean;
+    photo?: string;
+    comments?: Array<IComment>;
+}
+
+const RemembranceSchema: Schema<IRemembrance> = new Schema(
     {
         fullName: {
             type: String,
@@ -23,12 +32,10 @@ const RemembranceSchema = new Schema(
             type: String,
             required: false,
         },
-        comments: [
-            {
-                type: CommentSchema,
-                required: false,
-            },
-        ],
+        comments: {
+            type: [CommentSchema],
+            required: false,
+        },
     },
     {
         collection: 'remembrances',

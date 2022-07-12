@@ -1,8 +1,8 @@
+import bcrypt from 'bcrypt';
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
-import bcrypt from 'bcrypt';
-import { userModel } from '../db';
 import { ExtractJwt, Strategy as JWTStrategy } from 'passport-jwt';
+import { userModel } from '../db';
 
 const passportConfig = {
     // passport의 username, password field configure
@@ -10,7 +10,7 @@ const passportConfig = {
     passwordField: 'password',
 };
 
-const passportVerify = async (email, password, done) => {
+const passportVerify = async (email: string, password: string, done) => {
     try {
         const user = await userModel.findByEmail(email); // email로 유저확인 check user-model;
         if (!user) {
@@ -21,7 +21,7 @@ const passportVerify = async (email, password, done) => {
             });
             return;
         }
-        const isPasswordCorrect = await bcrypt.compare(password, user.password); // password 일치 확인
+        const isPasswordCorrect: boolean = await bcrypt.compare(password, user.password); // password 일치 확인
         if (!isPasswordCorrect) {
             //비밀번호가 불일치 한다면..
             done(null, false, {

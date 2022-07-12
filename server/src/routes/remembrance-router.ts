@@ -10,9 +10,12 @@ remembranceRouter.post('/', async (req, res, next) => {
         const { userId } = req.query;
         const { dateOfDeath } = req.body; // death 받아오나? - 생성 시점에 따라 다를듯
 
-        const newRemembrance = await remembranceService.addRemembrance(userId, {
-            dateOfDeath,
-        });
+        const newRemembrance = await remembranceService.addRemembrance(
+            userId as string,
+            {
+                dateOfDeath,
+            },
+        );
 
         res.status(201).json(newRemembrance);
     } catch (error) {
@@ -27,7 +30,7 @@ remembranceRouter.get('/', async (req, res, next) => {
         const { count } = req.query;
 
         const recentRemembrances =
-            await remembranceService.getRecentRemembrances(count);
+            await remembranceService.getRecentRemembrances(Number(count));
 
         res.status(200).json(recentRemembrances);
     } catch (error) {
@@ -128,6 +131,7 @@ remembranceRouter.patch(
                     writer,
                     title,
                     content,
+                    password,
                 },
             );
 

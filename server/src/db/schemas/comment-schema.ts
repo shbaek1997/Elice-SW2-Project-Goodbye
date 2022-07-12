@@ -1,6 +1,13 @@
 import { Schema } from 'mongoose';
 
-const CommentSchema = new Schema(
+export interface IComment {
+    writer: string;
+    title: String;
+    content: String;
+    password: String;
+}
+
+const CommentSchema: Schema<IComment> = new Schema(
     {
         writer: {
             type: String,

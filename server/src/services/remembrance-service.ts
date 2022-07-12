@@ -1,22 +1,27 @@
 import bcrypt from 'bcrypt';
-import { remembranceModel } from '../db';
+import { RemembranceModel, remembranceModel } from '../db';
+import { IComment } from '../db/schemas/comment-schema';
 import { userService } from './user-service';
 
 class RemembranceService {
+    remembranceModel: RemembranceModel;
+
     constructor() {
         this.remembranceModel = remembranceModel;
     }
 
     // 새 추모 생성
-    async addRemembrance(userId, remembranceInfo) {
+    async addRemembrance(userId: string, remembranceInfo: object) {
         // 추모 대상자 확인을 위해 유저 정보 조회
         const user = await userService.getUser(userId);
-
+        if (!user) {
+            throw new Error('해당유저를 찾을 수 없습니다.');
+        }
         const newInfo = {
+            ...remembranceInfo,
             fullName: user.fullName,
             dateOfBirth: user.dateOfBirth,
             ...(user.photo && { photo: user.photo }),
-            ...remembranceInfo,
         };
 
         const createdNewRemembrance = await this.remembranceModel.create(
@@ -27,14 +32,14 @@ class RemembranceService {
     }
 
     // 최근 업데이트 추모 조회
-    async getRecentRemembrances(count) {
+    async getRecentRemembrances(count: number) {
         const remembrances = await this.remembranceModel.findRecent(count);
 
         return remembrances;
     }
 
     // 특정 추모 조회
-    async getRemembranceById(remembranceId) {
+    async getRemembranceById(remembranceId: string) {
         const remembrance = await this.remembranceModel.findById(remembranceId);
         if (!remembrance) {
             throw new Error(
@@ -46,7 +51,7 @@ class RemembranceService {
     }
 
     // 특정 추모글 조회
-    async getCommentById(remembranceId, commentId) {
+    async getCommentById(remembranceId: string, commentId: string) {
         const comment = await this.remembranceModel.findCommentById(
             remembranceId,
             commentId,
@@ -61,7 +66,7 @@ class RemembranceService {
     }
 
     // 추모 수정
-    async setRemembrance(remembranceId, update) {
+    async setRemembrance(remembranceId: string, update: object) {
         const remembrance = await this.remembranceModel.update(
             remembranceId,
             update,
@@ -71,8 +76,9 @@ class RemembranceService {
     }
 
     // 추모글 추가
-    async addComment(remembranceId, commentInfo) {
-        const hashedPassword = await bcrypt.hash(commentInfo.password, 10);
+    async addComment(remembranceId: string, commentInfo: IComment) {
+        const { password } = commentInfo;
+        const hashedPassword = await bcrypt.hash(password as string, 10);
 
         const newInfo = {
             ...commentInfo,
@@ -88,17 +94,27 @@ class RemembranceService {
     }
 
     // 추모글 수정
-    async setCommet(remembranceId, commentId, currentPassword, update) {
+    async setCommet(
+        remembranceId: string,
+        commentId: string,
+        currentPassword: string,
+        update: IComment,
+    ) {
         // 작성자 확인을 위해 해당 추모글의 비밀번호 조회
         const remembrance = await this.remembranceModel.findCommentById(
             remembranceId,
             commentId,
         );
+        if (!remembrance || !remembrance.comments) {
+            throw new Error(
+                '해당 추모글이 존재하지 않습니다. 다시 확인해 주세요.',
+            );
+        }
         const hashedPassword = remembrance.comments[0].password;
 
         const isPasswordCorrect = await bcrypt.compare(
             currentPassword,
-            hashedPassword,
+            hashedPassword as string,
         );
         if (!isPasswordCorrect) {
             throw new Error(
@@ -117,17 +133,26 @@ class RemembranceService {
     }
 
     // 추모글 삭제
-    async deleteComment(remembranceId, commentId, currentPassword) {
+    async deleteComment(
+        remembranceId: string,
+        commentId: string,
+        currentPassword: string,
+    ) {
         // 작성자 확인을 위해 해당 추모글의 비밀번호 조회
         const remembrance = await this.remembranceModel.findCommentById(
             remembranceId,
             commentId,
         );
+        if (!remembrance || !remembrance.comments) {
+            throw new Error(
+                '해당 추모글이 존재하지 않습니다. 다시 확인해 주세요.',
+            );
+        }
         const hashedPassword = remembrance.comments[0].password;
 
         const isPasswordCorrect = await bcrypt.compare(
             currentPassword,
-            hashedPassword,
+            hashedPassword as string,
         );
         if (!isPasswordCorrect) {
             throw new Error(

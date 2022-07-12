@@ -1,6 +1,13 @@
-//user Schema
 import { Schema } from 'mongoose';
-const ReceiverSchema = new Schema(
+
+interface InterfaceReceiver {
+    fullName: string;
+    emailAddress: string;
+    userId: string;
+    relation: string;
+    role: string;
+}
+const ReceiverSchema = new Schema<InterfaceReceiver>(
     {
         fullName: {
             type: String,
@@ -31,4 +38,5 @@ const ReceiverSchema = new Schema(
     },
 );
 
+export type { InterfaceReceiver };
 export { ReceiverSchema };
