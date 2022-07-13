@@ -1,0 +1,61 @@
+tags:
+  - name: Remembrances
+    description: '추모 관련 API'
+  - name: Comments
+    description: '추모글 관련 API'
+
+definitions:
+  Remembrance:
+    type: object
+    properties:
+      _id:
+        type: string
+        description: '추모 objectId'
+        example: '62c7dc5863bae168010c0113'
+      fullName:
+        type: string
+        description: '회원 이름'
+        example: '홍길동'
+      dateOfBirth:
+        type: string
+        description: '회원 태어난 날짜'
+        example: '1999-01-01'
+      dateOfDeath:
+        type: string
+        description: '회원 사망 날짜'
+        example: '2099-01-01'
+      isPublic:
+        type: boolean
+        description: '추모 공개 여부'
+        example: true
+      photo:
+        type: string
+        description: '회원 영정 사진 url'
+      comments:
+        type: array
+        items:
+          $ref: "#/definitions/Comment"
+        description: '추모 글 배열'
+  
+  Comment:
+    type: object
+    properties:
+      _id:
+        type: string
+        description: '추모글 objectId'
+        example: '62c7ead09e9ddd0155095ace'
+      writer:
+        type: string
+        description: '추모글 작성자'
+        example: '김철수'
+      title:
+        type: string
+        description: '추모글 제목'
+        example: '보고싶어요'
+      content:
+        type: string
+        description: '추모글 내용'
+        example: '그립습니다.'
+      password:
+        type: string
+        description: '추모글 비밀번호'
