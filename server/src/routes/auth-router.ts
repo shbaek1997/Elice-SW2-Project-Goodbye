@@ -23,7 +23,9 @@ const checkUserValidity = (req: Request, userId:string)=>{
     return true;
 }
 
+
 const authRouter = Router();
+
 authRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (!req.user){
@@ -36,6 +38,37 @@ authRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
         next(error);
     }
 });
+
+/**
+ * @swagger
+ * /api/auth/{userId}:
+ *   patch:
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *     security:
+ *       - bearerAuth: []
+ *     tags: [AuthUser]
+ *     summary: 유저의 회원 정보 수정 시 사용하는 API
+ *     description: 유저가 회원가입 post요청 시, currentPassword로 password 확인 후 관련된 정보 들을 req.body로 받아 유저 정보 수정하는 API
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UserUpdate'
+ *     responses:
+ *       200:
+ *         description: Updated User as JSON
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *
+ */
 
 authRouter.patch(
     '/:userId',
@@ -91,6 +124,34 @@ authRouter.patch(
 );
 
 // 회원 탈퇴 api
+
+/**
+ * @swagger
+ * /api/auth/{userId}:
+ *   delete:
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *     security:
+ *       - bearerAuth: []
+ *     tags: [AuthUser]
+ *     summary: 유저의 회원 탈퇴 시 사용하는 API
+ *     description: 유저가 회원탈퇴 delete 요청 시, DB에 저장되어 있는 해당 유저 정보를 삭제하는 API
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UserDelete'
+ *     responses:
+ *       200:
+ *         description: result success as json
+ *
+ */
+
 authRouter.delete(
     '/:userId',
     async (req: Request, res: Response, next: NextFunction) => {
@@ -122,6 +183,28 @@ authRouter.delete(
 // userId로 유언장을 post 경우, userId 정상 여부 확인 => 정상이라면, user의 willList에 push, 동시에 willSchema에 create method 사용..
 
 // authrouter- will post, get, patch, delete
+
+/**
+ * @swagger
+ * /api/auth/{userId}/wills:
+ *   get:
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *     security:
+ *       - bearerAuth: []
+ *     tags: [AuthWill]
+ *     summary: 유저의 유언장 리스트를 불러오는 API
+ *     description: 유저의 uri의 유저 아이디를 통하여 해당 유저의 유언장 리스트를 불러오는 API
+ *     responses:
+ *       200:
+ *         description: Will list as JSON
+ *
+ */
+
 authRouter.get(
     '/:userId/wills',
     async (req: Request, res: Response, next: NextFunction) => {
@@ -136,6 +219,32 @@ authRouter.get(
     },
 );
 
+/**
+ * @swagger
+ * /api/auth/{userId}/will:
+ *   post:
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *     security:
+ *       - bearerAuth: []
+ *     tags: [AuthWill]
+ *     summary: 특정 유저의 유언장을 DB에 등록할 때 사용하는 API
+ *     description: 유저가 유언장을 post요청시 req.body의 title, content, receivers 정보를 사용, 새 유언장을 등록
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/WillPost'
+ *     responses:
+ *       200:
+ *         description: Created Will as JSON
+ *
+ */
 authRouter.post(
     '/:userId/will',
     async (req: Request, res: Response, next: NextFunction) => {
@@ -159,7 +268,31 @@ authRouter.post(
         }
     },
 );
-
+/**
+ * @swagger
+ * /api/auth/{userId}/wills/{willId}:
+ *   delete:
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *           required: true
+ *       - in: path
+ *         name: willId
+ *         schema:
+ *           type: string
+ *           required: true
+ *     security:
+ *       - bearerAuth: []
+ *     tags: [AuthWill]
+ *     summary: 특정 유저의 특정 유언장을 삭제할 때 사용하는 API
+ *     description: 유저가 유언장을 delete 요청시 유언장 정보를 삭제
+ *     responses:
+ *       200:
+ *         description: result success as JSON
+ *
+ */
 authRouter.delete(
     '/:userId/wills/:willId',
     async (req: Request, res: Response, next: NextFunction) => {
@@ -181,6 +314,37 @@ authRouter.delete(
     },
 );
 
+/**
+ * @swagger
+ * /api/auth/{userId}/wills/{willId}:
+ *   patch:
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *           required: true
+ *       - in: path
+ *         name: willId
+ *         schema:
+ *           type: string
+ *           required: true
+ *     security:
+ *       - bearerAuth: []
+ *     tags: [AuthWill]
+ *     summary: 특정 유저의 특정 유언장을 수정할 때 사용하는 API
+ *     description: 유저가 유언장을 patch 요청시 req.body의 title, content, receivers 정보를 사용, 유언장 정보를 수정
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/WillPost'
+ *     responses:
+ *       200:
+ *         description: Updated Will as JSON
+ *
+ */
 authRouter.patch(
     '/:userId/wills/:willId',
     async (req: Request, res: Response, next: NextFunction) => {
@@ -208,6 +372,27 @@ authRouter.patch(
 // 유언장 작성 시 바로 수신자를 바로 만드는 방식인가?
 
 // 유저와 유언장, 수신자의 관계는 쉬운편인거 같은데 - 유언장/수신자의 관계에서 삭제, 추가, 수정이 미치는 영향을 더 생각
+
+/**
+ * @swagger
+ * /api/auth/{userId}/receivers:
+ *   get:
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *     security:
+ *       - bearerAuth: []
+ *     tags: [AuthReceiver]
+ *     summary: 유저의 수신자 리스트를 불러오는 API
+ *     description: 유저의 uri의 유저 아이디를 통하여 해당 유저의 수신자 리스트를 불러오는 API
+ *     responses:
+ *       200:
+ *         description: Receiver list as JSON
+ *
+ */
 authRouter.get(
     '/:userId/receivers',
     async (req: Request, res: Response, next: NextFunction) => {
@@ -223,6 +408,34 @@ authRouter.get(
         }
     },
 );
+
+/**
+ * @swagger
+ * /api/auth/{userId}/receiver:
+ *   post:
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *     security:
+ *       - bearerAuth: []
+ *     tags: [AuthReceiver]
+ *     summary: 특정 유저의 수신자를 DB에 등록할 때 사용하는 API
+ *     description: 유저가 수신자를 post요청시 req.body의 fullName, emailAddress, relation, role 정보를 사용, 새 수신자를 등록
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ReceiverPost'
+ *     responses:
+ *       200:
+ *         description: Created Receiver as JSON
+ *
+ */
+
 authRouter.post(
     '/:userId/receiver',
     async (req: Request, res: Response, next: NextFunction) => {
@@ -250,6 +463,31 @@ authRouter.post(
     },
 );
 
+/**
+ * @swagger
+ * /api/auth/{userId}/receivers/{receiverId}:
+ *   delete:
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *           required: true
+ *       - in: path
+ *         name: receiverId
+ *         schema:
+ *           type: string
+ *           required: true
+ *     security:
+ *       - bearerAuth: []
+ *     tags: [AuthReceiver]
+ *     summary: 특정 유저의 특정 수신자를 삭제할 때 사용하는 API
+ *     description: 유저가 수신자를 delete 요청시 해당 수신자 정보를 삭제
+ *     responses:
+ *       200:
+ *         description: result success as JSON
+ *
+ */
 authRouter.delete(
     '/:userId/receivers/:receiverId',
     async (req: Request, res: Response, next: NextFunction) => {
@@ -277,6 +515,37 @@ authRouter.delete(
         }
     },
 );
+/**
+ * @swagger
+ * /api/auth/{userId}/receivers/{receiverId}:
+ *   patch:
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *           required: true
+ *       - in: path
+ *         name: receiverId
+ *         schema:
+ *           type: string
+ *           required: true
+ *     security:
+ *       - bearerAuth: []
+ *     tags: [AuthReceiver]
+ *     summary: 특정 유저의 특정 수신자 정보를 수정할 때 사용하는 API
+ *     description: 유저가 수신자 정보를 patch 요청시 req.body의 fullName, emailAddress, relation, role 정보를 사용, 수신자 정보를 수정
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ReceiverPost'
+ *     responses:
+ *       200:
+ *         description: Updated Receiver as JSON
+ *
+ */
 authRouter.patch(
 
     '/:userId/receivers/:receiverId',

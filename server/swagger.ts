@@ -2,6 +2,7 @@ import swaggerJSDoc from 'swagger-jsdoc';
 
 const options = {
     swaggerDefinition: {
+        openapi: '3.0.0',
         info: {
             title: 'Project Good-Bye',
             version: '1.0.0',
@@ -13,8 +14,9 @@ const options = {
             },
         ],
     },
-    apis: ['./src/routes/*.ts', './src/app.ts', './src/swagger/*'],
+    apis: ['./src/routes/*.ts', './src/swagger/*'],
 };
+
 const specs = swaggerJSDoc(options);
 
 export { specs };
