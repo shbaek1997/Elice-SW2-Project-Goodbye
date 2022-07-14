@@ -8,36 +8,6 @@ import { Button } from '../util/common_styles';
 const Header = () => {
 	const [isLogIn, setIsLogIn] = useState(false);
 
-<<<<<<< HEAD
-    return (
-        <>
-            <Wrapper>
-                <LoginHeader>
-                    {!isLogIn ?
-                        <ButtonGroup>
-                            <Link href={'/signin'}>
-                                <Button type='button'>로그인</Button>
-                            </Link>
-                            <Link href={'signup'}>
-                                <Button type='button'>회원가입</Button>
-                            </Link>
-                        </ButtonGroup>
-                        : <Button type='button'>로그아웃</Button>
-                    }
-                </LoginHeader>
-                <NavBar>
-                    <Link href={'/'}><h1>GoodBye</h1></Link>
-                    <ul>
-                        <li><Link href={'/my_will'}><a>유언장 작성/확인</a></Link></li>
-                        <li><Link href={'#'}><a>나의 장례식</a></Link></li>
-                        <li><Link href={'#'}><a>부고 작성</a></Link></li>
-                    </ul>
-                </NavBar>
-            </Wrapper>
-        </>
-    )
-}
-=======
 	useEffect(() => {
 		const token = sessionStorage.getItem('token');
 		if (token) {
@@ -95,7 +65,7 @@ const Header = () => {
 		</>
 	);
 };
->>>>>>> f64d88ea1f0a55cbe4db5cafb355258065adac16
+
 
 export default Header;
 

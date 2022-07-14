@@ -21,6 +21,7 @@ const ReceiverList = ({ will }) => {
     const [showList, setShowList] = useState(false);
     const [data, setData] = useState([...will.receivers]);
     
+    // 각 수신인들의 이메일을 불러서 배열로 [{ name: 이름, email: 이메일}, {}, {}] data에 넣어야 함 
     console.log(will);
     const ContainerHeight = 400;
 
