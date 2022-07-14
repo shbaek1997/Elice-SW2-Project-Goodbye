@@ -11,7 +11,6 @@ const Home = () => {
 
   return (
     <AppLayout>
-      {/* {!isSSR && <NavBar />} */}
       <div css={adBoxStyle}>
         <div css={adContentStyle}>
           <h2>온라인으로 보내는 유언장</h2>

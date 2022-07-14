@@ -1,62 +1,47 @@
-import produce from '../util/produce';
+import { createSlice } from '@reduxjs/toolkit';
 
 
 export const initialState = {
-    willList: [
-        {
-            title: '유언장-1',
-            content: '내용-1',
-            userId: '1',
-            receivers: Array(30).fill('').map((item, i) => `${i+1}번째 사람`),
-        }
-    ],     // 유언장 리스트 
-    loadWillsLoading: false, // 유언장 리스트 요청
-    loadWillsDone: false,
-    loadWillsError: null,
-    addWillLoading: false,  // 유언장 추가 요청
-    addWillDone: false,
-    addWillError: null,
-    removeWillLoading: false,  // 유언장 삭제 요청
-    removeWillDone: false,
-    removeWillError: null,
-}
-
-// 테스트 값입니다.
-const dummyWills = {
-    title: '유언장-2',
-    content: '내용-2',
-    userId: '2',
-    receivers: ['한 명', '두 명']
+    willList: [],     // 유언장 리스트 
 }
 
 
-export const LOAD_WILLs_REQUEST = 'LOAD_WILL_REQUEST';
-export const LOAD_WILLs_SUCCESS = 'LOAD_WILL_SUCCESS';
-export const LOAD_WILLs_FAILURE = 'LOAD_WILL_FAILURE';
+// createSlice에는 내부적으로  createAction and createReducer 를 사용한다.
+// 따라서 자동으로 action과 리듀서를 생성한다.
 
-export const ADD_WILL_REQUEST = 'ADD_WILL_REQUEST';
-export const ADD_WILL_SUCCESS = 'ADD_WILL_SUCCESS';
-export const ADD_WILL_FAILURE = 'ADD_WILL_FAILURE';
-
-export const REMOVE_WILL_REQUEST = 'REMOVE_WILL_REQUEST';
-export const REMOVE_WILL_SUCCESS = 'REMOVE_WILL_SUCCESS';
-export const REMOVE_WILL_FAILURE = 'REMOVE_WILL_FAILURE';
-
-
-export const addWillRequestAction = (data) => {
-    type: ADD_WILL_REQUEST,
-        data
-}
-
-const reducer = (state = initialState, action) => {
-    switch (action.type) {
-        case LOAD_WILLs_REQUEST:
-            return {
-                ...state,
+const willSlice = createSlice({
+    name: 'wills',
+    initialState,
+    reducers: {
+        getWills(state, action) {
+            const { lists } = action.payload;
+            const listLength = lists.length;
+            const quotient = parseInt(listLength / 6);  // 몫
+            const remainder = listLength % 6;           // 나머지
+            const newList = [];
+            console.log(quotient, remainder);
+            for (let i = 0; i < quotient; i++) {
+                newList.push(lists.slice(i*quotient, i*quotient + 6));                
             }
-        default:
-            return state;
+            if (remainder !== 0) {
+                newList.push(lists.slice(6*quotient, 6*quotient + remainder));
+            }
+            state.willList = [...newList];
+        },
+        removeWill(state, action) {
+            const newList = state.willList.filter(will =>
+                will._id !== action.payload.will._Id
+            );
+            state.willList = [...newList];
+        }
     }
-}
+})
 
-export default reducer;
+
+export const WillACTIONS = {
+    getWills: willSlice.actions.getWills,
+    removeWill: willSlice.actions.removeWill,
+};
+
+
+export default willSlice.reducer;

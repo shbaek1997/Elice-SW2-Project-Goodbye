@@ -16,4 +16,6 @@ function MyApp({ Component }) {
 	);
 }
 
+
+
 export default wrapper.withRedux(MyApp);
