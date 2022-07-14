@@ -2,7 +2,7 @@ import { css } from '@emotion/react';
 import AppLayout from '../components/AppLayout';
 import Image from 'next/image';
 
-const WillDetail = () => {
+const MyWillDetail = () => {
 	return (
 		<AppLayout>
 			<div css={adBoxStyle}>
@@ -151,4 +151,4 @@ const imageStyle = css`
 	line-height: 10rem;
 	background-color: silver;
 `;
-export default WillDetail;
+export default MyWillDetail;
