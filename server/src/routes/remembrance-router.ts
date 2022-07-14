@@ -20,24 +20,29 @@ const remembranceRouter = Router();
  *        type: string
  *        description: 유저의 objectId
  *        example: "62c7d6d0aa14441e00d23232"
- *    - name: body
- *      in: body
- *      schema:
- *        type: object
- *        properties:
- *          dateOfDeath:
- *            $ref: "#/definitions/Remembrance/properties/dateOfDeath"
+ *
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              dateOfDeath:
+ *                $ref: '#/components/schemas/Remembrance/properties/dateOfDeath'
  *
  *    responses:
  *      201:
  *        description: "추모 데이터 생성"
- *        schema:
- *          $ref: "#/definitions/Remembrance"
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: "#/components/schemas/Remembrance"
  */
 // 추모 데이터 생성 - 언제?
 remembranceRouter.post('/', async (req, res, next) => {
     try {
-        // userId는 일단 쿼리로 받아오는거로 구현
+        // userId는 일단 쿼리로 받아오는거로 구현 -> loginRequired 이용해서 로그인한 사용자의 id 받아오기
         const { userId } = req.query;
         const { dateOfDeath } = req.body; // death 받아오나? - 생성 시점에 따라 다를듯
 
@@ -75,10 +80,12 @@ remembranceRouter.post('/', async (req, res, next) => {
  *    responses:
  *      200:
  *        description: "여러개의 추모 데이터 조회"
- *        schema:
- *          type: array
- *          items:
- *            $ref: "#/definitions/Remembrance"
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: "#/components/schemas/Remembrance"
  */
 // 최근 업데이트된 추모 조회
 remembranceRouter.get('/', async (req, res, next) => {
@@ -109,13 +116,15 @@ remembranceRouter.get('/', async (req, res, next) => {
  *      in: path
  *      required: true
  *      schema:
- *        $ref: "#/definitions/Remembrance/properties/_id"
+ *        $ref: "#/components/schemas/Remembrance/properties/_id"
  *
  *    responses:
  *      200:
  *        description: "하나의 추모 데이터 조회"
- *        schema:
- *          $ref: "#/definitions/Remembrance"
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: "#/components/schemas/Remembrance"
  */
 // 특정 추모 조회
 remembranceRouter.get('/:remembranceId', async (req, res, next) => {
@@ -146,23 +155,25 @@ remembranceRouter.get('/:remembranceId', async (req, res, next) => {
  *      in: path
  *      required: true
  *      schema:
- *        $ref: "#/definitions/Remembrance/properties/_id"
+ *        $ref: "#/components/schemas/Remembrance/properties/_id"
  *    - name: commentId
  *      in: path
  *      required: true
  *      schema:
- *        $ref: "#/definitions/Comment/properties/_id"
+ *        $ref: "#/components/schemas/Comment/properties/_id"
  *
  *    responses:
  *      200:
  *        description: "하나의 추모글 조회"
- *        schema:
- *          type: object
- *          properties:
- *            _id:
- *              $ref: "#/definitions/Remembrance/properties/_id"
- *            comments:
- *              $ref: "#/definitions/Remembrance/properties/comments"
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                _id:
+ *                  $ref: "#/components/schemas/Remembrance/properties/_id"
+ *                comments:
+ *                  $ref: "#/components/schemas/Remembrance/properties/comments"
  */
 // 특정 추모 글 조회
 remembranceRouter.get(
@@ -197,28 +208,33 @@ remembranceRouter.get(
  *      in: path
  *      required: true
  *      schema:
- *        $ref: "#/definitions/Remembrance/properties/_id"
- *    - name: body
- *      in: body
- *      schema:
- *        type: object
- *        properties:
- *          fullName:
- *            $ref: "#/definitions/Remembrance/properties/fullName"
- *          dateOfBirth:
- *            $ref: "#/definitions/Remembrance/properties/dateOfBirth"
- *          dateOfDeath:
- *            $ref: "#/definitions/Remembrance/properties/dateOfDeath"
- *          isPublic:
- *            $ref: "#/definitions/Remembrance/properties/isPublic"
- *          photo:
- *            $ref: "#/definitions/Remembrance/properties/photo"
+ *        $ref: "#/components/schemas/Remembrance/properties/_id"
+ *
+ *    requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               fullName:
+ *                 $ref: "#/components/schemas/Remembrance/properties/fullName"
+ *               dateOfBirth:
+ *                 $ref: "#/components/schemas/Remembrance/properties/dateOfBirth"
+ *               dateOfDeath:
+ *                 $ref: "#/components/schemas/Remembrance/properties/dateOfDeath"
+ *               isPublic:
+ *                 $ref: "#/components/schemas/Remembrance/properties/isPublic"
+ *               photo:
+ *                 $ref: "#/components/schemas/Remembrance/properties/photo"
  *
  *    responses:
  *      201:
  *        description: "추모 데이터 수정"
- *        schema:
- *          $ref: "#/definitions/Remembrance"
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: "#/components/schemas/Remembrance"
  */
 // 추모 수정
 remembranceRouter.patch('/:remembranceId', async (req, res, next) => {
@@ -258,26 +274,31 @@ remembranceRouter.patch('/:remembranceId', async (req, res, next) => {
  *      in: path
  *      required: true
  *      schema:
- *        $ref: "#/definitions/Remembrance/properties/_id"
- *    - name: body
- *      in: body
- *      schema:
- *        type: object
- *        properties:
- *          writer:
- *            $ref: "#/definitions/Comment/properties/writer"
- *          title:
- *            $ref: "#/definitions/Comment/properties/title"
- *          content:
- *            $ref: "#/definitions/Comment/properties/content"
- *          password:
- *            $ref: "#/definitions/Comment/properties/password"
+ *        $ref: "#/components/schemas/Remembrance/properties/_id"
+ *
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              writer:
+ *                $ref: "#/components/schemas/Comment/properties/writer"
+ *              title:
+ *                $ref: "#/components/schemas/Comment/properties/title"
+ *              content:
+ *                $ref: "#/components/schemas/Comment/properties/content"
+ *              password:
+ *                $ref: "#/components/schemas/Comment/properties/password"
  *
  *    responses:
  *      201:
  *        description: "추모글 생성"
- *        schema:
- *          $ref: "#/definitions/Remembrance"
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: "#/components/schemas/Remembrance"
  */
 // 추모 글 추가
 remembranceRouter.post('/:remembranceId/comments', async (req, res, next) => {
@@ -312,31 +333,36 @@ remembranceRouter.post('/:remembranceId/comments', async (req, res, next) => {
  *      in: path
  *      required: true
  *      schema:
- *        $ref: "#/definitions/Remembrance/properties/_id"
+ *        $ref: "#/components/schemas/Remembrance/properties/_id"
  *    - name: commentId
  *      in: path
  *      required: true
  *      schema:
- *        $ref: "#/definitions/Comment/properties/_id"
- *    - name: body
- *      in: body
- *      schema:
- *        type: object
- *        properties:
- *          writer:
- *            $ref: "#/definitions/Comment/properties/writer"
- *          title:
- *            $ref: "#/definitions/Comment/properties/title"
- *          content:
- *            $ref: "#/definitions/Comment/properties/content"
- *          password:
- *            $ref: "#/definitions/Comment/properties/password"
+ *        $ref: "#/components/schemas/Comment/properties/_id"
+ *
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              writer:
+ *                $ref: "#/components/schemas/Comment/properties/writer"
+ *              title:
+ *                $ref: "#/components/schemas/Comment/properties/title"
+ *              content:
+ *                $ref: "#/components/schemas/Comment/properties/content"
+ *              password:
+ *                $ref: "#/components/schemas/Comment/properties/password"
  *
  *    responses:
  *      200:
  *        description: "추모글 수정"
- *        schema:
- *          $ref: "#/definitions/Remembrance"
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: "#/components/schemas/Remembrance"
  */
 // 추모 글 수정
 remembranceRouter.put(
@@ -379,22 +405,24 @@ remembranceRouter.put(
  *      in: path
  *      required: true
  *      schema:
- *        $ref: "#/definitions/Remembrance/properties/_id"
+ *        $ref: "#/components/schemas/Remembrance/properties/_id"
  *    - name: commentId
  *      in: path
  *      required: true
  *      schema:
- *        $ref: "#/definitions/Comment/properties/_id"
+ *        $ref: "#/components/schemas/Comment/properties/_id"
  *
  *    responses:
  *      201:
  *        description: "추모글 삭제"
- *        schema:
- *          type: object
- *          properties:
- *            result:
- *              type: string
- *              example: 'success'
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                result:
+ *                  type: string
+ *                  example: 'success'
  */
 // 추모 글 삭제
 remembranceRouter.delete(
