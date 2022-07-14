@@ -2,9 +2,9 @@ import { Schema } from 'mongoose';
 
 export interface IComment {
     writer: string;
-    title: String;
-    content: String;
-    password: String;
+    title: string;
+    content: string;
+    password: string;
 }
 
 const CommentSchema: Schema<IComment> = new Schema(
@@ -28,7 +28,7 @@ const CommentSchema: Schema<IComment> = new Schema(
     },
     {
         collection: 'comments',
-        timestamps: false,
+        timestamps: true,
     },
 );
 

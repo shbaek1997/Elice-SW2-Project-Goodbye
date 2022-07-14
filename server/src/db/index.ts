@@ -17,12 +17,8 @@ db.on('error', (error) =>
     console.error(`\nMongoDB 연결에 실패하였습니다...\n${DB_URL}\n${error}`),
 );
 
-
 export * from './models/user-model';
 export * from './models/will-model';
 export * from './models/receiver-model';
-// export * from './models/remembrance-model';
-// export * from './models/user-model';
-// export * from './models/will-model';
-// export * from './models/receiver-model';
 export * from './models/remembrance-model';
+export * from './models/comment-model';
