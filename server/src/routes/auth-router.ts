@@ -2,8 +2,16 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { userService } from '../services/user-service';
 import { willService } from '../services/will-service';
 import { receiverService } from '../services/receiver-service';
-
-//ts-node에서 typeRoot인지 type인지는 모르겠으나, --file 옵션을 package.json이나 file:true를 tsconfig에 해주지 않으면 적용이 안된다고 함.
+import {
+    createReceiverJoiSchema,
+    updateReceiverJoiSchema,
+} from '../db/schemas/joi-schemas/receiver-joi-schema';
+import {
+    createWillJoiSchema,
+    updateWillJoiSchema,
+} from '../db/schemas/joi-schemas/will-joi-schema';
+import { userUpdateJoiSchema } from '../db/schemas/joi-schemas/user-joi-schema';
+// ts-node에서 typeRoot인지 type인지는 모르겠으나, --file 옵션을 package.json이나 file:true를 tsconfig에 해주지 않으면 적용이 안된다고 함.
 declare global {
     namespace Express {
         interface User {
@@ -11,9 +19,9 @@ declare global {
         }
     }
 }
-const checkUserValidity = (req: Request, userId:string)=>{
-    if (!req.user){
-        throw new Error('유저가 존재하지 않습니다.')
+const checkUserValidity = (req: Request, userId: string) => {
+    if (!req.user) {
+        throw new Error('유저가 존재하지 않습니다.');
     }
     const loggedInUserId = req.user._id.toString();
     const isUserIdValid = loggedInUserId === userId;
@@ -21,14 +29,12 @@ const checkUserValidity = (req: Request, userId:string)=>{
         throw new Error('유저 토큰 정보가 일치하지 않습니다.');
     }
     return true;
-}
-
-
+};
 const authRouter = Router();
 
 authRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        if (!req.user){
+        if (!req.user) {
             throw new Error('유저가 존재하지 않습니다.');
         }
         const userId = req.user._id;
@@ -91,6 +97,13 @@ authRouter.patch(
             // body data 로부터 업데이트할 사용자 정보를 추출함.
             const { fullName, password, dateOfBirth, photo, currentPassword } =
                 req.body;
+            const isValid = await userUpdateJoiSchema.validateAsync({
+                fullName,
+                password,
+                dateOfBirth,
+                currentPassword,
+                photo,
+            });
             // currentPassword 없을 시, 진행 불가
             if (currentPassword === password) {
                 throw new Error(
@@ -250,10 +263,15 @@ authRouter.post(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { userId } = req.params;
-            checkUserValidity(req,userId);
+            checkUserValidity(req, userId);
             // will collection에 추가
             // receivers 부분을 클라이언트가 잘 찾아서 바디에 넣기가 쉽나? 그러면 전혀 문제가 없을 듯
             const { title, content, receivers } = req.body;
+            const isValid = await createWillJoiSchema.validateAsync({
+                title,
+                content,
+                receivers,
+            });
             const newWill = await willService.addWill({
                 title,
                 content,
@@ -352,6 +370,11 @@ authRouter.patch(
             const { userId, willId } = req.params;
             checkUserValidity(req, userId);
             const { title, content, receivers } = req.body;
+            const isValid = await updateWillJoiSchema.validateAsync({
+                title,
+                content,
+                receivers,
+            })
             const toUpdate = {
                 ...(title && { title }),
                 ...(content && { content }),
@@ -444,6 +467,12 @@ authRouter.post(
             checkUserValidity(req, userId);
             // receiver collection에 추가
             const { fullName, emailAddress, relation, role } = req.body;
+            const isValid = await createReceiverJoiSchema.validateAsync({
+                fullName,
+                emailAddress,
+                relation,
+                role,
+            });
             const newReceiver = await receiverService.addReceiver({
                 fullName,
                 emailAddress,
@@ -547,13 +576,18 @@ authRouter.delete(
  *
  */
 authRouter.patch(
-
     '/:userId/receivers/:receiverId',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { userId, receiverId } = req.params;
             checkUserValidity(req, userId);
             const { fullName, emailAddress, relation, role } = req.body;
+            const isValid = await updateReceiverJoiSchema.validateAsync({
+                fullName,
+                emailAddress,
+                relation,
+                role,
+            });
             const toUpdate = {
                 ...(fullName && { fullName }),
                 ...(emailAddress && { emailAddress }),

@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import { userService } from '../services/user-service';
+import { registerJoiSchema } from '../db/schemas/joi-schemas/user-joi-schema';
 
 const usersRouter = Router();
 
@@ -174,6 +175,13 @@ usersRouter.post(
 
             const { fullName, email, password, repeatPassword, dateOfBirth } =
                 req.body;
+            const isValid = await registerJoiSchema.validateAsync({
+                fullName,
+                email,
+                password,
+                repeatPassword,
+                dateOfBirth,
+            });
 
             const newUser = await userService.addUser({
                 fullName,
