@@ -14,15 +14,19 @@ const SignUp = () => {
 	const [repeatPassword, onChangeRepeatPassword] = useInput('');
 	const [term, onChangeTerm] = useState(false);
 
-	const onSubmitForm = useCallback(async () => {
+	const onSubmitForm = useCallback(() => {
 		const data = { email, fullName, dateOfBirth, password, repeatPassword };
-		const result = await axios.post('/api/users/register', data);
+		try {
+			const result = axios.post('/api/users/register', data);
 
-		if (result.data._id) {
-			alert(
-				`${result.data.fullName}님 회원가입을 축하합니다. 로그인을 먼저 해주세요.`,
-			);
-			Router.replace('/signin');
+			if (result.data._id) {
+				alert(
+					`${result.data.fullName}님 회원가입을 축하합니다. 로그인을 먼저 해주세요.`,
+				);
+				Router.replace('/sign_in');
+			}
+		} catch (error) {
+			alert(error.response.data.reason);
 		}
 	}, [email, fullName, dateOfBirth, password, repeatPassword, term]);
 

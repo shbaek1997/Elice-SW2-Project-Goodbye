@@ -1,11 +1,106 @@
+import React, { useCallback, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { css } from '@emotion/react';
 import AppLayout from '../components/AppLayout';
+import { Form, Modal, Button, Input } from 'antd';
+import 'antd/dist/antd.css';
 import Image from 'next/image';
+import axios from 'axios';
+import useInput from '../hooks/useInput';
+import Router from 'next/router';
 
 const MyWillDetail = () => {
+	const { willList } = useSelector((state) => state.will);
+	//const params = new URLSearchParams(window.location.search);
+	//const id = params.get('id');
+
+	const [title, onChangeTitle] = useInput('');
+	const [content, onChangeContent] = useInput('');
+	const [name, onChangeName, setName] = useInput('');
+	const [email, onChangeEmail, setEmail] = useInput('');
+	const [relation, onChangeRelation, setRelation] = useInput('');
+
+	const [receivers, setReceivers] = useState([]); //receiver Id 목록
+	const [receiverList, setReceiverList] = useState([]); //To 목록
+
+	//팝업 띄우기 관련
+	const [isModalVisible, setIsModalVisible] = useState(false);
+	const showModal = () => {
+		setIsModalVisible(true);
+	};
+	const handleOk = () => {
+		setIsModalVisible(false);
+	};
+	const handleCancel = () => {
+		setIsModalVisible(false);
+	};
+
+	//받는 사람 선택 팝업
+	const addReceiver = useCallback(() => {
+		const userId = sessionStorage.getItem('userId');
+		const token = sessionStorage.getItem('token');
+		const fullName = name;
+		const emailAddress = email;
+		const role = 'receiver';
+		axios
+			.post(
+				`/api/auth/${userId}/receiver`,
+				{
+					fullName,
+					emailAddress,
+					relation,
+					role,
+				},
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			)
+			.then((res) => {
+				//To 항목에 보여줄 수신자 목록
+				const receiver = `${res.data.fullName}(${res.data.relation}) <${res.data.emailAddress}>, `;
+				setReceiverList([receiver, ...receiverList]);
+
+				//수신자 id 목록
+				const receiverId = res.data._id;
+				setReceivers([receiverId, ...receivers]);
+
+				//input 값 초기화
+				setName('');
+				setRelation('');
+				setEmail('');
+				alert('성공적으로 추가되었습니다.');
+			})
+			.catch((err) => alert(err.response.data.reason));
+	});
+
+	//유언장 등록
+	const onSubmitForm = useCallback(() => {
+		const userId = sessionStorage.getItem('userId');
+		const token = sessionStorage.getItem('token');
+
+		axios
+			.post(
+				`/api/auth/${userId}/will`,
+				{ title, content, receivers },
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			)
+			.then((res) => {
+				console.log(res);
+				alert('성공적으로 유언장이 등록되었습니다.');
+				Router.replace('/my_will');
+			})
+			.catch((err) => alert(err.response.data.reason));
+	});
+
 	return (
 		<AppLayout>
-			<div css={adBoxStyle}>
+			{/* <div css={adBoxStyle}>
 				<div css={adContentStyle}>
 					<h2>나의 유언장</h2>
 				</div>
@@ -16,38 +111,105 @@ const MyWillDetail = () => {
 						layout="fill"
 					/>
 				</div>
-			</div>
+			</div> */}
 			<main css={mainWrapper}>
 				<section css={willsectionWrapper}>
-					<div css={headerWrapper}>
-						<div>
-							제목 <input type="text" name="title" />
-						</div>
+					{/* <div css={headerWrapper}>
+						<div></div>
 						<div>
 							유언장을 보낼 사람 이메일{' '}
 							<input type="button" value="선택" />
 						</div>
 						<div>
-							유언장을 받을 사람 이메일{' '}
+							유언장을 받을 사람{' '}
 							<input type="button" value="선택" />
 						</div>
+					</div> */}
+					{/* <ReceiverList /> */}
+					<div>
+						To <span>{receiverList}</span>
+						<Button onClick={showModal}>받는 사람 선택</Button>
+						<Modal
+							title="받는 사람"
+							visible={isModalVisible}
+							onOk={handleOk}
+							onCancel={handleCancel}
+						>
+							<Input
+								placeholder="이름"
+								style={{
+									width: '15%',
+								}}
+								value={name}
+								onChange={onChangeName}
+							/>
+							<Input
+								placeholder="관계"
+								style={{
+									width: '15%',
+								}}
+								value={relation}
+								onChange={onChangeRelation}
+							/>
+							<Input
+								placeholder="이메일"
+								style={{
+									width: '50%',
+								}}
+								value={email}
+								onChange={onChangeEmail}
+							/>
+							<Button
+								type="button"
+								style={{
+									width: '20%',
+								}}
+								onClick={addReceiver}
+							>
+								추가
+							</Button>
+						</Modal>
 					</div>
-					<div css={letterWrapper}>
-						<textarea
-							name="content"
-							placeholder="유언장을 자유롭게 작성해주세요."
-						/>
-					</div>
-					<div css={buttonWrapper}>
-						{/* <div>
-                            <input type="button" value="취소" />
-                            <input type="submit" value="생성" />
-                        </div> */}
-						<div>
-							<input type="button" value="삭제" />
-							<input type="submit" value="수정" />
+					<Form onFinish={onSubmitForm}>
+						<div css={letterWrapper}>
+							<div css={headerWrapper}>
+								<input
+									type="text"
+									name="title"
+									value={title}
+									onChange={onChangeTitle}
+									placeholder="제목을 입력해주세요."
+								/>
+							</div>
+							<textarea
+								name="content"
+								value={content}
+								onChange={onChangeContent}
+								placeholder="유언장을 자유롭게 작성해주세요."
+							/>
 						</div>
-					</div>
+						<div css={buttonWrapper}>
+							<div>
+								<input
+									type="button"
+									value="취소"
+									style={{ cursor: 'pointer' }}
+									onClick={() => {
+										Router.replace('/my_will');
+									}}
+								/>
+								<input
+									type="submit"
+									value="생성"
+									style={{ cursor: 'pointer' }}
+								/>
+							</div>
+							{/* <div>
+								<input type="button" value="삭제" />
+								<input type="submit" value="수정" />
+							</div> */}
+						</div>
+					</Form>
 				</section>
 			</main>
 		</AppLayout>
@@ -59,6 +221,7 @@ const mainWrapper = css`
 	flex-direction: column;
 	justify-content: center;
 	width: 100%;
+	margin: 5rem auto;
 `;
 const willsectionWrapper = css`
 	position: relative;
@@ -71,14 +234,14 @@ const willsectionWrapper = css`
 
 const headerWrapper = css`
 	width: 100%;
-	margin: 0 auto;
-	font-size: 1rem;
 
-	& > div > input {
+	& > input {
+		display: block;
+		margin: 0 auto 1.5rem;
+		font-size: 1.3rem;
 		background: transparent;
 		border: none;
 		border-bottom: solid 1px #193441;
-		margin: 10px;
 		:focus {
 			outline: none;
 		}

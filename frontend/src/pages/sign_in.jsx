@@ -21,16 +21,20 @@ const SignIn = () => {
 		}
 	}, []);
 
-	const onSubmitForm = useCallback(async () => {
+	const onSubmitForm = useCallback(() => {
 		const data = { email, password };
-		const result = await axios.post('/api/users/login', data);
+		try {
+			const result = axios.post('/api/users/login', data);
 
-		if (result.data.token) {
-			sessionStorage.setItem('token', result.data.token);
-			sessionStorage.setItem('userId', result.data.userId);
-			dispatch(USERACTIONS.setToken(result.data.token));
+			if (result.data.token) {
+				sessionStorage.setItem('token', result.data.token);
+				sessionStorage.setItem('userId', result.data.userId);
+				dispatch(USERACTIONS.setToken(result.data.token));
 
-			Router.replace('/');
+				Router.replace('/');
+			}
+		} catch (error) {
+			alert(error.response.data.reason);
 		}
 	}, [email, password]);
 

@@ -1,20 +1,59 @@
-import React, { useState } from 'react';
+import React, { useCallback } from 'react';
 import { css } from '@emotion/react';
 import { Form, Switch } from 'antd';
 import 'antd/dist/antd.css';
 import AppLayout from '../components/AppLayout';
+import useInput from '../hooks/useInput';
 import Image from 'next/image';
+import axios from 'axios';
+import Router from 'next/router';
 
 const MyPage = () => {
-	const [showForm, setShowForm] = useState(false);
+	const [password, onChangePassword, setPassword] = useInput('');
+	const [currentPassword, onChangeCurrentPassword, setCurrentPassword] =
+		useInput('');
 
-	const showChange = (checked) => {
-		if (checked) {
-			setShowForm(true);
-		} else {
-			setShowForm(false);
-		}
-	};
+	const onUpdateUser = useCallback(async () => {
+		const userId = sessionStorage.getItem('userId');
+		const token = sessionStorage.getItem('token');
+
+		await axios
+			.patch(
+				`/api/auth/${userId}`,
+				{ currentPassword, password },
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			)
+			.then((res) => {
+				console.log(res);
+				alert('성공적으로 수정되었습니다.');
+				setPassword('');
+				setCurrentPassword('');
+			})
+			.catch((err) => alert(err.response.data.reason));
+	}, [currentPassword, password]);
+
+	const onDeleteUser = useCallback(async () => {
+		const userId = sessionStorage.getItem('userId');
+		const token = sessionStorage.getItem('token');
+
+		await axios
+			.delete(`/api/auth/${userId}`, {
+				headers: { Authorization: `Bearer ${token}` },
+				data: { currentPassword: currentPassword },
+			})
+			.then((res) => {
+				console.log(res);
+				alert('성공적으로 회원 탈퇴 되었습니다.');
+				sessionStorage.removeItem('userId');
+				sessionStorage.removeItem('token');
+				Router.replace('/');
+			})
+			.catch((err) => alert(err.response.data.reason));
+	}, [currentPassword]);
 
 	return (
 		<AppLayout>
@@ -51,22 +90,34 @@ const MyPage = () => {
 			<div css={mainWrapper}>
 				<section css={sectionWrapper}>
 					<h2>개인정보 수정</h2>
-					<div css={inputWrapper}>
-						<input
-							type="password"
-							placeholder="비밀번호"
-							name="password"
-						/>
-						<input
-							type="password"
-							placeholder="비밀번호 확인"
-							name="passwordConfirmation"
-						/>
-						<div css={buttonWrapper}>
-							<input type="submit" value="수정완료" />
-							<input type="button" value="회원탈퇴" />
+					<Form onFinish={onUpdateUser}>
+						<div css={inputWrapper}>
+							<input
+								type="password"
+								placeholder="현재 비밀번호"
+								name="currentPassword"
+								value={currentPassword}
+								onChange={onChangeCurrentPassword}
+								required
+							/>
+							<input
+								type="password"
+								placeholder="새 비밀번호"
+								name="password"
+								value={password}
+								onChange={onChangePassword}
+								required
+							/>
+							<div css={buttonWrapper}>
+								<input type="submit" value="수정완료" />
+								<input
+									type="button"
+									value="회원탈퇴"
+									onClick={onDeleteUser}
+								/>
+							</div>
 						</div>
-					</div>
+					</Form>
 				</section>
 				<section css={sectionWrapper}>
 					<h2>
