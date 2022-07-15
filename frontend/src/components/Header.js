@@ -59,6 +59,11 @@ const Header = () => {
 								<a>부고 작성</a>
 							</Link>
 						</li>
+						<li>
+							<Link href={'/receiver_page'}>
+								<a>수신인 관리</a>
+							</Link>
+						</li>
 					</ul>
 				</NavBar>
 			</Wrapper>

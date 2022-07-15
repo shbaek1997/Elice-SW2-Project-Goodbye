@@ -31,12 +31,7 @@ const MyWill = () => {
     const dispatch = useDispatch();
     const { willList } = useSelector(state => state.will);
 
-
-    // 유언장 리스트 테스트 state
-    // const [testList, setTestList] = useState(null);
-
-
-    // 임시 로그인 토글 설정
+    
     const loginBtnHandler = useCallback(() => {
         setIsLogIn((prev) => !prev);
     }, []);
@@ -71,13 +66,15 @@ const MyWill = () => {
     //     .catch(err => console.log(err));
     // }, [])
 
-    // 유언장에 데이터 넣기 예시
+    
+
+    // 유언장에 데이터 넣기 예시    
     // useEffect(() => {
     //     const userId = sessionStorage.getItem('userId');
     //     const token = sessionStorage.getItem('token');
     //     axios.post(`/api/auth/${userId}/will`, {
-    //         title: '유언장-4',
-    //         content: '유언장-4 내용~',
+    //         title: '유언장-21',
+    //         content: '유언장-21 내용~',
     //         userId: userId,
     //         receivers: Array(50).fill('').map((item, i) => `친구 ${i + 1}`)
     //     }, {
@@ -85,73 +82,62 @@ const MyWill = () => {
     //             Authorization: `Bearer ${token}`
     //         }
     //     })
-    //         .then(res => console.log(res))
-    //         .catch(err => console.log(err));
+    //     .then(res => console.log(res))
+    //     .catch(err => console.log(err));
     // }, [])
 
-    // 컴포넌트 첫 렌더링 시 동작
+
+    
     useEffect(() => {
+        console.log('렌더링a');
         getWillsList();
-        // console.log(willList);
-        // // 현재 페이지를 삭제 했다면 현재 페이지 번호 앞으로 이동
-        // setCurrentPage((curPageNum) => {
-        //     // const updatePageNum = 
-        //     console.log(willList[curPageNum - 1], curPageNum);
-        //     if (willList[curPageNum - 1] === undefined) {
-        //         return curPageNum - 1;
-        //     } else {
-        //         return curPageNum;
-        //     }
-        // })
-    }, [])
+    }, []);
 
+    console.log(willList, currentPage, willList.length);
 
-    const currentPageList = (pageNum) => {
-        console.log(pageNum, willList[pageNum - 1], willList); 
-        // 현재 페이지를 삭제 했다면 현재 페이지 번호 앞으로 이동
-        // setCurrentPage((curPageNum) => {
-        //     // const updatePageNum = 
-        //     console.log(willList[curPageNum - 1], curPageNum);
-        //     if (willList[curPageNum - 1] === undefined) {
-        //         return curPageNum - 1;
-        //     } else {
-        //         return curPageNum;
-        //     }
-        // })
-
-        // 현재 페이지 번호 수정해야됨
-        if (willList[pageNum - 1] === undefined) return willList[pageNum - 2]
-        return willList[pageNum - 1];
-    }
-
-    async function getWillsList() {
-        const token = sessionStorage.getItem('token');
-        const userId = sessionStorage.getItem('userId');
-        await axios.get(`/api/auth/${userId}/wills`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
+    const pageListUpdate = () => {
+        // 마지막 페이지를 삭제 했다면 현재 페이지 번호 앞으로 이동
+        console.log('페이지업뎃 함수', currentPage);
+        setCurrentPage((currentPageNum) => {
+            const updatePageNum = willList[currentPageNum - 1] === undefined
+                            ? currentPageNum - 2
+                            :  currentPageNum - 1;
+            if (updatePageNum < 1) return 1;
+            return updatePageNum;
         })
-        .then(res => dispatch(WillACTIONS.getWills({ lists: res.data })))
-        .catch(err => console.log(err));
     }
 
-
-    const onClickDelete = async (will) => {
-        console.log(will);
+    const getWillsList = () => {   
+        console.log('겟윌함수');    
         const token = sessionStorage.getItem('token');
         const userId = sessionStorage.getItem('userId');
-
-        window.confirm('정말 제거하시겠습니까?');
-        await axios.delete(`/api/auth/${userId}/wills/${will._id}`, {
+        axios.get(`/api/auth/${userId}/wills`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         })
         .then(res => {
-            dispatch(WillACTIONS.removeWill({ will }));
-            console.log('확인3');
+            dispatch(WillACTIONS.getWills({ lists: res.data }));
+            pageListUpdate();
+        })
+        .catch(err => console.log(err));
+    }
 
+
+    const onClickDelete = (will) => {
+        console.log(will);
+        const token = sessionStorage.getItem('token');
+        const userId = sessionStorage.getItem('userId');
+
+        window.confirm('정말 제거하시겠습니까?');
+        axios.delete(`/api/auth/${userId}/wills/${will._id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        .then(() => {
+            // dispatch(WillACTIONS.removeWill({ will }));
+            console.log('확인3');
             getWillsList();
         })
         .catch(err => console.log(err));
@@ -165,7 +151,7 @@ const MyWill = () => {
                     <div css={adContentStyle}>
                         <h2>나의 유언장</h2>
                         <p>유언장을 작성하거나 아래 항목에서 유언장을 확인하세요</p>
-                        <Button>유언장 작성하기</Button>
+                        <Link href="/my_will_detail"><Button>유언장 작성하기</Button></Link>
                     </div>
                     <div css={imageStyle}>
                         <Image
@@ -188,12 +174,12 @@ const MyWill = () => {
                     <>
                         <CardGroup>
                             {willList.length > 0 ?
-                                currentPageList(currentPage).map((will, i) => (
+                                willList[currentPage - 1].map((will, i) => (
                                     <Card
                                         title={will.title}
                                         extra={
                                             <CardBtnGroup>
-                                                <Link href="/willdetail"><a css={aTagStyle}>유언장 상세보기</a></Link>
+                                                <Link href="/my_will_detail"><a css={aTagStyle}>유언장 상세보기</a></Link>
                                                 <Button type='button' onClick={() => onClickDelete(will)}>유언장 제거하기</Button>
                                             </CardBtnGroup>
                                         }

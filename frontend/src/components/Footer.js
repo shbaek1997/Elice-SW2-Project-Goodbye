@@ -7,7 +7,7 @@ import {
     FaTwitter,
 } from 'react-icons/fa';
 
-import styled from '@emotion/styled'
+import styled from '@emotion/styled';
 
 
 
@@ -104,5 +104,8 @@ const KakaoIcon = styled.a`
 `
 
 const Wrapper = styled.div`
+    position: absolute;
+    width: 100%;
+    bottom: 0;
     padding: 1.5rem;
 `

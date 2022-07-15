@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 
-export const initialState = {
+const initialState = {
     willList: [],     // 유언장 리스트 
 }
 
@@ -19,7 +19,6 @@ const willSlice = createSlice({
             const quotient = parseInt(listLength / 6);  // 몫
             const remainder = listLength % 6;           // 나머지
             const newList = [];
-            console.log(quotient, remainder);
             for (let i = 0; i < quotient; i++) {
                 newList.push(lists.slice(i*quotient, i*quotient + 6));                
             }
@@ -28,19 +27,12 @@ const willSlice = createSlice({
             }
             state.willList = [...newList];
         },
-        removeWill(state, action) {
-            const newList = state.willList.filter(will =>
-                will._id !== action.payload.will._Id
-            );
-            state.willList = [...newList];
-        }
     }
 })
 
 
 export const WillACTIONS = {
     getWills: willSlice.actions.getWills,
-    removeWill: willSlice.actions.removeWill,
 };
 
 

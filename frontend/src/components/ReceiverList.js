@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from 'axios';
 
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
@@ -20,15 +21,27 @@ function showCoverList(people) {
 const ReceiverList = ({ will }) => {
     const [showList, setShowList] = useState(false);
     const [data, setData] = useState([...will.receivers]);
-    
+
     // 각 수신인들의 이메일을 불러서 배열로 [{ name: 이름, email: 이메일}, {}, {}] data에 넣어야 함 
-    console.log(will);
+    // console.log(will);
     const ContainerHeight = 400;
 
-    // useEffect(() => {
-    //     setData([...will.receivers]);
-    // }, []);
-    
+    const token = sessionStorage.getItem('token');
+    const userId = sessionStorage.getItem('userId');
+
+
+    // 유언장 receiver별로 짝을 지어 receiver의 이메일을 등록해주어야 한다.
+    useEffect(() => {
+        axios.get(`/api/auth/${userId}/receivers`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }).then(res => {
+            console.log(res);
+        }).catch(err => console.log(err));
+        // setData([...will.receivers]);
+    }, []);
+
     // 끝까지 스크롤 할 때 어떤 동작이 필요할까..
     // const appendData = () => {
     //     setData(...will.receivers);
