@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { css } from '@emotion/react';
 import AppLayout from '../components/AppLayout';
@@ -7,15 +7,16 @@ import 'antd/dist/antd.css';
 import Image from 'next/image';
 import axios from 'axios';
 import useInput from '../hooks/useInput';
-import Router from 'next/router';
+import Router, { useRouter } from 'next/router';
 
 const MyWillDetail = () => {
+	const router = useRouter();
 	const { willList } = useSelector((state) => state.will);
 	//const params = new URLSearchParams(window.location.search);
 	//const id = params.get('id');
 
-	const [title, onChangeTitle] = useInput('');
-	const [content, onChangeContent] = useInput('');
+	const [title, onChangeTitle, setTitle] = useInput('');
+	const [content, onChangeContent, setContent] = useInput('');
 	const [name, onChangeName, setName] = useInput('');
 	const [email, onChangeEmail, setEmail] = useInput('');
 	const [relation, onChangeRelation, setRelation] = useInput('');
@@ -34,6 +35,16 @@ const MyWillDetail = () => {
 	const handleCancel = () => {
 		setIsModalVisible(false);
 	};
+
+	useEffect(() => {
+		const { id } = router.query;
+		console.log(willList);
+		if (willList.length > 0) {
+			setTitle(willList[0][id].title);
+			setContent(willList[0][id].content);
+			setReceivers(willList[0][id].receivers);
+		}
+	}, []);
 
 	//받는 사람 선택 팝업
 	const addReceiver = useCallback(() => {
@@ -189,25 +200,29 @@ const MyWillDetail = () => {
 							/>
 						</div>
 						<div css={buttonWrapper}>
-							<div>
-								<input
-									type="button"
-									value="취소"
-									style={{ cursor: 'pointer' }}
-									onClick={() => {
-										Router.replace('/my_will');
-									}}
-								/>
-								<input
-									type="submit"
-									value="생성"
-									style={{ cursor: 'pointer' }}
-								/>
-							</div>
-							{/* <div>
-								<input type="button" value="삭제" />
-								<input type="submit" value="수정" />
-							</div> */}
+							{willList.length <= 0 && (
+								<div>
+									<input
+										type="button"
+										value="취소"
+										style={{ cursor: 'pointer' }}
+										onClick={() => {
+											Router.replace('/my_will');
+										}}
+									/>
+									<input
+										type="submit"
+										value="생성"
+										style={{ cursor: 'pointer' }}
+									/>
+								</div>
+							)}
+							{willList.length > 0 && (
+								<div>
+									<input type="button" value="삭제" />
+									<input type="submit" value="수정" />
+								</div>
+							)}
 						</div>
 					</Form>
 				</section>
