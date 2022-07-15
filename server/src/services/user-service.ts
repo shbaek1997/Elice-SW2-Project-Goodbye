@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import { UserModel, userModel } from '../db/models/user-model';
 import type { InterfaceUserInfoRequired } from '../db/schemas/user-schema';
+import { ImageService } from './image-service';
 
 class UserService {
     // 본 파일의 맨 아래에서, new UserService(userModel) 하면, 이 함수의 인자로 전달됨
@@ -90,6 +91,12 @@ class UserService {
             toUpdate.password = newPasswordHash;
         }
 
+        // 이미지 변경하는 경우 기존 이미지 삭제 후 새 이미지 저장
+        const { photo } = toUpdate;
+        if (photo && user.photo) {
+            ImageService.deleteImage(user.photo);
+        }
+
         // 업데이트 진행
         user = await this.userModel.updateById(userId, toUpdate);
         return user;
@@ -119,6 +126,11 @@ class UserService {
             throw new Error(
                 '현재 비밀번호가 일치하지 않습니다. 다시 한 번 확인해 주세요.',
             );
+        }
+
+        // 저장된 이미지가 있는 경우 s3에서도 삭제
+        if (user.photo) {
+            ImageService.deleteImage(user.photo);
         }
 
         // 삭제 진행

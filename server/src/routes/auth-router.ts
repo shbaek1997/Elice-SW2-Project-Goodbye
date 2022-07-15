@@ -1,7 +1,10 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { userService } from '../services/user-service';
-import { willService } from '../services/will-service';
-import { receiverService } from '../services/receiver-service';
+import {
+    userService,
+    willService,
+    receiverService,
+    ImageService,
+} from '../services';
 import {
     createReceiverJoiSchema,
     updateReceiverJoiSchema,
@@ -11,6 +14,7 @@ import {
     updateWillJoiSchema,
 } from '../db/schemas/joi-schemas/will-joi-schema';
 import { userUpdateJoiSchema } from '../db/schemas/joi-schemas/user-joi-schema';
+import { uploadImage } from '../middlewares';
 import { InterfaceUserResult } from '../db/schemas/user-schema';
 // ts-node에서 typeRoot인지 type인지는 모르겠으나, --file 옵션을 package.json이나 file:true를 tsconfig에 해주지 않으면 적용이 안된다고 함.
 declare global {
@@ -79,6 +83,7 @@ authRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
 
 authRouter.patch(
     '/:userId',
+    uploadImage.single('photo'),
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             // is로 req.body 확인 필요?
@@ -96,8 +101,13 @@ authRouter.patch(
             checkUserValidity(req, userId);
 
             // body data 로부터 업데이트할 사용자 정보를 추출함.
-            const { fullName, password, dateOfBirth, photo, currentPassword } =
+            const { fullName, password, dateOfBirth, currentPassword } =
                 req.body;
+            // s3에 이미지 업로드 후 url 반환
+            const photo = ImageService.addImage(
+                req.file as Express.MulterS3.File,
+            );
+
             const isValid = await userUpdateJoiSchema.validateAsync({
                 fullName,
                 password,
