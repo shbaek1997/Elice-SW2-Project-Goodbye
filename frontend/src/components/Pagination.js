@@ -17,21 +17,19 @@ function getPageNumbers(currPage, pageCount) {
 
     // 5 미만의 숫자일 때 그 숫자까지만 페이지 네이션 되게 만들기
     while(resultPages.length < paginationNum) {
-        if (currPage + idx < pageCount) resultPages.push(currPage + idx);
-        if (currPage - idx > -1) resultPages.unshift(currPage - idx);
+        if (currPage + idx <= pageCount) resultPages.push(currPage + idx);
+        if (currPage - idx > 0) resultPages.unshift(currPage - idx);
         idx++;
-        
     }
     return resultPages;
 }
 
 
 const Pagination = ({ currPage, pageCount, onClickPage }) => {
-    console.log(currPage, pageCount)
     return (
         <Container>
             <Button
-                disabled={currPage === 0}
+                disabled={currPage === 1}
                 onClick={() => onClickPage(currPage - 1)}
             >
                 <IoIosArrowBack />
@@ -43,12 +41,12 @@ const Pagination = ({ currPage, pageCount, onClickPage }) => {
                         key={`pagination-button-${page}`}
                         active={currPage === page}
                     >
-                        {page + 1}
+                        {page}
                     </Button>
                 )
             })}
             <Button
-                disabled={currPage === pageCount - 1}
+                disabled={currPage === pageCount }
                 onClick={() => onClickPage(currPage + 1)}
             >
                 <IoIosArrowForward />
@@ -74,7 +72,9 @@ const Button = styled.button`
     border: none;
     color: #3E606F;
     background-color: #D1DBBD;
-
+    &[disabled] {
+        cursor: not-allowed;
+    }
     ${props => props.active && css`
         background-color: #32606F;
         color: #F9FAFC;
