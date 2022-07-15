@@ -40,6 +40,14 @@ export class WillModel {
         const wills = await this.Will.find({ userId });
         return wills;
     }
+
+    async deleteReceiver(willId: string, receiverId: string) {
+        const receiverDeletedWill = await this.Will.updateOne(
+            { _id: willId },
+            { $pull: { receivers: receiverId } },
+        );
+        return receiverDeletedWill;
+    }
 }
 
 const willModel = new WillModel();

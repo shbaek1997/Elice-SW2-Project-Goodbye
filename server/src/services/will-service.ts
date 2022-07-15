@@ -1,5 +1,6 @@
 import { willModel, WillModel } from '../db/models/will-model';
 import type { InterfaceWill } from '../db/schemas/will-schema';
+
 class WillService {
     willModel: WillModel;
 
@@ -11,7 +12,6 @@ class WillService {
         // 더 필요한 부분이 있을 수도 있음...
         // db에 저장
         const createdNewWill = await this.willModel.create(willInfo);
-
         return createdNewWill;
     }
 
@@ -34,6 +34,14 @@ class WillService {
     async findWillsForOneUser(userId: string) {
         const foundWills = await this.willModel.findWillsByUserId(userId);
         return foundWills;
+    }
+
+    async deleteReceiver(willId: string, receiverId: string) {
+        const updatedWill = await this.willModel.deleteReceiver(
+            willId,
+            receiverId,
+        );
+        return updatedWill;
     }
 }
 

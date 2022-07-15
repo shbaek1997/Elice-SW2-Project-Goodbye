@@ -11,6 +11,7 @@ import {
     updateWillJoiSchema,
 } from '../db/schemas/joi-schemas/will-joi-schema';
 import { userUpdateJoiSchema } from '../db/schemas/joi-schemas/user-joi-schema';
+import { InterfaceUserResult } from '../db/schemas/user-schema';
 // ts-node에서 typeRoot인지 type인지는 모르겠으나, --file 옵션을 package.json이나 file:true를 tsconfig에 해주지 않으면 적용이 안된다고 함.
 declare global {
     namespace Express {
@@ -179,9 +180,23 @@ authRouter.delete(
             }
 
             const userInfoRequired = { userId, currentPassword };
+            //유저 정보 유저 변수에 저장
+            const user: any = await userService.getUser(userId);
+            //유저 삭제
             const deletedUserInfo = await userService.deleteUser(
                 userInfoRequired,
             );
+            // 해당 유저의 유언장과 수신자 정보 삭제
+            const { wills, receivers } = user;
+            wills.forEach(async (willId: string) => {
+                await willService.deleteWill(willId);
+            });
+            receivers.forEach(async (receiverId: string) => {
+                await receiverService.deleteReceiver(receiverId);
+            });
+            
+            // 유저 관련 유언장과 수신자삭제 완료
+            // 추모도 삭제해야하나?
             // 만약에 정상적으로 delete가 되어서 delete한 유저 정보가 있다면,
             if (deletedUserInfo) {
                 res.status(200).json({ result: 'success' });
@@ -374,7 +389,7 @@ authRouter.patch(
                 title,
                 content,
                 receivers,
-            })
+            });
             const toUpdate = {
                 ...(title && { title }),
                 ...(content && { content }),
@@ -535,9 +550,19 @@ authRouter.delete(
                 userId,
                 receiverId,
             );
-            console.log(updatedUser);
             // wills들 중, receiver가 들어가 있다면, 모든 해당하는 유언장에서 지워야함.
             // 이부분은 좀 있다가 수정하자..
+            // const updatedWills
+            const user: any = await userService.getUser(userId);
+
+            const { wills } = user;
+            console.log(user.wills);
+            wills.forEach(async (willId: string) => {
+                await willService.deleteReceiver(willId, receiverId);
+            });
+
+            // console.log('wills: ' +wills);
+
             res.status(200).json({ result: 'success' });
         } catch (error) {
             next(error);

@@ -11,6 +11,12 @@ interface InterfaceUser {
     receivers?: string[];
 }
 
+interface InterfaceUserResult extends InterfaceUser {
+    _id: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
 interface InterfaceUserInfoRequired {
     userId: string;
     currentPassword: string;
@@ -57,5 +63,5 @@ const UserSchema = new Schema<InterfaceUser>(
     },
 );
 
-export type { InterfaceUser, InterfaceUserInfoRequired };
+export type { InterfaceUser, InterfaceUserResult, InterfaceUserInfoRequired };
 export { UserSchema };

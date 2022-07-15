@@ -121,7 +121,7 @@ class UserService {
             );
         }
 
-        // 업데이트 진행
+        // 삭제 진행
         const deletedUser = await this.userModel.deleteById(userId);
         return deletedUser;
     }
