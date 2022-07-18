@@ -2,6 +2,10 @@ import bcrypt from 'bcrypt';
 import { IComment } from '../db/schemas/comment-schema';
 import { commentModel, CommentModel, IUpdateComment } from '../db';
 import { remembranceService } from './remembrance-service';
+import {
+    createCommentJoiSchema,
+    updateCommentJoiSchema,
+} from '../db/schemas/joi-schemas/comment-joi-schema';
 
 class CommentService {
     commentModel: CommentModel;
@@ -22,6 +26,7 @@ class CommentService {
             ...commentInfo,
             password: hashedPassword,
         };
+        await createCommentJoiSchema.validateAsync(newInfo);
 
         const comment = await this.commentModel.create(newInfo);
         remembranceService.setComment(remembranceId, comment._id, 'add');
@@ -60,6 +65,8 @@ class CommentService {
                 '비밀번호가 일치하지 않습니다. 다시 확인해 주세요.',
             );
         }
+
+        await updateCommentJoiSchema.validateAsync(update);
 
         const updatedComment = await this.commentModel.update(
             commentId,

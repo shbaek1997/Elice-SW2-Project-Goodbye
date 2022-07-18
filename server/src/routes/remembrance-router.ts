@@ -1,9 +1,4 @@
 import { Router } from 'express';
-import {
-    updateCommentJoiSchema,
-    createCommentJoiSchema,
-} from '../db/schemas/joi-schemas/comment-joi-schema';
-import { updateRemembranceJoiSchema } from '../db/schemas/joi-schemas/remembrance-joi-schema';
 import { loginRequired } from '../middlewares';
 import { remembranceService, commentService } from '../services';
 
@@ -82,13 +77,6 @@ remembranceRouter.patch('/:remembranceId', async (req, res, next) => {
         const { remembranceId } = req.params;
         const { fullName, dateOfBirth, dateOfDeath, isPublic, photo } =
             req.body;
-        const isValid = await updateRemembranceJoiSchema.validateAsync({
-            fullName,
-            dateOfBirth,
-            dateOfDeath,
-            isPublic,
-            photo,
-        });
 
         const remembrance = await remembranceService.setRemembrance(
             remembranceId,
@@ -112,12 +100,6 @@ remembranceRouter.post('/:remembranceId/comments', async (req, res, next) => {
     try {
         const { remembranceId } = req.params;
         const { writer, title, content, password } = req.body;
-        const isValid = await createCommentJoiSchema.validateAsync({
-            writer,
-            title,
-            content,
-            password,
-        });
 
         const newComment = await commentService.addComment(remembranceId, {
             writer,
@@ -139,12 +121,6 @@ remembranceRouter.patch(
         try {
             const { commentId } = req.params;
             const { writer, title, content, password } = req.body;
-            const isValid = await updateCommentJoiSchema.validateAsync({
-                writer,
-                title,
-                content,
-                password,
-            });
 
             const comment = await commentService.setCommet(
                 commentId,

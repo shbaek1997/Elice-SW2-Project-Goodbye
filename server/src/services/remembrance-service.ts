@@ -1,4 +1,8 @@
 import { Types } from 'mongoose';
+import {
+    createRemembranceJoiSchema,
+    updateRemembranceJoiSchema,
+} from '../db/schemas/joi-schemas/remembrance-joi-schema';
 import { IUpdateRemembrance, RemembranceModel, remembranceModel } from '../db';
 import { userService } from './user-service';
 
@@ -30,6 +34,7 @@ class RemembranceService {
             dateOfDeath,
             ...(user.photo && { photo: user.photo }),
         };
+        await createRemembranceJoiSchema.validateAsync(remembranceInfo);
 
         const createdNewRemembrance = await this.remembranceModel.create(
             remembranceInfo,
@@ -59,6 +64,7 @@ class RemembranceService {
 
     // 추모 수정
     async setRemembrance(remembranceId: string, update: IUpdateRemembrance) {
+        await updateRemembranceJoiSchema.validateAsync(update);
         const remembrance = await this.remembranceModel.update(
             remembranceId,
             update,
