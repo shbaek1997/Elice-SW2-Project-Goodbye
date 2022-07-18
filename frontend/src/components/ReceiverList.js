@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
 
+import { useSelector, useDispatch } from "react-redux";
+import { RECEIVERACTIONS } from '../reducers/receivers';
+
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 
 import { Modal, List, Skeleton, Avatar } from "antd";
 import VirtualList from 'rc-virtual-list';
+import { Button } from '../util/common_styles';
 
 
 
@@ -19,33 +23,89 @@ function showCoverList(people) {
 }
 
 const ReceiverList = ({ will }) => {
+    const dispatch = useDispatch();
     const [showList, setShowList] = useState(false);
-    const [data, setData] = useState([...will.receivers]);
+    const { allReceiverList } = useSelector(state => state.receivers);
+    const [receiverData, setReceiverData] = useState([]);
+    const receiverIdList = will.receivers;
 
+    // 어떤 정보를 받아서 [{ name: 이름, email: 이메일}, {}, {}] <- 이런 값을 props로 받음
     // 각 수신인들의 이메일을 불러서 배열로 [{ name: 이름, email: 이메일}, {}, {}] data에 넣어야 함 
-    // console.log(will);
+    // const receiversData = props~
+
+    console.log(allReceiverList, receiverIdList, receiverData);
+    // console.log(receiverData, will);
     const ContainerHeight = 400;
+    
 
-    const token = sessionStorage.getItem('token');
-    const userId = sessionStorage.getItem('userId');
-
-
-    // 유언장 receiver별로 짝을 지어 receiver의 이메일을 등록해주어야 한다.
+    // receiverIdList에서 수신자 정보를 받아온다.
     useEffect(() => {
-        axios.get(`/api/auth/${userId}/receivers`, {
+        matchReceiverData();
+    }, []);
+
+
+
+    const matchReceiverData = () => {
+        const newData = [];
+        receiverIdList.forEach(Id =>{ 
+            const value = allReceiverList.find(data => data._id === Id);
+            if (value) {
+                newData.push(value);
+            }
+        });
+        console.log(receiverIdList, allReceiverList, newData);
+        setReceiverData([...newData]);
+    }
+
+    // 유언장의 특정 수신인 삭제
+
+    const deleteReciver = (receiverId) => {
+        const token = sessionStorage.getItem('token');
+        const userId = sessionStorage.getItem('userId');
+        const receivers = will.receivers.filter( id => id !== receiverId );
+        axios.patch(`/api/auth/${userId}/wills/${will._id}`,{
+            receivers: [...receivers]
+        }, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         }).then(res => {
             console.log(res);
+            // dispatch allReceiverList 하는 부분(서버에서 정보 받아와 수정)
+            getReceiverList();
+            // setReceiverData 하는 부분
+            setReceiverData((prev) => {
+                const result = prev.filter(item => {
+                    const check = receivers.find(id => id === item._id)
+                                ? true : false;
+                    return check;
+                })
+                return result;
+            });
         }).catch(err => console.log(err));
-        // setData([...will.receivers]);
-    }, []);
+    }
+
+    // 리스트 불러오기 (따로 폴더분리 예정)
+    const getReceiverList = () => {
+		const token = sessionStorage.getItem('token');
+		const userId = sessionStorage.getItem('userId');
+		axios.get(`/api/auth/${userId}/receivers`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		}).then(res => {
+			console.log('확인');
+			dispatch(RECEIVERACTIONS.getReceivers({ lists: res.data }));
+		}).catch(err => console.log(err));
+	}
+
+
 
     // 끝까지 스크롤 할 때 어떤 동작이 필요할까..
     // const appendData = () => {
     //     setData(...will.receivers);
     // }
+
     const onScroll = (e) => {
         if (e.currentTarget.scrollHeight - e.currentTarget.scrollTop === ContainerHeight) {
             // appendData();
@@ -60,9 +120,9 @@ const ReceiverList = ({ will }) => {
                 {
                     <>
                         <ul>
-                            {showCoverList(will.receivers).map((content, i) =>
+                            {receiverData.map((receiver, i) =>
                             (
-                                <ListContent key={content + `${i}`}>{content}</ListContent>
+                                <ListContent key={receiver._id}>{receiver.fullName}</ListContent>
                             ))}
                         </ul>
                         <ListContent>...</ListContent>
@@ -71,22 +131,23 @@ const ReceiverList = ({ will }) => {
                 <Modal title="ReceiverList Modal" visible={showList} onCancel={() => setShowList(false)}>
                     <List>
                         <VirtualList
-                            data={data}
+                            data={receiverData}
                             height={ContainerHeight}
                             itemHeight={47}
                             itemKey="email"
                             onScroll={onScroll}
                         >
-                            {(item) => (
-                                <List.Item key={item}>
+                            {(item) => {
+                                console.log(item._id);
+                                return (
+                                <List.Item key={item._id}>
                                     <List.Item.Meta
-                                        title={<a href="#">{item}</a>}
-                                        description={item}
+                                        title={<a href="#">{item.fullName}</a>}
+                                        description={item.emailAddress}
                                     />
-                                    <Button type='button'>이메일 수정</Button>
-                                    <Button type='button'>리스트 삭제</Button>
+                                    <Button type='button' onClick={() => deleteReciver(item._id)}>목록에서 삭제</Button>
                                 </List.Item>
-                            )}
+                            )}}
                         </VirtualList>
                     </List>
                 </Modal>
@@ -106,11 +167,6 @@ const ListWrapper = styled.div`
     display: flex;
 `
 
-const Button = styled.button`
-    color: #3E606F;           
-    background-color: #D1DBBD;
-    border: none;
-`
 
 const ListSpreadBtnStyle = css`
     float: right;

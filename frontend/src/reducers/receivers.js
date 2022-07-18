@@ -5,7 +5,8 @@ const initialState = {
     familyList: [],     // 가족 리스트 
     friendList: [],     // 친구 리스트 
     relativeList: [],     // 친척 리스트 
-    acquaintanceList: []     // 지인 리스트 
+    acquaintanceList: [],     // 지인 리스트 
+    allReceiverList: [],        
 }
 
 
@@ -24,12 +25,17 @@ const receiverSlice = createSlice({
 
             lists.forEach((list) => {
                 // console.log(list);
+
+                // 전체 수신자 아이디 리스트 초기화
+                state.allReceiverList = [...state.allReceiverList, list];
+
                 const data = {
                     emailAddress: list.emailAddress,
                     name: list.fullName,
                     relation: list.relation,
                     receiverId: list._id
                 }
+                
                 switch (list.relation) {
                     case '가족':
                         state.familyList = [...state.familyList, data];

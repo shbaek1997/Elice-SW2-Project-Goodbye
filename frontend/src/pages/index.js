@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { css, jsx } from '@emotion/react';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 import Image from 'next/image';
 import AppLayout from '../components/AppLayout';
@@ -61,7 +60,6 @@ const Home = () => {
           </div>
         </div>
       </div>
-      {/* <Footer /> */}
     </AppLayout>
   )
 }

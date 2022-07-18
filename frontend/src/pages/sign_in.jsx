@@ -1,25 +1,34 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { Form } from 'antd';
 import { css } from '@emotion/react';
 import useInput from '../hooks/useInput';
 import AppLayout from '../components/AppLayout';
 import Router from 'next/router';
 import axios from 'axios';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { USERACTIONS } from '../reducers/user';
+
+import userLoginCheck from '../util/userLoginCheck';
 
 const SignIn = () => {
 	const dispatch = useDispatch();
 	const [email, onChangeEmail] = useInput('');
 	const [password, onChangePassword] = useInput('');
-	const userToken = useSelector((state) => state.user.token);
 
 	useEffect(() => {
-		const token = sessionStorage.getItem('token');
-		if (token) {
+		// 로그인한 유저가 접속하지 못하게 하는 부분
+		preventUserAccess();
+	}, [])
+
+    const preventUserAccess = async () => {
+        const isLogIn = await userLoginCheck();	
+		console.log(isLogIn);	
+		if (isLogIn) {
+			alert('이미 로그인 되어있습니다..');
 			Router.replace('/');
 		}
-	}, []);
+	}
+
 
 	const onSubmitForm = useCallback(() => {
 		const data = { email, password };
@@ -29,8 +38,14 @@ const SignIn = () => {
 				if (res.data.token) {
 					sessionStorage.setItem('token', res.data.token);
 					sessionStorage.setItem('userId', res.data.userId);
-					dispatch(USERACTIONS.setToken(res.data.token));
-
+					const { fullName, token, userId } = res.data;
+					// console.log(res, res.data, fullName);
+					dispatch(USERACTIONS.setUserData({
+						fullName,
+						token,
+						userId,
+					}));
+					console.log('확인');
 					Router.replace('/');
 				}
 			})

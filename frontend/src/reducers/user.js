@@ -4,12 +4,25 @@ export const initialState = {
 	fullName: '',
 	userId: '',
 	token: '',
+	logInState: false
 };
 
 const userSlice = createSlice({
 	name: 'user',
 	initialState,
 	reducers: {
+		setUserData(state, action) {
+			state.fullName = action.payload.fullName;
+			state.userId = action.payload.userId;
+			state.token = action.payload.token;
+			state.logInState = action.payload.logInState;
+		},
+		clearUserData(state) {
+			state.fullName = '',
+			state.userId = '',
+			state.token = '',
+			state.logInState = false
+		},
 		setFullName(state, action) {
 			console.log('fullName: ' + action.payload);
 			state.fullName = action.payload;
@@ -26,6 +39,8 @@ const userSlice = createSlice({
 });
 
 export const USERACTIONS = {
+	setUserData: userSlice.actions.setUserData,
+	clearUserData: userSlice.actions.clearUserData,
 	setFullName: userSlice.actions.setFullName,
 	setUserId: userSlice.actions.setUserId,
 	setToken: userSlice.actions.setToken,
