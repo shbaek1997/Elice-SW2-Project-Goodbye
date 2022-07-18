@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import { userService } from '../services/user-service';
+import { sendMailTest } from '../services/mail-service';
 import { registerJoiSchema } from '../db/schemas/joi-schemas/user-joi-schema';
 
 const usersRouter = Router();
@@ -260,6 +261,21 @@ usersRouter.post(
                     });
                 },
             )(req, res); // 이 부분은 수업 때나 지금이나 이해가 잘 안되지만 필요함.
+        } catch (error) {
+            next(error);
+        }
+    },
+);
+// 결국에는 한 유저의 유언장 목록을 전체 전송해야 할텐데, 이부분을 back에서 다 찾아서 전송하는 api가 맞을까, front가 client에서 여러번 요청을 하는게 나을까
+
+usersRouter.post(
+    '/sendEmail',
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            // is 를 사용해서 body를 확인해 줄까?
+            const { receivers, subject, html } = req.body;
+            sendMailTest(receivers, subject, html);
+            res.status(200).json({ result: 'success' });
         } catch (error) {
             next(error);
         }
