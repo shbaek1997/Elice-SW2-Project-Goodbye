@@ -5,7 +5,7 @@
     "private": true,
     "scripts": {
         "dev": "ts-node index.ts",
-        "start": "node index.js",
+        "start": "tsc && node dist/index.js",
         "lint": "eslint ."
     },
     "dependencies": {

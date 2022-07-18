@@ -1,11 +1,13 @@
-import { Router } from 'express';
+import express, { Router } from 'express';
+import path from 'path';
 
 const indexRouter = Router();
 
 /* GET home page. */
-indexRouter.get('/', (req, res) => {
-    res.render('index', { title: 'Express' });
-});
+indexRouter.use(
+    '/',
+    express.static(path.join(__dirname, '../views'), { index: 'index.html' }),
+);
 
 export { indexRouter };
 export * from './user-router';
