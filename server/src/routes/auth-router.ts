@@ -68,7 +68,7 @@ authRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             $ref: '#/components/schemas/UserUpdate'
  *     responses:
