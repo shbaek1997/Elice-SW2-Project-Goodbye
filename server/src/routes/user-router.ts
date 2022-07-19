@@ -86,6 +86,19 @@ const usersRouter = Router();
  *       example:
  *         email: email@email.com
  *         password: "12345"
+ *     TrustedUserInfo:
+ *       type: Object
+ *       required:
+ *         - email
+ *         - currentPassword
+ *       properties:
+ *         email:
+ *           type: string
+ *         currentPassword:
+ *           type: string
+ *       example:
+ *         email: example@email.com
+ *         currentPassword: '12345678'
  *     User:
  *       type: Object
  *       properties:
@@ -177,13 +190,13 @@ usersRouter.post(
 
             const { fullName, email, password, repeatPassword, dateOfBirth } =
                 req.body;
-            const isValid = await registerJoiSchema.validateAsync({
-                fullName,
-                email,
-                password,
-                repeatPassword,
-                dateOfBirth,
-            });
+            // const isValid = await registerJoiSchema.validateAsync({
+            //     fullName,
+            //     email,
+            //     password,
+            //     repeatPassword,
+            //     dateOfBirth,
+            // });
 
             const newUser = await userService.addUser({
                 fullName,
@@ -255,6 +268,7 @@ usersRouter.post(
                                 expiresIn: '7d',
                             },
                         );
+
                         res.status(200).json({
                             token,
                             userId: user._id,

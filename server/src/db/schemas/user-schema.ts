@@ -1,6 +1,6 @@
 // user Schema
 import { Schema } from 'mongoose';
-
+import { InterfaceUserTrust, UserTrustSchema } from './user-trust-schema';
 interface InterfaceUser {
     email: string;
     fullName: string;
@@ -9,6 +9,8 @@ interface InterfaceUser {
     photo?: string;
     wills?: string[];
     receivers?: string[];
+    trustedUser?: InterfaceUserTrust;
+    managedUsers?: InterfaceUserTrust[];
 }
 
 interface InterfaceUserResult extends InterfaceUser {
@@ -53,6 +55,15 @@ const UserSchema = new Schema<InterfaceUser>(
         },
         receivers: {
             type: [String],
+            required: false,
+            default: [],
+        },
+        trustedUser: { 
+            type: UserTrustSchema,
+            required: false,
+        },
+        managedUsers: { 
+            type: [UserTrustSchema],
             required: false,
             default: [],
         },
