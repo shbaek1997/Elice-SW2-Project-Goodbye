@@ -39,6 +39,7 @@ const RemembranceSchema: Schema<IRemembrance> = new Schema(
         },
         comments: {
             type: [Types.ObjectId],
+            ref: 'comments',
             required: false,
         },
     },

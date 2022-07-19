@@ -9,6 +9,7 @@ import {
     usersRouter,
     authRouter,
     remembranceRouter,
+    obituaryRouter,
 } from './routes';
 import { passportConfiguration, JWTConfiguration } from './services';
 import { loginRequired, errorHandler, notFoundHandler } from './middlewares';
@@ -40,6 +41,7 @@ app.use('/', indexRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/auth', loginRequired, authRouter);
 app.use('/api/remembrances', remembranceRouter);
+app.use('/api/obituaries', obituaryRouter);
 
 // 404 handler
 app.use(notFoundHandler);
