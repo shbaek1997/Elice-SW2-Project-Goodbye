@@ -43,6 +43,15 @@ const usersRouter = Router();
  *           type: string
  *       example:
  *         currentPassword: "12345"
+ *     ConfirmDeath:
+ *       type: Object
+ *       required:
+ *         - dateOfDeath
+ *       properties:
+ *         dateOfDeath:
+ *           type: string
+ *       example:
+ *         dateOfDeath: "2022-07-20"
  *     UserUpdate:
  *       type: object
  *       required:
@@ -170,7 +179,7 @@ const usersRouter = Router();
  *       example:
  *         title: 어머니에게
  *         content: 사랑하는 어머니에게...
- *         receivers: ["motherId"]
+ *         receivers: [{receiverId, email}]
  *     ReceiverPost:
  *       type: Object
  *       required:
@@ -380,8 +389,8 @@ usersRouter.post(
  *         schema:
  *           type: string
  *         required: true
- *     summary: 기본적인 willId 정보와 유언장을 열람하고자 하는 사람의 email주소를 받아서 willId의 receiver 등록 정보와 일치하는지 확인하는 API
- *     description: willId로 유언장을 조회하여 유언장 정보에 있는 receivers 배열을 통하여 receivers의 이메일 주소들을 확인, 그 중에 body로 입력받은 이메일과 일치한다면 result-success를 반환
+ *     summary: 기본적인 willId 정보와 유언장을 열람하고자 하는 사람의 email주소를 받아서 willId의 receiver 등록 정보와 일치하는지 확인 후 그 유언장 정보를 반환하는 API
+ *     description: willId로 유언장을 조회하여 유언장 정보에 있는 receivers 배열을 통하여 receivers의 이메일 주소들을 확인, 그 중에 body로 입력받은 이메일과 일치한다면 권한이 있는 것이므로 유언장 정보를 JSON으로 반환
  *     requestBody:
  *       required: true
  *       content:
@@ -390,7 +399,7 @@ usersRouter.post(
  *             $ref: '#/components/schemas/InputEmail'
  *     responses:
  *       200:
- *         description: result-success를 JSON 형태로 반환
+ *         description: willId로 찾은 will을 JSON 형태로 반환
  *         content:
  *           application/json:
  *             schema:
@@ -407,23 +416,13 @@ usersRouter.post(
             const will = await willService.findWill(willId);
             // will 안의 receivers는 receiver Id가 등록되어 있고,
             const { receivers }: any = will;
-            const registeredEmails: string[] = [];
-            for (let i = 0; i < receivers.length; i++) {
-                const receiverId = receivers[0];
-                const receiver: any = await receiverService.findReceiver(
-                    receiverId,
-                );
-                const { emailAddress } = receiver;
-                registeredEmails.push(emailAddress);
-            }
-            const matchedEmail = registeredEmails.find(
-                (registeredEmail) => registeredEmail === email,
+            const matchedReceiver = receivers.find(
+                (receiver) => receiver.email === email,
             );
-            if (!matchedEmail) {
+            if (!matchedReceiver) {
                 throw new Error('올바르지 않은 이메일 주소입니다.');
             }
-
-            res.status(200).json({ result: 'success' });
+            res.status(200).json({ will });
         } catch (error) {
             next(error);
         }
