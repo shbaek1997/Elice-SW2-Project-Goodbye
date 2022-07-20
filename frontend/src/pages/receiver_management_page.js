@@ -8,8 +8,8 @@ import { Divider, List, Modal } from 'antd';
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 
-import AppLayout from './../components/AppLayout';
-import { Button } from './../util/common_styles';
+import AppLayout from '../components/AppLayout';
+import { Button } from '../util/common_styles';
 
 const receiver_page = () => {
     const dispatch = useDispatch();

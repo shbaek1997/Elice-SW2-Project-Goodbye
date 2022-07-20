@@ -29,31 +29,28 @@ const ReceiverList = ({ will }) => {
     const [receiverData, setReceiverData] = useState([]);
     const receiverIdList = will.receivers;
 
-    // 어떤 정보를 받아서 [{ name: 이름, email: 이메일}, {}, {}] <- 이런 값을 props로 받음
-    // 각 수신인들의 이메일을 불러서 배열로 [{ name: 이름, email: 이메일}, {}, {}] data에 넣어야 함 
-    // const receiversData = props~
-
-    console.log(allReceiverList, receiverIdList, receiverData);
-    // console.log(receiverData, will);
     const ContainerHeight = 400;
     
 
     // receiverIdList에서 수신자 정보를 받아온다.
     useEffect(() => {
         matchReceiverData();
-    }, []);
+    }, [allReceiverList]);
 
 
 
     const matchReceiverData = () => {
         const newData = [];
+
+        // my_will에서 전달받은 id값에 해당되는 수신자를
+        // 모든 수신목록에서 찾아서 receiverData에 저장한다. 
         receiverIdList.forEach(Id =>{ 
             const value = allReceiverList.find(data => data._id === Id);
             if (value) {
                 newData.push(value);
             }
         });
-        console.log(receiverIdList, allReceiverList, newData);
+        // console.log(receiverIdList, allReceiverList, newData);
         setReceiverData([...newData]);
     }
 
@@ -62,6 +59,7 @@ const ReceiverList = ({ will }) => {
     const deleteReciver = (receiverId) => {
         const token = sessionStorage.getItem('token');
         const userId = sessionStorage.getItem('userId');
+        console.log(receiverId);
         const receivers = will.receivers.filter( id => id !== receiverId );
         axios.patch(`/api/auth/${userId}/wills/${will._id}`,{
             receivers: [...receivers]
@@ -72,7 +70,7 @@ const ReceiverList = ({ will }) => {
         }).then(res => {
             console.log(res);
             // dispatch allReceiverList 하는 부분(서버에서 정보 받아와 수정)
-            getReceiverList();
+            // getReceiverList();
             // setReceiverData 하는 부분
             setReceiverData((prev) => {
                 const result = prev.filter(item => {
@@ -85,19 +83,6 @@ const ReceiverList = ({ will }) => {
         }).catch(err => console.log(err));
     }
 
-    // 리스트 불러오기 (따로 폴더분리 예정)
-    const getReceiverList = () => {
-		const token = sessionStorage.getItem('token');
-		const userId = sessionStorage.getItem('userId');
-		axios.get(`/api/auth/${userId}/receivers`, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		}).then(res => {
-			console.log('확인');
-			dispatch(RECEIVERACTIONS.getReceivers({ lists: res.data }));
-		}).catch(err => console.log(err));
-	}
 
 
 

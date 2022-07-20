@@ -1,4 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+
 
 import { Form } from 'antd';
 import { css } from '@emotion/react';
@@ -12,6 +14,7 @@ import userLoginCheck from '../util/userLoginCheck';
 
 const SignUp = () => {
 	// const [isLogIn, setIsLogIn] = useState(null);
+    // const userData = useSelector((state) => state.user);
 
 	const [email, onChangeEmail] = useInput('');
 	const [fullName, onChangeFullName] = useInput('');
@@ -33,6 +36,28 @@ const SignUp = () => {
 		}
 	}
 
+
+    //  추모 데이터 생성
+    const createRemembranceData = async (userData) => {
+        // 유저 리듀서에서 정보를 가져와서 씀
+        const postData = {
+			userId: userData.userId,
+			fullName: userData.fullName,
+			dateOfBirth: userData.dateOfBirth,
+			isPublic: false
+		}
+		try {
+			const res = await axios.post('/api/remembrances', 
+                postData
+            );
+			console.log(res);
+		} catch (error) {
+			console.error(error);
+		}
+	}	
+
+	
+
 	const onSubmitForm = useCallback(() => {
 		const data = { email, fullName, dateOfBirth, password, repeatPassword };
 		axios
@@ -42,6 +67,12 @@ const SignUp = () => {
 					alert(
 						`${res.data.fullName}님 회원가입을 축하합니다. 로그인을 먼저 해주세요.`,
 					);
+                    const userData = {
+						userId: res.data._id,
+						fullName: res.data.fullName,
+						dateOfBirth: res.data.dateOfBirth
+					}
+					createRemembranceData(userData);
 					Router.replace('/sign_in');
 				}
 			})

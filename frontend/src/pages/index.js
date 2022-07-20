@@ -110,8 +110,8 @@ const progessCard = css`
 
 const CardGroup = css`
   display: grid;
-  grid-template-columns: repeat(4, 1rem);
-  grid-column-gap: 10rem; 
+  grid-template-columns: repeat(4, 5rem);
+  grid-column-gap: 5rem;
   grid-row-gap: 3rem;
   place-content: center;
 `
