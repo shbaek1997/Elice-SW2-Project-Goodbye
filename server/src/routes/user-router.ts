@@ -144,7 +144,6 @@ const usersRouter = Router();
  *         - fullName
  *         - emailAddress
  *         - relation
- *         - role
  *       properties:
  *         fullName:
  *           type: string
@@ -152,13 +151,10 @@ const usersRouter = Router();
  *           type: string
  *         relation:
  *           type: string
- *         role:
- *           type: string
  *       example:
  *         fullName: 홍길동
  *         emailAddress: hong@email.com
  *         relation: brother
- *         role: basic-user
  */
 
 /**
