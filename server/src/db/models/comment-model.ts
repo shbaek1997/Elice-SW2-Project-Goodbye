@@ -1,5 +1,9 @@
-import { Model, model } from 'mongoose';
+import { Model, model, Types } from 'mongoose';
 import { CommentSchema, IComment } from '../schemas/comment-schema';
+
+export interface ResComment extends IComment {
+    _id: Types.ObjectId;
+}
 
 export interface IUpdateComment {
     writer?: string;
@@ -15,23 +19,31 @@ export class CommentModel {
     }
 
     // 새 추모글 생성
-    async create(commentInfo: IComment) {
-        const createdNewComment = await this.Comment.create(commentInfo);
+    create(commentInfo: IComment): Promise<ResComment> {
+        const createdNewComment = this.Comment.create(commentInfo);
 
         return createdNewComment;
     }
 
     // objectId를 이용해 특정 추모글 조회
-    async findById(commentId: string) {
+    async findById(commentId: string): Promise<ResComment> {
         const comment = await this.Comment.findOne({
             _id: commentId,
         });
+        if (!comment) {
+            throw new Error(
+                '해당 추모글이 존재하지 않습니다. 다시 확인해주세요.',
+            );
+        }
 
         return comment;
     }
 
     // 추모글 수정
-    async update(commentId: string, update: IUpdateComment) {
+    async update(
+        commentId: string,
+        update: IUpdateComment,
+    ): Promise<ResComment> {
         const filter = { _id: commentId };
         const option = { returnOriginal: false };
 
@@ -40,15 +52,21 @@ export class CommentModel {
             update,
             option,
         );
+        if (!updatedComment) {
+            throw new Error('추모글 수정에 실패했습니다.');
+        }
 
         return updatedComment;
     }
 
     // 추모글 삭제
-    async delete(commentId: string) {
+    async delete(commentId: string): Promise<ResComment> {
         const filter = { _id: commentId };
 
         const deletedComment = await this.Comment.findOneAndDelete(filter);
+        if (!deletedComment) {
+            throw new Error('추모글 삭제에 실패했습니다.');
+        }
 
         return deletedComment;
     }

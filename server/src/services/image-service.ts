@@ -4,7 +4,10 @@ const domain = process.env.CLOUDFRONT_DOMAIN as string;
 
 export class ImageService {
     // 이미지 등록
-    static addImage(file: Express.MulterS3.File) {
+    static addImage(file: Express.MulterS3.File): string | undefined {
+        if (!file) {
+            return undefined;
+        }
         const { key } = file;
         const imagePath = `${domain}/${key}`;
 

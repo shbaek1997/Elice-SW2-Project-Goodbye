@@ -7,9 +7,9 @@ const createRemembranceJoiSchema = joi.object({
 });
 
 const updateRemembranceJoiSchema = joi.object({
-    fullName: joi.string().required(),
-    dateOfBirth: joi.date().min('1900-01-01').iso().required(),
-    dateOfDeath: joi.date().min(joi.ref('dateOfBirth')).max('now').iso(),
+    fullName: joi.string(),
+    dateOfBirth: joi.date().min('1900-01-01').iso(),
+    dateOfDeath: joi.date().max('now').iso(),
     isPublic: joi.boolean(),
     photo: joi.string().uri(),
 });

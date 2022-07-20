@@ -121,19 +121,7 @@ components:
         family:
           type: array
           items:
-            type: object
-            required:
-            - relation
-            - fullName
-            properties:
-              relation:
-                type: string
-                description: '고인과의 관계'
-                example: '장남'
-              fullName:
-                type: string
-                description: '상주 이름'
-                example: '홍철수'
+            $ref: "#/components/schemas/Family"
           description: '상주 리스트'
         funeral:
           type: string
@@ -184,19 +172,7 @@ components:
         family:
           type: array
           items:
-            type: object
-            required:
-            - relation
-            - fullName
-            properties:
-              relation:
-                type: string
-                description: '고인과의 관계'
-                example: '장남'
-              fullName:
-                type: string
-                description: '상주 이름'
-                example: '홍철수'
+            $ref: "#/components/schemas/Family"
           description: '상주 리스트'
         funeral:
           type: string
@@ -241,19 +217,7 @@ components:
         family:
           type: array
           items:
-            type: object
-            required:
-            - relation
-            - fullName
-            properties:
-              relation:
-                type: string
-                description: '고인과의 관계'
-                example: '장남'
-              fullName:
-                type: string
-                description: '상주 이름'
-                example: '홍철수'
+            $ref: "#/components/schemas/Family"
           description: '상주 리스트'
         funeral:
           type: string
@@ -271,6 +235,20 @@ components:
           type: string
           description: '부고 비밀번호'
           example: 'qwerty'
+    Family:
+      type: object
+      required:
+      - relation
+      - fullName
+      properties:
+        relation:
+          type: string
+          description: '고인과의 관계'
+          example: '장남'
+        fullName:
+          type: string
+          description: '상주 이름'
+          example: '홍철수'
   parameters:
     remembranceIdParam:
       name: remembranceId
@@ -291,29 +269,14 @@ components:
       schema:
         $ref: "#/components/schemas/Obituary/properties/_id"
   requestBodies:
-    remembranceUpdate:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              fullName:
-                $ref: "#/components/schemas/Remembrance/properties/fullName"
-              dateOfBirth:
-                $ref: "#/components/schemas/Remembrance/properties/dateOfBirth"
-              dateOfDeath:
-                $ref: "#/components/schemas/Remembrance/properties/dateOfDeath"
-              isPublic:
-                $ref: "#/components/schemas/Remembrance/properties/isPublic"
-              photo:
-                $ref: "#/components/schemas/Remembrance/properties/photo"
     commentReq:
       required: true
       content:
         application/json:
           schema:
             type: object
+            required:
+              - password
             properties:
               writer:
                 $ref: "#/components/schemas/Comment/properties/writer"
@@ -375,12 +338,12 @@ paths:
       tags:
       - Remembrances
       summary: "전체 추모 데이터 조회"
-      description: "전체 추모 데이터를 최근 업데이트된 순으로 조회"
+      description: "전체 사망한 유저의 추모 데이터를 최근 업데이트된 순으로 조회"
       responses:
         200:
           description: "여러개의 추모 데이터 조회"
           $ref: "#/components/responses/remembrancesRes"
-  /api/remembrances?count={count}:
+  /api/remembrances/recent?count={count}:
     get:
       tags:
       - Remembrances
@@ -409,19 +372,6 @@ paths:
         200:
           description: "하나의 추모 데이터 조회"
           $ref: "#/components/responses/remembranceWithCommentsRes"
-    patch:
-      tags:
-      - Remembrances
-      summary: "추모 데이터 수정"
-      description: "remembranceId로 추모 데이터 조회 후 수정"
-      parameters:
-      - $ref: "#/components/parameters/remembranceIdParam"
-      requestBody:
-        $ref: "#/components/requestBodies/remembranceUpdate"
-      responses:
-        201:
-          description: "추모 데이터 수정"
-          $ref: "#/components/responses/remembranceRes"
   /api/remembrances/{remembranceId}/comments:
     post:
       tags:
@@ -477,6 +427,8 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+              - password
               properties:
                 password:
                   $ref: "#/components/schemas/Comment/properties/password"
