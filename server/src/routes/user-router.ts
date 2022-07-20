@@ -18,6 +18,15 @@ const usersRouter = Router();
  *       scheme: bearer
  *       bearerFormat: JWT
  *   schemas:
+ *     InputEmail:
+ *       type: Object
+ *       required:
+ *         - email
+ *       properties:
+ *         email:
+ *           type: string
+ *       example:
+ *         email: "email@email.com"
  *     UserDelete:
  *       type: Object
  *       required:
@@ -74,19 +83,23 @@ const usersRouter = Router();
  *         password: abcde123
  *         repeatPassword: abcde123
  *         dateOfBirth: "970623"
- *     UserLogin:
+ *     Email:
  *       type: Object
  *       required:
- *         - email
- *         - password
+ *         - receivers
+ *         - subject
+ *         - html
  *       properties:
- *         email:
+ *         receivers:
+ *           type: array
+ *         subject:
  *           type: string
- *         password:
- *           type: string
+ *         html:
+ *           typee: string
  *       example:
- *         email: email@email.com
- *         password: "12345"
+ *         receivers: ["email@email.com","example@email.com"]
+ *         subject: Hello
+ *         html: <h1>Hello world</h1>
  *     TrustedUserInfo:
  *       type: Object
  *       required:
@@ -100,6 +113,19 @@ const usersRouter = Router();
  *       example:
  *         email: example@email.com
  *         currentPassword: '12345678'
+ *     UserLogin:
+ *       type: Object
+ *       required:
+ *         - email
+ *         - password
+ *       properties:
+ *         email:
+ *           type: string
+ *         password:
+ *           type: string
+ *       example:
+ *         email: email@email.com
+ *         password: "12345"
  *     User:
  *       type: Object
  *       properties:
@@ -187,13 +213,13 @@ usersRouter.post(
 
             const { fullName, email, password, repeatPassword, dateOfBirth } =
                 req.body;
-            // const isValid = await registerJoiSchema.validateAsync({
-            //     fullName,
-            //     email,
-            //     password,
-            //     repeatPassword,
-            //     dateOfBirth,
-            // });
+            const isValid = await registerJoiSchema.validateAsync({
+                fullName,
+                email,
+                password,
+                repeatPassword,
+                dateOfBirth,
+            });
 
             const newUser = await userService.addUser({
                 fullName,
@@ -280,6 +306,28 @@ usersRouter.post(
 );
 // 결국에는 한 유저의 유언장 목록을 전체 전송해야 할텐데, 이부분을 back에서 다 찾아서 전송하는 api가 맞을까, front가 client에서 여러번 요청을 하는게 나을까
 
+/**
+ * @swagger
+ * /api/users/sendEmail:
+ *   post:
+ *     tags: [Users]
+ *     summary: 기본적인 receivers, subject, html 정보를 받아서 이메일은 전송 시키는 API
+ *     description: receivers로 보낼 이메일 주소가 담긴 배열, subject로 이메일 제목, html로 html형식의 string을 받아서 이메일을 전송 시키는 api
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Email'
+ *     responses:
+ *       200:
+ *         description: 성공적으로 이메일이 보내지면 result- success를 JSON 형태로 반환
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *
+ */
 usersRouter.post(
     '/sendEmail',
     async (req: Request, res: Response, next: NextFunction) => {
@@ -296,6 +344,35 @@ usersRouter.post(
 
 // email로 온 유언장을 열람했을 경우, 해당 유저의 유언장 안의 수신자 목록의 이메일과 일치하는지 확인 후, 열람이 되게 하는 API
 // 유언장 링크를 타고 열람을 하면, 모달 창 같은 방식으로 열람한 사람의 이메일 주소를 입력받게 함.
+
+/**
+ * @swagger
+ * /api/users/:willId:
+ *   post:
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: willId
+ *         schema:
+ *           type: string
+ *         required: true
+ *     summary: 기본적인 willId 정보와 유언장을 열람하고자 하는 사람의 email주소를 받아서 willId의 receiver 등록 정보와 일치하는지 확인하는 API
+ *     description: willId로 유언장을 조회하여 유언장 정보에 있는 receivers 배열을 통하여 receivers의 이메일 주소들을 확인, 그 중에 body로 입력받은 이메일과 일치한다면 result-success를 반환
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/InputEmail'
+ *     responses:
+ *       200:
+ *         description: result-success를 JSON 형태로 반환
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *
+ */
 usersRouter.post(
     '/:willId',
     async (req: Request, res: Response, next: NextFunction) => {

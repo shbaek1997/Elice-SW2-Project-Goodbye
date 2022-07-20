@@ -124,13 +124,13 @@ authRouter.patch(
                 req.file as Express.MulterS3.File,
             );
 
-            // const isValid = await userUpdateJoiSchema.validateAsync({
-            //     fullName,
-            //     password,
-            //     dateOfBirth,
-            //     currentPassword,
-            //     photo,
-            // });
+            const isValid = await userUpdateJoiSchema.validateAsync({
+                fullName,
+                password,
+                dateOfBirth,
+                currentPassword,
+                photo,
+            });
             // currentPassword 없을 시, 진행 불가
             if (currentPassword === password) {
                 throw new Error(
@@ -220,14 +220,6 @@ authRouter.patch(
             const secretKey = process.env.JWT_SECRET_KEY || 'secret-key'; 
             const decodedInfo = jwt.verify(token, secretKey);
             const { managedUserEmail ,managedUserId }: any = decodedInfo;
-
-            // const isValid = await userUpdateJoiSchema.validateAsync({
-            //     fullName,
-            //     password,
-            //     dateOfBirth,
-            //     currentPassword,
-            //     photo,
-            // });
             const managedUser = {
                 email: managedUserEmail,
                 userId: managedUserId,
@@ -291,14 +283,6 @@ authRouter.patch(
             // const secretKey = process.env.JWT_SECRET_KEY || 'secret-key'; 
             // const decodedInfo = jwt.verify(token, secretKey);
             // const { managedUserId }: any = decodedInfo;
-
-            // const isValid = await userUpdateJoiSchema.validateAsync({
-            //     fullName,
-            //     password,
-            //     dateOfBirth,
-            //     currentPassword,
-            //     photo,
-            // });
             /// / confirm을 누른 사용자의 정보 변경
             const userInfo: any = await userService.getUser(userId);
             const { managedUsers } = userInfo;
