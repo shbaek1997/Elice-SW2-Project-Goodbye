@@ -1,32 +1,21 @@
 import { Router } from 'express';
-import { loginRequired } from '../middlewares';
 import { remembranceService, commentService } from '../services';
 
 const remembranceRouter = Router();
 
-// 추모 데이터 생성 - 언제?
-remembranceRouter.post('/', loginRequired, async (req, res, next) => {
+// 전체 추모 데이터 조회
+remembranceRouter.get('/', async (req, res, next) => {
     try {
-        // loginRequired 이용해서 로그인한 사용자의 id 받아오기
-        if (!req.user) {
-            throw new Error('로그인 먼저 진행해 주세요.');
-        }
-        const { _id: userId } = req.user;
-        const { dateOfDeath } = req.body; // death 받아오나? - 생성 시점에 따라 다를듯 일단 받아오기
+        const remembrances = await remembranceService.getRemembrances();
 
-        const newRemembrance = await remembranceService.addRemembrance(
-            userId,
-            dateOfDeath,
-        );
-
-        res.status(201).json(newRemembrance);
+        res.status(200).json(remembrances);
     } catch (error) {
         next(error);
     }
 });
 
 // 최근 업데이트된 추모 조회
-remembranceRouter.get('/', async (req, res, next) => {
+remembranceRouter.get('/recent', async (req, res, next) => {
     try {
         // query로 받거나 8
         const count = Number(req.query.count) || 8;
@@ -40,7 +29,7 @@ remembranceRouter.get('/', async (req, res, next) => {
     }
 });
 
-// 특정 추모 조회
+// remembranceId로 특정 추모 조회
 remembranceRouter.get('/:remembranceId', async (req, res, next) => {
     try {
         const { remembranceId } = req.params;

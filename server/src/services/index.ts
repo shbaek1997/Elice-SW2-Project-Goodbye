@@ -6,3 +6,4 @@ export * from './remembrance-service';
 export * from './comment-service';
 export * from './image-service';
 export * from './obituary-service';
+export * from './mail-service';

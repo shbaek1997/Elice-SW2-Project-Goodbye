@@ -28,6 +28,15 @@ export class RemembranceModel {
         return createdNewRemembrance;
     }
 
+    // 전체 추모 데이터 조회
+    async find() {
+        const remembrances = await this.Remembrance.find().sort({
+            updatedAt: -1,
+        });
+
+        return remembrances;
+    }
+
     // 최근 업데이트 추모 조회
     async findRecent(count: number) {
         const recentRemembrances = await this.Remembrance.find()
@@ -46,11 +55,11 @@ export class RemembranceModel {
         return remembrance;
     }
 
-    // userId를 이용해 특정 추모글 조회
+    // userId를 이용해 특정 추모 조회
     async findByUserId(userId: string) {
-        const remembrances = await this.Remembrance.find({ userId });
+        const remembrance = await this.Remembrance.findOne({ userId });
 
-        return remembrances;
+        return remembrance;
     }
 
     // 추모 데이터 수정

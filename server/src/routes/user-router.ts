@@ -1,10 +1,17 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
-import { receiverService, willService } from '../services';
-import { userService } from '../services/user-service';
-import { sendMailTest } from '../services/mail-service';
-import { registerJoiSchema } from '../db/schemas/joi-schemas/user-joi-schema';
+import {
+    userService,
+    receiverService,
+    remembranceService,
+    willService,
+    sendMailTest,
+} from '../services';
+import {
+    registerJoiSchema,
+    createRemembranceJoiSchema,
+} from '../db/schemas/joi-schemas';
 
 const usersRouter = Router();
 
@@ -189,7 +196,7 @@ const usersRouter = Router();
  *   post:
  *     tags: [Users]
  *     summary: 유저 회원가입 용 API, 유저 정보를 DB에 등록
- *     description: 유저가 회원가입 post요청 시, fullName, email, password, repeatPassword, dateOfBirth를 req.body로 받아 유저 등록
+ *     description: 유저가 회원가입 post요청 시, fullName, email, password, repeatPassword, dateOfBirth를 req.body로 받아 유저 등록, 추모 데이터 생성
  *     requestBody:
  *       required: true
  *       content:
@@ -228,6 +235,17 @@ usersRouter.post(
                 repeatPassword,
                 dateOfBirth,
             });
+
+            // 생성된 유저 정보로 추모 데이터 생성
+            const userId = newUser._id.toString();
+            const remembranceInfo = {
+                userId,
+                fullName,
+                dateOfBirth,
+            };
+            await createRemembranceJoiSchema.validateAsync(remembranceInfo);
+            remembranceService.addRemembrance(remembranceInfo);
+
             res.status(201).json(newUser);
         } catch (error) {
             next(error);
@@ -240,7 +258,7 @@ usersRouter.post(
  *   post:
  *     tags: [Users]
  *     summary: 유저의 이메일 주소와 비밀번호로 유저를 로그인시키는 API
- *     description: 유저의 이메일 주소와 비밀번호를 Request Body로 받아서 유저를 로그인 - user의 JWT token을 생성 후 유저아이디와 함께 반환
+ *     description: 유저의 이메일 주소와 비밀번호를 Request Body로 받아서 유저를 로그인 - user의 JWT token을 생성 후 유저아이디, remembranceId와 함께 반환
  *     requestBody:
  *       required: true
  *       content:
@@ -276,7 +294,7 @@ usersRouter.post(
                         });
                         return; // throw로 여러개를 시도해 보았는데, throw로는 에러 해결이 잘 안됨.
                     }
-                    req.login(user, { session: false }, (loginError) => {
+                    req.login(user, { session: false }, async (loginError) => {
                         // login을 하면
                         if (loginError) {
                             res.status(400).send(loginError);
@@ -292,9 +310,15 @@ usersRouter.post(
                             },
                         );
 
+                        const remembrance =
+                            await remembranceService.getRemembranceByUser(
+                                user._id,
+                            );
+
                         res.status(200).json({
                             token,
                             userId: user._id,
+                            remembranceId: remembrance._id,
                         });
                     });
                 },

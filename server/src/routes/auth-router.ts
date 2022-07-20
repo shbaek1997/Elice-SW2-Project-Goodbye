@@ -5,6 +5,7 @@ import {
     willService,
     receiverService,
     ImageService,
+    remembranceService,
 } from '../services';
 import {
     createReceiverJoiSchema,
@@ -1004,5 +1005,42 @@ authRouter.patch(
         }
     },
 );
+
+/**
+ * @swagger
+ * /api/auth/{userId}/remembrances:
+ *   get:
+ *     tags:
+ *     - Remembrances
+ *     security:
+ *       - bearerAuth: []
+ *     summary: userId로 추모 데이터 조회
+ *     description: 로그인한 유저의 추모 데이터 조회
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: 하나의 추모 데이터 조회
+ *         $ref: "#/components/responses/remembranceWithCommentsRes"
+ */
+// 유저의 추모 데이터 조회
+authRouter.get('/:userId/remembrances', async (req, res, next) => {
+    try {
+        const { userId } = req.params;
+        checkUserValidity(req, userId);
+
+        const remembrance = await remembranceService.getRemembranceByUser(
+            userId,
+        );
+
+        res.status(200).json(remembrance);
+    } catch (error) {
+        next(error);
+    }
+});
 
 export { authRouter };
