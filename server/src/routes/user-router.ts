@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
+import { receiverService, willService } from '../services';
 import { userService } from '../services/user-service';
 import { sendMailTest } from '../services/mail-service';
 import { registerJoiSchema } from '../db/schemas/joi-schemas/user-joi-schema';
@@ -297,4 +298,38 @@ usersRouter.post(
     },
 );
 
+// email로 온 유언장을 열람했을 경우, 해당 유저의 유언장 안의 수신자 목록의 이메일과 일치하는지 확인 후, 열람이 되게 하는 API
+// 유언장 링크를 타고 열람을 하면, 모달 창 같은 방식으로 열람한 사람의 이메일 주소를 입력받게 함.
+usersRouter.post(
+    '/:willId',
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            // is 를 사용해서 body를 확인해 줄까?
+            const { willId } = req.params;
+            const { email } = req.body;
+            const will = await willService.findWill(willId);
+            // will 안의 receivers는 receiver Id가 등록되어 있고,
+            const { receivers }: any = will;
+            const registeredEmails: string[] = [];
+            for (let i = 0; i < receivers.length; i++) {
+                const receiverId = receivers[0];
+                const receiver: any = await receiverService.findReceiver(
+                    receiverId,
+                );
+                const { emailAddress } = receiver;
+                registeredEmails.push(emailAddress);
+            }
+            const matchedEmail = registeredEmails.find(
+                (registeredEmail) => registeredEmail === email,
+            );
+            if (!matchedEmail) {
+                throw new Error('올바르지 않은 이메일 주소입니다.');
+            }
+
+            res.status(200).json({ result: 'success' });
+        } catch (error) {
+            next(error);
+        }
+    },
+);
 export { usersRouter };

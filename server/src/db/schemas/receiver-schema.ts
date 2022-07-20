@@ -5,7 +5,6 @@ interface InterfaceReceiver {
     emailAddress: string;
     userId: string;
     relation: string;
-    role: string;
 }
 const ReceiverSchema = new Schema<InterfaceReceiver>(
     {
@@ -23,11 +22,6 @@ const ReceiverSchema = new Schema<InterfaceReceiver>(
             required: true,
         },
         relation: {
-            type: String,
-            required: true,
-        },
-        // role이 필요할까?
-        role: {
             type: String,
             required: true,
         },
