@@ -50,6 +50,14 @@ export class UserModel {
         return managedUserAddedUser;
     }
 
+    async removeManagedUser(userId: string, managedUserId: string) {
+        const managedUserRemovedUser = await this.User.updateOne(
+            { _id: userId },
+            { $pull: { managedUsers: { userId: managedUserId } } },
+        );
+        return managedUserRemovedUser;
+    }
+
     // 관련된 user의 will 추가, 수정, 삭제
     async addWill(userId: string, willId: string) {
         const willAddedUser = await this.User.updateOne(

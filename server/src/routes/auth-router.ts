@@ -291,7 +291,7 @@ authRouter.patch(
  *     description: 예를 들어서 유저 A가 B가 아들이어서 B에게 권한을 부여하기로 결정, B의 이메일 주소와 A 계정의 비밀번호를 확인 받고 A의 trustedUser 부분의 email부분이 아들 이메일로 등록됨, 아들은 ProjectGoodbye 서비스 관련 정보가 담긴 이메일을 받고, 이메일에는 링크등을 활용하여 신규유저인 경우 회원 가입, 기존 유저인 경우는 로그인을 해달라는 부탁을 받게 됨. 아직 HTML 부분은 API에서 크게 구현을 안했기 때문에 프론트 분들이 html을 이미 작성하신 양식이 있다면 비슷하게 작성해주시거나 같이 상의해보아요.
  *     responses:
  *       200:
- *         description: 수정된 A의 정보와 token값 as JSON
+ *         description: 수정된 A의 정보와 token값과 isUpdated값 as JSON
  *
  */
 authRouter.patch(
@@ -304,6 +304,21 @@ authRouter.patch(
             checkUserValidity(req, userId);
             // body로 이메일 정보 + 현재 비밀번호 받아오기
             const { email, currentPassword } = req.body;
+            const user = await userService.getUser(userId);
+            if (!user) {
+                throw new Error('해당 유저를 찾을 수 없습니다.');
+            }
+            const possibleTrustedUser = user.trustedUser;
+            const possibleTrustedUserEmail = possibleTrustedUser?.email;
+            const possibleTrustedUserId = possibleTrustedUser?.userId;
+            console.log(possibleTrustedUser);
+            console.log(possibleTrustedUserEmail);
+            if (email === possibleTrustedUserEmail) {
+                throw new Error(
+                    '이미 등록되어 있는 신뢰하는 유저 이메일입니다.',
+                );
+            }
+            // possible trusted user가 있든 없든 우선 새 신뢰유저로 정보 업데이트 + 이메일 전송
             const userInfoRequired = { userId, currentPassword };
             const newTrustedUser = { email, confirmed: false };
             const toUpdate = { trustedUser: newTrustedUser };
@@ -312,10 +327,6 @@ authRouter.patch(
                 toUpdate,
             );
             // mail 전송하는 부분을 여기서 작성하는게 편할까?
-            const user = await userService.getUser(userId);
-            if (!user) {
-                throw new Error('해당 유저를 찾을 수 없습니다.');
-            }
             const { fullName }: any = user;
             // userId와 email 정보를 담을 token값 생성
             const secretKey = process.env.JWT_SECRET_KEY || 'secret-key'; // login 성공시 key값을 써서 토큰 생성
@@ -369,7 +380,18 @@ authRouter.patch(
             `;
             sendMailTest(receivers, subject, html);
             // 업데이트 이후의 유저 데이터를 프론트에 보내 줌
-            res.status(200).json({ updatedUserInfo, token });
+            // 기존 등록유저가 있었다면 기존 등록 유저에서 정보 삭제
+            let isUpdated: boolean = false;
+            if (possibleTrustedUserId) {
+                isUpdated = true;
+                // data 삭제;
+                await userService.removeManagedUsers(
+                    possibleTrustedUserId,
+                    userId,
+                );
+            }
+
+            res.status(200).json({ updatedUserInfo, token, isUpdated });
         } catch (error) {
             next(error);
         }

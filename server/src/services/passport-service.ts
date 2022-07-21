@@ -3,7 +3,6 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { ExtractJwt, Strategy as JWTStrategy } from 'passport-jwt';
 import { userModel } from '../db';
-import { remembranceService } from './remembrance-service';
 
 const passportConfig = {
     // passport의 username, password field configure
@@ -36,13 +35,7 @@ const passportVerify = async (email: string, password: string, done) => {
         }
 
         // 위 조건을 모두 통과 한다면 로그인하려는 유저의 추모 데이터 조회
-        const remembrance = await remembranceService.getRemembranceByUser(
-            user._id.toString(),
-        );
-
-        // remembranceId를 담은 새 객체 생성 후
-        const newUser = { ...user, remembranceId: remembrance._id };
-        done(null, newUser); // user에 newUser반환
+        done(null, user); // user에 newUser반환
         return;
     } catch (error) {
         done(null, false, error);
