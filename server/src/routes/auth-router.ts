@@ -13,7 +13,7 @@ import {
     createWillJoiSchema,
     updateWillJoiSchema,
     userUpdateJoiSchema,
-    updateRemembranceJoiSchema,
+    updateDeathDayJoiSchema,
 } from '../db/schemas/joi-schemas';
 import { sendMailTest } from '../services/mail-service';
 import { uploadImage } from '../middlewares';
@@ -544,9 +544,9 @@ authRouter.post(
             }
             // 사망일자는 body에서 모달 같은 방식으로 받아옴.
             const { dateOfDeath } = req.body;
+            const toUpdate = { dateOfDeath };
             // 사망했으므로 추모 정보 업데이트
-            const toUpdate = { dateOfDeath, isPublic: true };
-            await updateRemembranceJoiSchema.validateAsync(toUpdate);
+            await updateDeathDayJoiSchema.validateAsync(toUpdate);
             // 유저의 사망일을 등록하고 추모 정보를 가져옴
             const remembrance = await remembranceService.setRemembrance(
                 managedUserId,

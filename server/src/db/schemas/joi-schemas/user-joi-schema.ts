@@ -6,7 +6,7 @@ const registerJoiSchema = joi.object({
         'any.required': '이메일은 반드시 입력되어야 합니다.',
         'string.email': '올바르지 않은 이메일 형식입니다.',
     }),
-    fullName: joi.string().required().messages({
+    fullName: joi.string().trim().required().messages({
         'string.empty': '이름은 비어있을 수 없습니다.',
         'any.required': '이름은 반드시 입력되어야 합니다.',
     }),
@@ -20,12 +20,19 @@ const registerJoiSchema = joi.object({
         'any.required': '비밀번호는 반드시 입력되어야 합니다.',
         'string.min': '비밀번호는 최소 8글자 이상이어야 합니다.',
     }),
-    dateOfBirth: joi.date().required().iso().min('1900-01-01').messages({
-        'any.required': '생년월일은 반드시 입력되어야 합니다.',
-        'date.base': '올바른 날짜 형식이 아닙니다.',
-        'date.format': '올바른 날짜 형식이 아닙니다. (0000-00-00)',
-        'date.min': '생년월일은 1990년 1월 1일 이상이어야 합니다.',
-    }),
+    dateOfBirth: joi
+        .date()
+        .min('1900-01-01')
+        .max('now')
+        .iso()
+        .required()
+        .messages({
+            'any.required': '생년월일은 반드시 입력되어야 합니다.',
+            'date.base': '올바른 날짜 형식이 아닙니다.',
+            'date.min': '생년월일은 1990년 1월 1일 이전일 수 없습니다.',
+            'date.max': '생년월일은 오늘 이후일 수 없습니다.',
+            'date.format': '올바른 날짜 형식이 아닙니다. (yyyy-mm-dd)',
+        }),
 });
 
 const userUpdateJoiSchema = joi.object({
@@ -38,12 +45,13 @@ const userUpdateJoiSchema = joi.object({
         'any.required': '현재 비밀번호는 반드시 입력되어야 합니다.',
         'string.min': '비밀번호는 최소 8글자 이상이어야 합니다.',
     }),
-    dateOfBirth: joi.date().iso().min('1900-01-01').messages({
+    dateOfBirth: joi.date().min('1900-01-01').max('now').iso().messages({
         'date.base': '올바른 날짜 형식이 아닙니다.',
-        'date.format': '올바른 날짜 형식이 아닙니다. (0000-00-00)',
-        'date.min': '생년월일은 1990년 1월 1일 이상이어야 합니다.',
+        'date.min': '생년월일은 1990년 1월 1일 이전일 수 없습니다.',
+        'date.max': '생년월일은 오늘 이후일 수 없습니다.',
+        'date.format': '올바른 날짜 형식이 아닙니다. (yyyy-mm-dd)',
     }),
-    photo: joi.string().uri().messages({
+    photo: joi.string().trim().uri().messages({
         'string.empty': '사진은 비어있을 수 없습니다.',
         'string.uri': '올바르지 않은 url 형식입니다.',
     }),

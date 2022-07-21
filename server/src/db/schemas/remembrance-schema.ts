@@ -5,7 +5,6 @@ export interface IRemembrance {
     fullName: string;
     dateOfBirth: string;
     dateOfDeath?: string;
-    isPublic?: boolean;
     photo?: string;
     comments?: Array<Types.ObjectId>;
 }
@@ -28,10 +27,6 @@ const RemembranceSchema: Schema<IRemembrance> = new Schema(
         dateOfDeath: {
             type: String,
             required: false,
-        },
-        isPublic: {
-            type: Boolean,
-            default: false,
         },
         photo: {
             type: String,

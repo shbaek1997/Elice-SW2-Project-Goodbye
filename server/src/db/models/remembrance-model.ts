@@ -15,7 +15,6 @@ export interface IUpdateRemembrance {
     fullName?: string;
     dateOfBirth?: string;
     dateOfDeath?: string;
-    isPublic?: boolean;
     photo?: string;
 }
 

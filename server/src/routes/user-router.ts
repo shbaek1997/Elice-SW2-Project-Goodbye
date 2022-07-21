@@ -7,10 +7,7 @@ import {
     willService,
     sendMailTest,
 } from '../services';
-import {
-    registerJoiSchema,
-    createRemembranceJoiSchema,
-} from '../db/schemas/joi-schemas';
+import { registerJoiSchema } from '../db/schemas/joi-schemas';
 
 const usersRouter = Router();
 
@@ -247,7 +244,6 @@ usersRouter.post(
                 fullName,
                 dateOfBirth,
             };
-            await createRemembranceJoiSchema.validateAsync(remembranceInfo);
             remembranceService.addRemembrance(remembranceInfo);
 
             res.status(201).json(newUser);

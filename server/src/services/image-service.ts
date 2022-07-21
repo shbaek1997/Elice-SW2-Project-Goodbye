@@ -14,7 +14,7 @@ export class ImageService {
         // 기존 이미지가 있을 경우 삭제
         const { photo } = await userService.getUser(userId);
         if (photo) {
-            this.deleteImage(userId, photo);
+            await this.deleteImage(userId, photo);
         }
 
         // 유저 및 추모 데이터에 저장

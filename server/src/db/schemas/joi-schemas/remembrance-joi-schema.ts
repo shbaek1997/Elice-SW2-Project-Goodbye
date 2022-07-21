@@ -1,17 +1,8 @@
 import joi from 'joi';
 
-const createRemembranceJoiSchema = joi.object({
-    userId: joi.string().required(),
-    fullName: joi.string().required(),
-    dateOfBirth: joi.date().min('1900-01-01').iso().required(),
+const updateDeathDayJoiSchema = joi.date().max('now').iso().messages({
+    'date.max': '사망일은 오늘 이후일 수 없습니다.',
+    'date.format': '사망일은 yyyy-mm-dd 형식이어야 합니다.',
 });
 
-const updateRemembranceJoiSchema = joi.object({
-    fullName: joi.string(),
-    dateOfBirth: joi.date().min('1900-01-01').iso(),
-    dateOfDeath: joi.date().max('now').iso(),
-    isPublic: joi.boolean(),
-    photo: joi.string().uri(),
-});
-
-export { createRemembranceJoiSchema, updateRemembranceJoiSchema };
+export { updateDeathDayJoiSchema };

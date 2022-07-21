@@ -35,10 +35,6 @@ components:
           type: string
           description: '회원 사망 날짜'
           example: '2099-01-01'
-        isPublic:
-          type: boolean
-          description: '추모 공개 여부'
-          example: true
         photo:
           type: string
           description: '회원 영정 사진 url'
