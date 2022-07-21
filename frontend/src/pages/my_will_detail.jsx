@@ -1,8 +1,10 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { css } from '@emotion/react';
 import AppLayout from '../components/AppLayout';
-import { Form, Modal, Button, Input } from 'antd';
+import { Form, Modal, Button, List, Checkbox, Input } from 'antd';
+import VirtualList from 'rc-virtual-list';
+
 import 'antd/dist/antd.css';
 import Image from 'next/image';
 import axios from 'axios';
@@ -38,7 +40,29 @@ const MyWillDetail = () => {
 		setIsModalVisible(false);
 	};
 
+	const ContainerHeight = 400;
+	const [receiverData, setReceiverData] = useState([]);
+	const checkBoxRef = useRef(null);
+
+
+	const getReceiverList = () => {
+		const token = sessionStorage.getItem('token');
+		const userId = sessionStorage.getItem('userId');
+		axios.get(`/api/auth/${userId}/receivers`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		}).then(res => {
+			// dispatch(RECEIVERACTIONS.getReceivers({ lists: res.data }));
+			console.log(res.data);
+			setReceiverData([...res.data]);
+		}).catch(err => console.log(err));
+	}
+
+
+
 	useEffect(() => {
+		getReceiverList();
 		const { id } = router.query;
 		//console.log(id);
 		if (id) {
@@ -51,6 +75,31 @@ const MyWillDetail = () => {
 	}, []);
 
 	//받는 사람 선택 팝업
+	// const addReceiver = useCallback(() => {
+	// 	const userId = sessionStorage.getItem('userId');
+	// 	const token = sessionStorage.getItem('token');
+	// 	const fullName = name;
+	// 	const emailAddress = email;
+	// 	const role = 'receiver';
+	// 	axios
+	// 		.post(
+	// 			`/api/auth/${userId}/receiver`,
+	// 			{
+	// 				fullName,
+	// 				emailAddress,
+	// 				relation,
+	// 				role,
+	// 			},
+	// 			{
+	// 				headers: {
+	// 					Authorization: `Bearer ${token}`,
+	// 				},
+	// 			},
+	// 		)
+	// 		.then((res) => {
+	// 			//To 항목에 보여줄 수신자 목록
+	// 			const receiver = `${res.data.fullName}(${res.data.relation}) <${res.data.emailAddress}>, `;
+	// 			setReceiverList([receiver, ...receiverList]);
 	const addReceiver = useCallback(() => {
 		const { userId, headerAuth } = getData();
 		const fullName = name;
@@ -72,15 +121,15 @@ const MyWillDetail = () => {
 				const receiver = `${res.data.fullName}(${res.data.relation}) <${res.data.emailAddress}>, `;
 				setReceiverList([receiver, ...receiverList]);
 
-				//수신자 id 목록
-				const receiverId = res.data._id;
-				setReceivers([receiverId, ...receivers]);
+				// 			//수신자 id 목록
+				// 			const receiverId = res.data._id;
+				// 			setReceivers([receiverId, ...receivers]);
 
-				//input 값 초기화
-				setName('');
-				setRelation('');
-				setEmail('');
-				alert('성공적으로 추가되었습니다.');
+				// 			//input 값 초기화
+				// 			setName('');
+				// 			setRelation('');
+				// 			setEmail('');
+				// 			alert('성공적으로 추가되었습니다.');
 			})
 			.catch((err) => alert(err.response.data.reason));
 	});
@@ -112,11 +161,24 @@ const MyWillDetail = () => {
 			.catch((err) => alert(err.response.data.reason));
 	});
 
+
+	// const updateReceiverList = useCallback(setReceiverList, []);	
+	// 	const receiver = `${checkValue.fullName}(${checkValue.relation}) <${checkValue.email}>, `;
+
+	// 	// updateReceiverList([receiver]);
+	// 	// setReceiverList()
+	// }, [])
+
+
+	// 수신인 선택완료 클릭
+	const onOkReceiverList = (e) => {
+		console.log(e.target);
+		// console.log(checkBoxRef.current);	
+	}
+
 	//유언장 수정
 	const ChangeForm = useCallback(() => {
-		const { userId, headerAuth } = getData();
 		const url = `/api/auth/${userId}/wills/${willId}`;
-		const data = { title, content, receivers };
 
 		axios
 			.patch(url, data, headerAuth)
@@ -141,20 +203,19 @@ const MyWillDetail = () => {
 			.catch((err) => alert(err.response.data.reason));
 	});
 
+	// {/* <div css={adBoxStyle}>
+	// 		<div css={adContentStyle}>
+	// 		</div>
+	// 		<div css={imageStyle}>
+	// 			<Image
+	// 				src="https://images.unsplash.com/photo-1528752477378-485b46bedcde?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8dGVzdGFtZW50fGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=600&q=60"
+	// 				alt="나의 유언장"
+	// 				layout="fill"
+	// 			/>
+	// 		</div>
+	// 	</div> */}
 	return (
-		<AppLayout>
-			{/* <div css={adBoxStyle}>
-				<div css={adContentStyle}>
-					<h2>나의 유언장</h2>
-				</div>
-				<div css={imageStyle}>
-					<Image
-						src="https://images.unsplash.com/photo-1528752477378-485b46bedcde?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8dGVzdGFtZW50fGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=600&q=60"
-						alt="나의 유언장"
-						layout="fill"
-					/>
-				</div>
-			</div> */}
+		<AppLayout AppLayout >
 			<main css={mainWrapper}>
 				<section css={willsectionWrapper}>
 					{/* <div css={headerWrapper}>
@@ -172,7 +233,7 @@ const MyWillDetail = () => {
 					<div>
 						To <span>{receiverList}</span>
 						<Button onClick={showModal}>받는 사람 선택</Button>
-						<Modal
+						{/* <Modal
 							title="받는 사람"
 							visible={isModalVisible}
 							onOk={handleOk}
@@ -211,6 +272,42 @@ const MyWillDetail = () => {
 							>
 								추가
 							</Button>
+						</Modal> */}
+						<Modal title="ReceiverList Modal" visible={isModalVisible} onOk={onOkReceiverList} onCancel={handleCancel}>
+							<List>
+								<Checkbox.Group
+									onChange={onChangeCheckBox}
+								>
+									<VirtualList
+										data={receiverData}
+										height={ContainerHeight}
+										itemHeight={47}
+										itemKey="receiver_list"
+									>
+										{(item) => {
+											console.log(item);
+											const receiverInfo = {
+												fullName: item.fullName,
+												relation: item.relation,
+												email: item.emailAddress
+											}
+											return (
+												<Checkbox value={receiverInfo}>
+													<p>{`이름: ${item.fullName}`}</p>
+													<p>{`이메일: ${item.emailAddress}`}</p>
+													{/* <List.Item key={item._id}>
+																<List.Item.Meta
+																	title={<a href="#">{item.fullName}</a>}
+																	description={item.emailAddress}
+																/>					
+													</List.Item> */}
+													{/* <Button type='button' onClick={selectReceiver}>선택</Button> */}
+												</Checkbox>
+											)
+										}}
+									</VirtualList>
+								</Checkbox.Group>
+							</List>
 						</Modal>
 					</div>
 					<Form>
@@ -268,7 +365,7 @@ const MyWillDetail = () => {
 					</Form>
 				</section>
 			</main>
-		</AppLayout>
+		</AppLayout >
 	);
 };
 

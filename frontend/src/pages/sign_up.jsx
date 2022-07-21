@@ -1,5 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import Link from 'next/link';
+
 import { Form } from 'antd';
 import { css } from '@emotion/react';
 import useInput from '../hooks/useInput';
@@ -13,6 +14,7 @@ const SignUp = () => {
 	const router = useRouter();
 	const [redirectUrl, setRedirectUrl] = useState('/sign_in');
 	// const [isLogIn, setIsLogIn] = useState(null);
+    // const userData = useSelector((state) => state.user);
 
 	const [email, onChangeEmail] = useInput('');
 	const [fullName, onChangeFullName] = useInput('');
@@ -28,6 +30,28 @@ const SignUp = () => {
 			Router.replace('/');
 		}
 	};
+
+
+    //  추모 데이터 생성
+    // const createRemembranceData = async (userData) => {
+    //     // 유저 리듀서에서 정보를 가져와서 씀
+    //     const postData = {
+	// 		userId: userData.userId,
+	// 		fullName: userData.fullName,
+	// 		dateOfBirth: userData.dateOfBirth,
+	// 		isPublic: false
+	// 	}
+	// 	try {
+	// 		const res = await axios.post('/api/remembrances', 
+    //             postData
+    //         );
+	// 		console.log(res);
+	// 	} catch (error) {
+	// 		console.error(error);
+	// 	}
+	// }	
+
+	
 
 	const onSubmitForm = useCallback(() => {
 		const data = { email, fullName, dateOfBirth, password, repeatPassword };

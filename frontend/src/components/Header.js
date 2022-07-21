@@ -4,6 +4,7 @@ import Router from 'next/router';
 
 import { useDispatch } from 'react-redux';
 import { USERACTIONS } from '../reducers/user';
+import { useSelector } from 'react-redux';
 
 import styled from '@emotion/styled';
 
@@ -14,25 +15,23 @@ const Header = () => {
 	// const isLogIn = useMemo(userLoginCheck, []);
 	const [isLogIn, setIsLogIn] = useState(null);
 	const dispatch = useDispatch();
+	const {logInState} = useSelector((state) => state.user);
 
 	// 로그인 확인 부분
 	useEffect(() => {
+		// console.log(logInState);
 		setLoginValue();
 	}, []);
 
-	const setLoginValue = async () => {
+
+    const setLoginValue = async () => {
 		const checkValue = await userLoginCheck();
-		// console.log(checkValue);
-		setIsLogIn(checkValue);
-	};
+		dispatch(USERACTIONS.setUserData(checkValue));
+		console.log(checkValue, logInState);
+		// 유저 데이터를 헤더에서 받아서 리듀서에 저장해야됨
+		// dispatch(USERACTIONS.setLoginState(userData));
+	}
 
-	// const dispatch = useDispatch();
-	// const { logInState } = useSelector(state => {
-	// 	console.log(state);
-	// 	return state.user
-	// });
-
-	// console.log(logInState);
 
 	// 로그아웃 버튼 클릭
 	const handleLogOut = useCallback(() => {
@@ -45,7 +44,7 @@ const Header = () => {
 		<>
 			<Wrapper>
 				<LoginHeader>
-					{!isLogIn ? (
+					{!logInState ? (
 						<ButtonGroup>
 							<Link href={'/sign_in'}>
 								<Button type="button">로그인</Button>
@@ -76,17 +75,7 @@ const Header = () => {
 							</Link>
 						</li>
 						<li>
-							<Link href={'#'}>
-								<a>나의 장례식</a>
-							</Link>
-						</li>
-						<li>
-							<Link href={'/obituary_list'}>
-								<a>부고 관리</a>
-							</Link>
-						</li>
-						<li>
-							<Link href={'/receiver_page'}>
+							<Link href={'/receiver_management_page'}>
 								<a>수신인 관리</a>
 							</Link>
 						</li>
@@ -129,6 +118,10 @@ const NavBar = styled.section`
 
 	ul {
 		margin: 0;
+	}
+
+	ul a {
+		text-decoration: none;
 	}
 
 	ul li {

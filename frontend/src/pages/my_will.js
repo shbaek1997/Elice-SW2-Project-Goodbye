@@ -37,40 +37,39 @@ const MyWill = () => {
 
 	// receiverIdList는 사실상 이 페이지 내에서는 안 쓰고 유언장 등록 부분에 필요
 	// 추후 재사용 필요
-	const [ willList, allReceiverList] = useSelector((state) => {
+	const [willList, allReceiverList] = useSelector((state) => {
 		return [state.will.willList, state.receivers.allReceiverList];
 	});
-	const [isLogIn, setIsLogIn] = useState(null);
+	const { logInState } = useSelector((state) => state.user);
 	const [currentPage, setCurrentPage] = useState(1);
-
 	const clickPagination = useCallback(setCurrentPage, []);
 
-	const loadValues = async () => {
-		const checkValue = await userLoginCheck();
-		
+
+	const loadValues = () => {
+		// const checkValue = await userLoginCheck();
+		// console.log(logInState);
 		// 로그인 했을 경우 정보 불러오기
-		if (checkValue) {
+		if (logInState) {
 			getWillsList();
 			getReceiverList();
 		}
-		setIsLogIn(checkValue);
 	}
 
 
 
 	useEffect(() => {
-		
+
 		// 테스트 값 넣기
-		const { userId, token } = getUserIdToken();
+		// const { userId, token } = getUserIdToken();
 		// axios.post(`/api/auth/${userId}/will`, {
 		// 	title: 'test1....유언장-21',
 		// 	content: '유언장-21 내용~',
 		// 	userId: userId,
-		// 	receivers: ['62d3baea2a0a7050008fbf7b',
-		// 				'62d3baf42a0a7050008fbf81',
-		// 				'62d3baff2a0a7050008fbf87',
-		// 				'62d3bb0a2a0a7050008fbf8d',
-		// 				'62d3bb292a0a7050008fbf93'			
+		// 	receivers: [	
+		// 				{
+		// 					"receiverId": '62d3baea2a0a7050008fbf7b',
+		// 					"email": 'test13@email.com'
+		// 				}
 		// 			]
 		// }, {
 		// 	headers: {
@@ -82,15 +81,13 @@ const MyWill = () => {
 
 		// 로그인 확인 부분
 		loadValues();
-	}, []);
+	}, [logInState]);
 
-    // console.log(receiverIdList);	
 
 	// console.log(willList, currentPage, willList.length);
 
 	const pageListUpdate = () => {
 		// 마지막 페이지를 삭제 했다면 현재 페이지 번호 앞으로 이동
-		// console.log('페이지업뎃 함수', currentPage);
 		setCurrentPage((currentPageNum) => {
 			const updatePageNum =
 				willList[currentPageNum - 1] === undefined
@@ -109,7 +106,6 @@ const MyWill = () => {
 				Authorization: `Bearer ${token}`,
 			},
 		}).then(res => {
-			// console.log(res);
 			dispatch(RECEIVERACTIONS.getReceivers({ lists: res.data }));
 		}).catch(err => console.log(err));
 	}
@@ -118,13 +114,13 @@ const MyWill = () => {
 		// console.log('겟윌함수');
 		const token = sessionStorage.getItem('token');
 		const userId = sessionStorage.getItem('userId');
-		axios
-			.get(`/api/auth/${userId}/wills`, {
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			})
+		axios.get(`/api/auth/${userId}/wills`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		})
 			.then((res) => {
+				// console.log(res.data);
 				dispatch(WillACTIONS.getWills({ lists: res.data }));
 				pageListUpdate();
 			})
@@ -132,7 +128,7 @@ const MyWill = () => {
 	};
 
 	const onClickDelete = (will) => {
-		console.log(will);
+		// console.log(will);
 		const token = sessionStorage.getItem('token');
 		const userId = sessionStorage.getItem('userId');
 
@@ -173,7 +169,7 @@ const MyWill = () => {
 						/>
 					</div>
 				</div>
-				{!isLogIn ? (
+				{!logInState ? (
 					<NoticeBox>
 						<p>
 							유언장을 열람하시거나 작성하려면 로그인이나
