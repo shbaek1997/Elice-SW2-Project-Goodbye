@@ -3,6 +3,7 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { ExtractJwt, Strategy as JWTStrategy } from 'passport-jwt';
 import { userModel } from '../db';
+import { remembranceService } from './remembrance-service';
 
 const passportConfig = {
     // passport의 username, password field configure
@@ -21,7 +22,10 @@ const passportVerify = async (email: string, password: string, done) => {
             });
             return;
         }
-        const isPasswordCorrect: boolean = await bcrypt.compare(password, user.password); // password 일치 확인
+        const isPasswordCorrect: boolean = await bcrypt.compare(
+            password,
+            user.password,
+        ); // password 일치 확인
         if (!isPasswordCorrect) {
             //비밀번호가 불일치 한다면..
             done(null, false, {
@@ -30,11 +34,18 @@ const passportVerify = async (email: string, password: string, done) => {
             });
             return;
         }
-        // 위 조건을 모두 통과 한다면
-        done(null, user); // user에 user반환
+
+        // 위 조건을 모두 통과 한다면 로그인하려는 유저의 추모 데이터 조회
+        const remembrance = await remembranceService.getRemembranceByUser(
+            user._id.toString(),
+        );
+
+        // remembranceId를 담은 새 객체 생성 후
+        const newUser = { ...user, remembranceId: remembrance._id };
+        done(null, newUser); // user에 newUser반환
         return;
     } catch (error) {
-        done(error);
+        done(null, false, error);
     }
 };
 

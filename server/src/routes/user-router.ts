@@ -3,7 +3,6 @@ import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import {
     userService,
-    receiverService,
     remembranceService,
     willService,
     sendMailTest,
@@ -297,11 +296,8 @@ usersRouter.post(
                     if (error || !user) {
                         // 인증 성공을 해야 유저 객체가 생겨서 JOI로 검증하기 어려움...
                         // passport 인증 실패 or 유저가 없으면 error
-                        res.status(400).json({
-                            result: 'error',
-                            reason: info.message,
-                        });
-                        return; // throw로 여러개를 시도해 보았는데, throw로는 에러 해결이 잘 안됨.
+                        next(info);
+                        return;
                     }
                     req.login(user, { session: false }, async (loginError) => {
                         // login을 하면
@@ -319,19 +315,14 @@ usersRouter.post(
                             },
                         );
 
-                        const remembrance =
-                            await remembranceService.getRemembranceByUser(
-                                user._id,
-                            );
-
                         res.status(200).json({
                             token,
                             userId: user._id,
-                            remembranceId: remembrance._id,
+                            remembranceId: user.remembranceId,
                         });
                     });
                 },
-            )(req, res); // 이 부분은 수업 때나 지금이나 이해가 잘 안되지만 필요함.
+            )(req, res, next); // 이 부분은 수업 때나 지금이나 이해가 잘 안되지만 필요함.
         } catch (error) {
             next(error);
         }
