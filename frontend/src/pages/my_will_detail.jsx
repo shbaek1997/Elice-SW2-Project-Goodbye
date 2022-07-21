@@ -11,9 +11,8 @@ import Router, { useRouter } from 'next/router';
 
 const MyWillDetail = () => {
 	const router = useRouter();
+
 	const { willList } = useSelector((state) => state.will);
-	//const params = new URLSearchParams(window.location.search);
-	//const id = params.get('id');
 
 	const [title, onChangeTitle, setTitle] = useInput('');
 	const [content, onChangeContent, setContent] = useInput('');
@@ -23,6 +22,9 @@ const MyWillDetail = () => {
 
 	const [receivers, setReceivers] = useState([]); //receiver Id 목록
 	const [receiverList, setReceiverList] = useState([]); //To 목록
+
+	const [willId, setWillId] = useState('');
+	const [idParam, setIdParam] = useState('');
 
 	//팝업 띄우기 관련
 	const [isModalVisible, setIsModalVisible] = useState(false);
@@ -38,18 +40,19 @@ const MyWillDetail = () => {
 
 	useEffect(() => {
 		const { id } = router.query;
-		console.log(willList);
-		if (willList.length > 0) {
+		//console.log(id);
+		if (id) {
+			setIdParam(id);
 			setTitle(willList[0][id].title);
 			setContent(willList[0][id].content);
 			setReceivers(willList[0][id].receivers);
+			setWillId(willList[0][id]._id);
 		}
 	}, []);
 
 	//받는 사람 선택 팝업
 	const addReceiver = useCallback(() => {
-		const userId = sessionStorage.getItem('userId');
-		const token = sessionStorage.getItem('token');
+		const { userId, headerAuth } = getData();
 		const fullName = name;
 		const emailAddress = email;
 		const role = 'receiver';
@@ -62,11 +65,7 @@ const MyWillDetail = () => {
 					relation,
 					role,
 				},
-				{
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				},
+				headerAuth,
 			)
 			.then((res) => {
 				//To 항목에 보여줄 수신자 목록
@@ -86,24 +85,57 @@ const MyWillDetail = () => {
 			.catch((err) => alert(err.response.data.reason));
 	});
 
-	//유언장 등록
-	const onSubmitForm = useCallback(() => {
+	//API 사용을 위한 공통 데이터
+	const getData = () => {
 		const userId = sessionStorage.getItem('userId');
 		const token = sessionStorage.getItem('token');
+		const headerAuth = {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		};
+		return { userId, headerAuth };
+	};
+
+	//유언장 등록
+	const RegisterForm = useCallback(() => {
+		const { userId, headerAuth } = getData();
+		const url = `/api/auth/${userId}/will`;
+		const data = { title, content, receivers };
 
 		axios
-			.post(
-				`/api/auth/${userId}/will`,
-				{ title, content, receivers },
-				{
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				},
-			)
-			.then((res) => {
-				console.log(res);
+			.post(url, data, headerAuth)
+			.then(() => {
 				alert('성공적으로 유언장이 등록되었습니다.');
+				Router.replace('/my_will');
+			})
+			.catch((err) => alert(err.response.data.reason));
+	});
+
+	//유언장 수정
+	const ChangeForm = useCallback(() => {
+		const { userId, headerAuth } = getData();
+		const url = `/api/auth/${userId}/wills/${willId}`;
+		const data = { title, content, receivers };
+
+		axios
+			.patch(url, data, headerAuth)
+			.then(() => {
+				alert('성공적으로 유언장이 수정되었습니다.');
+				Router.replace('/my_will');
+			})
+			.catch((err) => alert(err.response.data.reason));
+	});
+
+	//유언장 삭제
+	const DeleteForm = useCallback(() => {
+		const { userId, headerAuth } = getData();
+		const url = `/api/auth/${userId}/wills/${willId}`;
+
+		axios
+			.delete(url, headerAuth)
+			.then(() => {
+				alert('성공적으로 유언장이 삭제되었습니다.');
 				Router.replace('/my_will');
 			})
 			.catch((err) => alert(err.response.data.reason));
@@ -181,7 +213,7 @@ const MyWillDetail = () => {
 							</Button>
 						</Modal>
 					</div>
-					<Form onFinish={onSubmitForm}>
+					<Form>
 						<div css={letterWrapper}>
 							<div css={headerWrapper}>
 								<input
@@ -200,7 +232,7 @@ const MyWillDetail = () => {
 							/>
 						</div>
 						<div css={buttonWrapper}>
-							{willList.length <= 0 && (
+							{!idParam && (
 								<div>
 									<input
 										type="button"
@@ -214,13 +246,22 @@ const MyWillDetail = () => {
 										type="submit"
 										value="생성"
 										style={{ cursor: 'pointer' }}
+										onClick={RegisterForm}
 									/>
 								</div>
 							)}
-							{willList.length > 0 && (
+							{idParam && (
 								<div>
-									<input type="button" value="삭제" />
-									<input type="submit" value="수정" />
+									<input
+										type="button"
+										value="삭제"
+										onClick={DeleteForm}
+									/>
+									<input
+										type="submit"
+										value="수정"
+										onClick={ChangeForm}
+									/>
 								</div>
 							)}
 						</div>
@@ -288,7 +329,7 @@ const buttonWrapper = css`
 	width: 100%;
 	margin-top: 3rem;
 	& > div > input[type='submit'] {
-		margin-right: 2%;
+		margin-right: 0.5em;
 		background-color: #3e606f;
 	}
 
@@ -299,34 +340,8 @@ const buttonWrapper = css`
 		border: none;
 		width: 5rem;
 		padding: 10px;
-		border-radius: 1rem;
+		border-radius: 0.2rem;
 	}
 `;
 
-const adBoxStyle = css`
-	display: flex;
-	width: 100%;
-	height: 30rem;
-	margin: 10rem 0;
-	padding: 2rem;
-	align-item: center;
-	&:nth-of-type(even) {
-		flex-direction: row-reverse;
-	}
-`;
-
-const adContentStyle = css`
-	width: 50%;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-`;
-
-const imageStyle = css`
-	position: relative;
-	width: 50%;
-	line-height: 10rem;
-	background-color: silver;
-`;
 export default MyWillDetail;

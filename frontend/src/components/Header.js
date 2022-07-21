@@ -5,30 +5,26 @@ import Router from 'next/router';
 import { useDispatch } from 'react-redux';
 import { USERACTIONS } from '../reducers/user';
 
-
 import styled from '@emotion/styled';
 
 import { Button } from '../util/common_styles';
 import userLoginCheck from '../util/userLoginCheck';
-
 
 const Header = () => {
 	// const isLogIn = useMemo(userLoginCheck, []);
 	const [isLogIn, setIsLogIn] = useState(null);
 	const dispatch = useDispatch();
 
-
 	// 로그인 확인 부분
 	useEffect(() => {
 		setLoginValue();
-	}, [])
+	}, []);
 
-    const setLoginValue = async () => {
+	const setLoginValue = async () => {
 		const checkValue = await userLoginCheck();
 		// console.log(checkValue);
 		setIsLogIn(checkValue);
-	}
-
+	};
 
 	// const dispatch = useDispatch();
 	// const { logInState } = useSelector(state => {
@@ -44,7 +40,7 @@ const Header = () => {
 		dispatch(USERACTIONS.clearUserData());
 		Router.replace('/');
 	}, []);
-	
+
 	return (
 		<>
 			<Wrapper>
@@ -63,7 +59,9 @@ const Header = () => {
 							<Link href={'/my_page'}>
 								<Button type="button">마이페이지</Button>
 							</Link>
-							<Button type="button" onClick={handleLogOut}>로그아웃</Button>
+							<Button type="button" onClick={handleLogOut}>
+								로그아웃
+							</Button>
 						</ButtonGroup>
 					)}
 				</LoginHeader>
@@ -83,8 +81,8 @@ const Header = () => {
 							</Link>
 						</li>
 						<li>
-							<Link href={'#'}>
-								<a>부고 작성</a>
+							<Link href={'/obituary_list'}>
+								<a>부고 관리</a>
 							</Link>
 						</li>
 						<li>
@@ -99,7 +97,6 @@ const Header = () => {
 	);
 };
 
-
 export default Header;
 
 const Wrapper = styled.header`
@@ -108,6 +105,8 @@ const Wrapper = styled.header`
 		margin: 0;
 		line-height: 30px;
 		text-align: center;
+		font-size: 1.5em;
+		font-weight: bold;
 	}
 	h1:hover {
 		cursor: pointer;

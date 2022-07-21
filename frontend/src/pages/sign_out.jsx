@@ -7,7 +7,7 @@ const SignOut = () => {
 		sessionStorage.removeItem('userId');
 
 		Router.replace('/');
-	});
+	}, []);
 };
 
 export default SignOut;

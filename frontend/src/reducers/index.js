@@ -4,6 +4,7 @@ import { combineReducers } from 'redux';
 import user from './user';
 import will from './will';
 import receivers from './receivers';
+import obituary from './obituary';
 
 
 // next.js에서 생성한 redux store와 client에서 생성한 redux store는 다르기 때문에 이 둘을 합쳐야 한다.
@@ -19,7 +20,8 @@ const rootReducer = (state, action) => {
 			const combinedReducer = combineReducers({
 				user,
 				will,
-				receivers
+				receivers,
+				obituary,
 			});
 			return combinedReducer(state, action);
 		}
