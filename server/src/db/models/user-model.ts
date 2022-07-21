@@ -1,6 +1,18 @@
 import { model, Model } from 'mongoose';
+import { InterfaceUserTrust } from '../schemas/user-trust-schema';
 import type { InterfaceUser } from '../schemas/user-schema';
 import { UserSchema } from '../schemas/user-schema';
+
+interface IUpdateUser {
+    fullName?: string;
+    password?: string;
+    dateOfBirth?: string;
+    photo?: string;
+    wills?: string[];
+    receivers?: string[];
+    trustedUser?: InterfaceUserTrust;
+    managedUsers?: InterfaceUserTrust[];
+}
 
 export class UserModel {
     User: Model<InterfaceUser>;
@@ -17,6 +29,9 @@ export class UserModel {
 
     async findById(userId: string) {
         const user = await this.User.findOne({ _id: userId });
+        if (!user) {
+            throw new Error('유저 정보가 없습니다.');
+        }
         return user;
     }
 
@@ -25,7 +40,7 @@ export class UserModel {
         return createdNewUser;
     }
 
-    async updateById(userId: string, update: InterfaceUser) {
+    async updateById(userId: string, update: IUpdateUser) {
         const filter = { _id: userId };
         const option = { returnOriginal: false };
 

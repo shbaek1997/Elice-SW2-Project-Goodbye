@@ -4,8 +4,8 @@ import {
     userService,
     willService,
     receiverService,
-    ImageService,
     remembranceService,
+    ImageService,
 } from '../services';
 import {
     createReceiverJoiSchema,
@@ -15,8 +15,8 @@ import {
     userUpdateJoiSchema,
     updateRemembranceJoiSchema,
 } from '../db/schemas/joi-schemas';
-import { uploadImage } from '../middlewares';
 import { sendMailTest } from '../services/mail-service';
+import { uploadImage } from '../middlewares';
 // ts-node에서 typeRoot인지 type인지는 모르겠으나, --file 옵션을 package.json이나 file:true를 tsconfig에 해주지 않으면 적용이 안된다고 함.
 declare global {
     namespace Express {
@@ -106,7 +106,6 @@ authRouter.get(
 
 authRouter.patch(
     '/:userId',
-    uploadImage.single('photo'),
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             // is로 req.body 확인 필요?
@@ -118,17 +117,12 @@ authRouter.patch(
             // body data 로부터 업데이트할 사용자 정보를 추출함.
             const { fullName, password, dateOfBirth, currentPassword } =
                 req.body;
-            // s3에 이미지 업로드 후 url 반환
-            const photo = ImageService.addImage(
-                req.file as Express.MulterS3.File,
-            );
 
             const isValid = await userUpdateJoiSchema.validateAsync({
                 fullName,
                 password,
                 dateOfBirth,
                 currentPassword,
-                photo,
             });
             // currentPassword 없을 시, 진행 불가
             if (currentPassword === password) {
@@ -145,18 +139,12 @@ authRouter.patch(
                 ...(fullName && { fullName }),
                 ...(password && { password }),
                 ...(dateOfBirth && { dateOfBirth }),
-                ...(photo && { photo }),
             };
             // 사용자 정보를 업데이트함.
             const updatedUserInfo = await userService.setUser(
                 userInfoRequired,
                 toUpdate,
             );
-
-            // password를 제외한 나머지 수정 정보를 추모 데이터에 반영
-            delete toUpdate.password;
-            await updateRemembranceJoiSchema.validateAsync(toUpdate);
-            remembranceService.setRemembrance(userId, toUpdate);
 
             // 업데이트 이후의 유저 데이터를 프론트에 보내 줌
             res.status(200).json(updatedUserInfo);
@@ -165,6 +153,114 @@ authRouter.patch(
         }
     },
 );
+
+/**
+ * @swagger
+ * /api/auth/{userId}/image:
+ *   post:
+ *     tags:
+ *     - Images
+ *     security:
+ *       - bearerAuth: []
+ *     summary: 유저 사진 등록 - 신규 등록 및 변경
+ *     description: 사진을 AWS S3에 저장하고 유저 및 추모 데이터에 반영. 기존 사진이 있는 경우 자동 삭제 후 진행
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               photo:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       201:
+ *         description: 등록된 이미지 url
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 photo:
+ *                   type: string
+ *                   example: imageUrl
+ */
+// 이미지 등록
+authRouter.post(
+    '/:userId/image',
+    uploadImage.single('photo'),
+    async (req, res, next) => {
+        try {
+            const { userId } = req.params;
+            checkUserValidity(req, userId);
+
+            const { key } = req.file as Express.MulterS3.File;
+
+            const photo = await ImageService.addImage(userId, key);
+
+            res.status(201).json(photo);
+        } catch (error) {
+            next(error);
+        }
+    },
+);
+
+/**
+ * @swagger
+ * /api/auth/{userId}/image/{imageUrl}:
+ *   delete:
+ *     tags:
+ *     - Images
+ *     security:
+ *       - bearerAuth: []
+ *     summary: 유저 사진 삭제
+ *     description: 사진을 AWS S3에서 삭제 후 유저 및 추모 데이터에 반영. 유저가 사진 정보를 지우고 싶을 때 사용.
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *           example: userId
+ *         required: true
+ *       - in: path
+ *         name: imageUrl
+ *         schema:
+ *           type: string
+ *           example: imageUrl
+ *         required: true
+ *     responses:
+ *       201:
+ *         description: 사진 삭제 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 result:
+ *                   type: string
+ *                   example: 'success'
+ */
+// 이미지 삭제
+authRouter.delete('/:userId/image/:imageUrl', async (req, res, next) => {
+    try {
+        const { userId, imageUrl } = req.params;
+        checkUserValidity(req, userId);
+
+        const result = await ImageService.deleteImage(userId, imageUrl);
+
+        res.status(201).json(result);
+    } catch (error) {
+        next(error);
+    }
+});
+
 // AuthRouter의 user Patch 시 비슷한 느낌?
 // 회원이 자신의 유언장 전송 권한을 줄 api -post 요청과 조금 다른 느낌인데 다른 api를 사용해야 할려나?
 // 로직이 나의 trusted-user가 될 사람에게 서비스 관련 이메일과 회원가입 내용이 담긴 이메일을 보냄

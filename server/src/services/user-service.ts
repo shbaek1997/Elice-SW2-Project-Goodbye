@@ -80,15 +80,15 @@ class UserService {
 
     async confirmManagedUsers(userId: string, toUpdate: any) {
         // 우선 해당 id의 유저가 db에 있는지 확인
-        let user = await this.userModel.findById(userId);
+        const user = await this.userModel.findById(userId);
 
         // db에서 찾지 못한 경우, 에러 메시지 반환
         if (!user) {
             throw new Error('가입 내역이 없습니다. 다시 한 번 확인해 주세요.');
         }
         // 업데이트 진행
-        user = await this.userModel.updateById(userId, toUpdate);
-        return user;
+        const updatedUser = await this.userModel.updateById(userId, toUpdate);
+        return updatedUser;
     }
 
     // 유저정보 수정, 현재 비밀번호가 있어야 수정 가능함.
@@ -97,7 +97,7 @@ class UserService {
         const { userId, currentPassword } = userInfoRequired;
 
         // 우선 해당 id의 유저가 db에 있는지 확인
-        let user = await this.userModel.findById(userId);
+        const user = await this.userModel.findById(userId);
 
         // db에서 찾지 못한 경우, 에러 메시지 반환
         if (!user) {
@@ -129,15 +129,9 @@ class UserService {
             toUpdate.password = newPasswordHash;
         }
 
-        // 이미지 변경하는 경우 기존 이미지 삭제 후 새 이미지 저장
-        const { photo } = toUpdate;
-        if (photo && user.photo) {
-            ImageService.deleteImage(user.photo);
-        }
-
         // 업데이트 진행
-        user = await this.userModel.updateById(userId, toUpdate);
-        return user;
+        const updatedUser = await this.userModel.updateById(userId, toUpdate);
+        return updatedUser;
     }
 
     async deleteUser(userInfoRequired: InterfaceUserInfoRequired) {
@@ -168,7 +162,7 @@ class UserService {
 
         // 저장된 이미지가 있는 경우 s3에서도 삭제
         if (user.photo) {
-            ImageService.deleteImage(user.photo);
+            ImageService.deleteImage(userId, user.photo);
         }
 
         // 삭제 진행
