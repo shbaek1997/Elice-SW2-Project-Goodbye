@@ -24,8 +24,9 @@ const Header = () => {
 
     const setLoginValue = async () => {
 		const checkValue = await userLoginCheck();
+		// console.log('테스트2', checkValue);
 		dispatch(USERACTIONS.setUserData(checkValue));
-		console.log(checkValue, logInState);
+		// console.log('테스트1', checkValue, logInState);
 	}
 
 

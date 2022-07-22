@@ -23,8 +23,8 @@ const will_check_page = () => {
             });
             console.log(res);
             setWillData({
-                title: res.data.title,
-                content: res.data.content
+                title: res.data.will.title,
+                content: res.data.will.content
             })
         } catch (error) {
             alert(error);
@@ -51,12 +51,10 @@ const will_check_page = () => {
                         <Content>
                             <div className="title">
                                 <center>
-                                    <tt>테스트{willData?.title}</tt>
+                                    <tt>{willData?.title}</tt>
                                 </center>
                             </div>
-                            <p>내용~~~~~~{willData?.content}</p>
-                            {willData?.title}
-                            {willData?.content}
+                            <p>{willData?.content}</p>
                         </Content>
                         : <EmailInputBox>
                             <p>이메일 주소를 입력하고 유언장을 확인하세요!</p>

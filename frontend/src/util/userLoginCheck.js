@@ -1,10 +1,17 @@
 import axios from 'axios';
 import getUserIdToken from './getUserIdToken';
 
+
+// 0일 때 토큰이나 아이디가 없는 것
+// 1일 때 정상 로그인
+// 2일 때 로그인 실패
+
+
 const userLoginCheck = async () => {
 
     const { userId, token } = getUserIdToken();
-
+    // console.log('테스트3', token);
+    // console.log('테스트4', userId);
     if (!userId || !token) return false;
 
 
@@ -15,8 +22,6 @@ const userLoginCheck = async () => {
                             Authorization: `Bearer ${token}`
                         }
                     });
-        // res를 수정해서 userData를 반환해야함
-        // userData = { fullName:~~ }
         const data = {
             fullName: res.data.user.fullName,
             userId,

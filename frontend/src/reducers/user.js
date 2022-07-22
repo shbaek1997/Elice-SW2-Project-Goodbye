@@ -5,7 +5,7 @@ export const initialState = {
 	userId: '',
 	token: '',
 	dateOfBirth: '',
-	logInState: false
+	logInState: null
 };
 
 const userSlice = createSlice({

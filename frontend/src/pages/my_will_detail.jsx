@@ -55,7 +55,11 @@ const MyWillDetail = () => {
 			.catch((err) => console.log(err));
 	};
 
+
 	useEffect(() => {
+		if (!router.isReady) return;
+		console.log(logInState)
+		if (logInState === null) return;
 		if (!logInState) {
 			alert('서비스를 이용하려면 로그인을 먼저 해주세요!');
 			Router.replace('/sign_in');
@@ -96,7 +100,7 @@ const MyWillDetail = () => {
 					);
 			});
 		}
-	}, []);
+	}, [logInState, router.isReady]);
 
 	//API 사용을 위한 공통 데이터
 	const getData = () => {
@@ -220,7 +224,8 @@ const MyWillDetail = () => {
 												receiverId: item.receiverId,
 											};
 											return (
-												<Checkbox
+												<Checkbox		
+												    key={`${item._id}+${i}`}
 													value={receiverInfo}
 													onChange={onChangeCheckBox}
 													index={i}
