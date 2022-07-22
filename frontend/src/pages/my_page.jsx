@@ -184,8 +184,7 @@ const MyPage = () => {
 					changeLifeDeath(managedUserId);
 				},
 
-				onCancel() {
-				},
+				onCancel() {},
 			});
 		},
 		[dateOfDeath],
@@ -218,17 +217,20 @@ const MyPage = () => {
 			<div css={titleImageStyle}>
 				<p>마이페이지</p>
 			</div>
+
 			<div css={adBoxStyle}>
-				<div css={adContentStyle}>
-					<h1>나의 영정 사진</h1>
-					<p>밝은 표정이 담긴 사진을 업로드해주세요</p>
-					<input
-						type="file"
-						accept="image/*"
-						name="photo"
-						onChange={fileChange}
-					/>
-				</div>
+				<Wrapper>
+					<div css={adContentStyle}>
+						<h1>나의 영정 사진</h1>
+						<p>밝은 표정이 담긴 사진을 업로드해주세요</p>
+						<input
+							type="file"
+							accept="image/*"
+							name="photo"
+							onChange={fileChange}
+						/>
+					</div>
+				</Wrapper>
 				{/* <div css={imageStyle}>
 					<Image src={imageSrc} alt="나의 영정 사진" layout="fill" />
 				</div> */}
@@ -256,35 +258,39 @@ const MyPage = () => {
 
 			<div css={mainWrapper}>
 				<section css={sectionWrapper}>
-					<h1>비밀번호 수정</h1>
-					<Form onFinish={onUpdateUser}>
-						<div css={inputWrapper}>
-							<input
-								type="password"
-								placeholder="현재 비밀번호"
-								name="currentPassword"
-								value={currentPassword}
-								onChange={onChangeCurrentPassword}
-								required
-							/>
-							<input
-								type="password"
-								placeholder="새 비밀번호"
-								name="password"
-								value={password}
-								onChange={onChangePassword}
-								required
-							/>
-							<div css={buttonWrapper}>
-								<input type="submit" value="수정완료" />
-								<input
-									type="button"
-									value="회원탈퇴"
-									onClick={onDeleteUser}
-								/>
-							</div>
+					<Wrapper>
+						<h1>비밀번호 수정</h1>
+						<div>
+							<Form onFinish={onUpdateUser}>
+								<div css={inputWrapper}>
+									<input
+										type="password"
+										placeholder="현재 비밀번호"
+										name="currentPassword"
+										value={currentPassword}
+										onChange={onChangeCurrentPassword}
+										required
+									/>
+									<input
+										type="password"
+										placeholder="새 비밀번호"
+										name="password"
+										value={password}
+										onChange={onChangePassword}
+										required
+									/>
+									<div css={buttonWrapper}>
+										<input type="submit" value="수정완료" />
+										<input
+											type="button"
+											value="회원탈퇴"
+											onClick={onDeleteUser}
+										/>
+									</div>
+								</div>
+							</Form>
 						</div>
-					</Form>
+					</Wrapper>
 				</section>
 				{/* <section css={sectionWrapper}>
 					<h2>
@@ -295,98 +301,102 @@ const MyPage = () => {
 			</div>
 			<div css={mainWrapper}>
 				<section>
-					<div>
-						<h1>
-							자신의 유언장을 전송, 생사여부를 변경 가능 권한을
-							주고 싶은 사람
-						</h1>
-						{trustedUser && (
-							<div style={{ left: '40%', marginTop: '2em' }}>
-								등록된 이메일: {trustedUser}
-							</div>
-						)}
+					<Wrapper>
 						<div>
-							<Button
-								onClick={showModal}
-								style={{ left: '40%', marginTop: '2em' }}
+							<h1>
+								자신의 유언장을 전송, 생사여부를 변경 가능
+								권한을 주고 싶은 사람
+							</h1>
+							{trustedUser && (
+								<div style={{ left: '40%', marginTop: '2em' }}>
+									등록된 이메일: {trustedUser}
+								</div>
+							)}
+							<div>
+								<Button
+									onClick={showModal}
+									style={{ left: '40%', marginTop: '2em' }}
+								>
+									등록하기
+								</Button>
+							</div>
+							<Modal
+								title="등록하기"
+								visible={isModalVisible}
+								onOk={handleOk}
+								onCancel={handleCancel}
 							>
-								등록하기
-							</Button>
+								<Input
+									placeholder="신뢰하는 사람의 이메일"
+									style={{
+										width: '100%',
+										marginBottom: '1em',
+									}}
+									value={email}
+									onChange={onChangeEmail}
+								/>
+								<Input
+									placeholder="나의 현재 비밀번호"
+									style={{
+										width: '100%',
+										marginBottom: '1em',
+									}}
+									type="password"
+									value={confirmPassword}
+									onChange={onChangeConfirmPassword}
+								/>
+								<Button
+									type="button"
+									style={{
+										width: '20%',
+										left: '40%',
+									}}
+									onClick={addTruseUser}
+								>
+									등록
+								</Button>
+							</Modal>
 						</div>
-						<Modal
-							title="등록하기"
-							visible={isModalVisible}
-							onOk={handleOk}
-							onCancel={handleCancel}
-						>
-							<Input
-								placeholder="신뢰하는 사람의 이메일"
-								style={{
-									width: '100%',
-									marginBottom: '1em',
-								}}
-								value={email}
-								onChange={onChangeEmail}
-							/>
-							<Input
-								placeholder="나의 현재 비밀번호"
-								style={{
-									width: '100%',
-									marginBottom: '1em',
-								}}
-								type="password"
-								value={confirmPassword}
-								onChange={onChangeConfirmPassword}
-							/>
-							<Button
-								type="button"
-								style={{
-									width: '20%',
-									left: '40%',
-								}}
-								onClick={addTruseUser}
-							>
-								등록
-							</Button>
-						</Modal>
-					</div>
+					</Wrapper>
 				</section>
 			</div>
 			<div css={mainWrapper}>
 				<section>
-					<div>
-						<h1>내가 생사여부 변경 권한이 있는 사용자 목록</h1>
-						{managedUsers && (
-							<div style={{ left: '40%', marginTop: '2em' }}>
-								{managedUsers.map((user, index) => {
-									return (
-										user.confirmed && (
-											<div key={index}>
-												{user.email}
-												<Button
-													onClick={() => {
-														setDeathDate(
-															user.userId,
-														);
-													}}
-													style={{
-														left: '30%',
-													}}
-												>
-													생사여부 변경
-												</Button>
-											</div>
-										)
-									);
-								})}
-							</div>
-						)}
-						{!managedUsers && (
-							<div style={{ left: '40%', marginTop: '2em' }}>
-								등록되어있지 않습니다..
-							</div>
-						)}
-					</div>
+					<Wrapper>
+						<div>
+							<h1>내가 생사여부 변경 권한이 있는 사용자 목록</h1>
+							{managedUsers && (
+								<div style={{ left: '40%', marginTop: '2em' }}>
+									{managedUsers.map((user, index) => {
+										return (
+											user.confirmed && (
+												<div key={index}>
+													{user.email}
+													<Button
+														onClick={() => {
+															setDeathDate(
+																user.userId,
+															);
+														}}
+														style={{
+															left: '30%',
+														}}
+													>
+														생사여부 변경
+													</Button>
+												</div>
+											)
+										);
+									})}
+								</div>
+							)}
+							{!managedUsers && (
+								<div style={{ left: '40%', marginTop: '2em' }}>
+									등록되어있지 않습니다..
+								</div>
+							)}
+						</div>
+					</Wrapper>
 				</section>
 			</div>
 		</AppLayout>
@@ -398,7 +408,7 @@ const titleImageStyle = css`
 	width: 100%;
 	height: 300px;
 	margin: 2rem 0;
-	background-image: url('https://images.unsplash.com/photo-1601479604588-68d9e6d386b5?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1413&q=80');
+	background-image: url(https://images.unsplash.com/photo-1505744386214-51dba16a26fc?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1306&q=80);
 	background-repeat: no-repeat;
 	background-size: cover;
 	text-align: center;
@@ -418,11 +428,11 @@ const mainWrapper = css`
 	justify-content: center;
 	width: 100%;
 	// height: 85vh;
-	margin-bottom: 10rem; //추가
+	margin-bottom: 5rem; //추가
 `;
 
 const sectionWrapper = css`
-	width: 25em; //longer than signin
+	//width: 25em; //longer than signin
 	margin: auto;
 `;
 
@@ -455,7 +465,7 @@ const adBoxStyle = css`
 `;
 
 const adContentStyle = css`
-	width: 50%;
+	//width: 50%;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -511,5 +521,21 @@ const FrameImages = styled.div`
 		left: 75px;
 		z-index: -1;
 	}
+`;
+
+const Wrapper = styled.div`
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	width: 50vw;
+	min-height: inherit;
+	margin: 1em;
+	padding: 3em;
+	font-family: helvetica, arial;
+	background-image: radial-gradient(circle at 50% 50%, #dae2de, #fff);
+	color: #313f38;
+	border-radius: 2em;
+	font-family: 'Noto Sans KR', sans-serif;
 `;
 export default MyPage;

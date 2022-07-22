@@ -30,7 +30,7 @@ const Wrapper = styled.div`
 	position: relative;
 	padding-bottom: 200px;
 	font-family: 'Noto Sans KR', sans-serif;
-	background-image: radial-gradient(circle at 50% 50%, #f2f2f2, #fff);
+	background-image: radial-gradient(circle at 50% 50%, #6e8e7d, #fff);
 `;
 
 const Cursor = styled.div`
