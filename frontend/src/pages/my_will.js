@@ -32,9 +32,6 @@ import getUserIdToken from '../util/getUserIdToken';
 
 const MyWill = () => {
 	const dispatch = useDispatch();
-
-	// receiverIdList는 사실상 이 페이지 내에서는 안 쓰고 유언장 등록 부분에 필요
-	// 추후 재사용 필요
 	const [willList, allReceiverList] = useSelector((state) => {
 		return [state.will.willList, state.receivers.allReceiverList];
 	});
@@ -43,8 +40,6 @@ const MyWill = () => {
 	const clickPagination = useCallback(setCurrentPage, []);
 
 	const loadValues = () => {
-		// const checkValue = await userLoginCheck();
-		// console.log(logInState);
 		// 로그인 했을 경우 정보 불러오기
 		if (logInState) {
 			getWillsList();
@@ -53,31 +48,10 @@ const MyWill = () => {
 	};
 
 	useEffect(() => {
-		// // 테스트 값 넣기
-		// const { userId, token } = getUserIdToken();
-		// axios.post(`/api/auth/${userId}/will`, {
-		// 	title: 'test1....유언장-21',
-		// 	content: '유언장-21 내용~',
-		// 	userId: userId,
-		// 	receivers: [
-		// 				{
-		// 					"receiverId": '62d3baea2a0a7050008fbf7b',
-		// 					"email": 'test13@email.com'
-		// 				}
-		// 			]
-		// }, {
-		// 	headers: {
-		// 		Authorization: `Bearer ${token}`
-		// 	}
-		// })
-		// .then(res => console.log(res))
-		// .catch(err => console.log(err));
-
 		// 로그인 확인 부분
 		loadValues();
 	}, [logInState]);
 
-	//console.log(willList, currentPage, willList.length);
 
 	const pageListUpdate = () => {
 		// 마지막 페이지를 삭제 했다면 현재 페이지 번호 앞으로 이동
@@ -107,7 +81,6 @@ const MyWill = () => {
 	};
 
 	const getWillsList = () => {
-		// console.log('겟윌함수');
 		const token = sessionStorage.getItem('token');
 		const userId = sessionStorage.getItem('userId');
 		axios
@@ -117,7 +90,6 @@ const MyWill = () => {
 				},
 			})
 			.then((res) => {
-				// console.log(res.data);
 				dispatch(WillACTIONS.getWills({ lists: res.data }));
 				pageListUpdate();
 			})
@@ -125,7 +97,6 @@ const MyWill = () => {
 	};
 
 	const onClickDelete = (will) => {
-		// console.log(will);
 		const token = sessionStorage.getItem('token');
 		const userId = sessionStorage.getItem('userId');
 
@@ -137,7 +108,6 @@ const MyWill = () => {
 				},
 			})
 			.then(() => {
-				console.log('확인3');
 				getWillsList();
 			})
 			.catch((err) => console.log(err));
@@ -264,14 +234,6 @@ const imageStyle = css`
 	background-color: silver;
 `;
 
-//==========================
-
-// const Button = styled.button`
-// 	color: #3e606f;
-// 	background-color: #d1dbbd;
-// 	border: none;
-// `;
-
 const aTagStyle = css`
 	color: #3e606f;
 	background-color: #d1dbbd;
@@ -297,13 +259,19 @@ const NoticeBtnGroup = styled.div`
 		margin-right: 1.5rem;
 	}
 `;
-// 페이지 가로 크기에 따라 정렬될 카드 개수 유동적으로 만들기
+
+
 const CardGroup = styled.div`
 	display: grid;
 	grid-template-columns: repeat(3, 20rem);
 	grid-row-gap: 3rem;
 	grid-column-gap: 3rem;
 	justify-content: center;
+	
+    & > div {
+		border-radius: 20px;
+		border: 1px solid darkslategray;	
+	}
 
 	@media (max-width: 70rem) {
 		grid-template-columns: repeat(2, 20rem);

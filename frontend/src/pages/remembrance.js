@@ -1,97 +1,97 @@
 import React, { useState, useEffect, useCallback, createContext, useRef } from "react";
 import Router, { useRouter } from 'next/router';
-import { useSelector } from 'react-redux';
 import axios from 'axios';
 
-import Image from 'next/image';
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import { Comment, Form, Modal, Input } from "antd";
 import 'antd/dist/antd.css';
 
-import { FcFrame } from 'react-icons/fc';
-import { MdOutlineCropPortrait, MdOutlinePortrait, MdPortrait } from 'react-icons/md';
 import { BsFlower1 } from 'react-icons/bs';
-import { GiFlowerPot, GiGraveFlowers, GiPortrait } from 'react-icons/gi';
-
-import getUserIdToken from '../util/getUserIdToken';
 import { TbRectangleVertical } from 'react-icons/tb';
-import useInput from './../hooks/useInput';
 import AppLayout from "../components/AppLayout";
 import { Button } from "../util/common_styles";
 import Flower from '../assets/lily.svg';
 
 
 
-const CommentList = ({ comments, modal }) => {
-    
-    const handleOk = () => {
-        
-    }
+const CommentList = ({ comments }) => {
+    const router = useRouter();
+    const currentURL = router.pathname;
+    const [modalVisible, setModalVisible] = useState(false);
+    const [deleteBtn, setDeleteBtn] = useState(false);
+    const [inputValue, setInputValue] = useState('');
+    const [currentComment, setCurrentComment] = useState({
+        title: '',
+        content: '',
+        writer: ''
+    });
     
     const handleCancel = () => {
-        console.log('확인')
-        setIsModalVisible(false);
+        setModalVisible(false);
+    }
+
+    const deleteComment = async () => {
+        const {commentId, remembranceId} = currentComment;
+        try {
+            const res = 
+                    await axios.delete(`/api/remembrances/${remembranceId}/comments/${commentId}`, {
+                        data: { password: inputValue }
+                    });
+            
+            // 리다이렉트 하기
+            document.location.href = `${currentURL}?remembranceId=${remembranceId}`;
+        } catch(err) {
+            alert(err.response.data.reason);
+        }
     }
     
     return (
         <IconGroup>
             <IconComments>
                 {comments.map((comment, i) => {
-                    // const [isModalVisible, setIsModalVisible] = useState(null);
-                    const [inputVisible, setInputVisible] = useState(false);
-                    const [inputValue, setInputValue] = useState('');
-                    
                     return (
                         <FlowerIconDiv
                             key={`${i}+${comment.password}`}
                             onClick={() => {
-                                const modalData = {
-                                    title: comment.title,
-                                    content: (
-                                        <>
-                                            <p>{`작성자: ${comment.writer}`}</p>
-                                            <p>{`내용: ${comment.content}`}</p>
-                                            {inputVisible ?
-                                                <>
-                                                    <Input 
-                                                        placeholder="제거 하려면 비밀번호를 입력하세요."
-                                                        value={inputValue}  
-                                                        onChange={(e) => setInputValue(e.target.value)}      
-                                                    />
-                                                    <Button onClick={() => deleteComment(comment, inputValue)}>입력</Button>
-                                                </> :
-                                                <Button onClick={() => setInputVisible(true)}>댓글 제거하기</Button>
-                                            }
-                                        </>
-                                    ),
-                                }
-                                // console.log(inputVisible);
-                                // console.log(modalData, comment);       
-                                modal.info(modalData);
+                                setModalVisible(true);
+                                setCurrentComment({...comment});
                             }}
                         >
                             <Flower />
                         </FlowerIconDiv>)
                 })}
             </IconComments>
+            <Modal
+                title={currentComment.title}
+                visible={modalVisible}
+                onCancel={handleCancel}
+                footer={[
+                    <Button key="modalCancel" onClick={handleCancel}>
+                        취소
+                    </Button>
+                ]}
+            >
+                <p>{`작성자:  ${currentComment.writer}`}</p>
+                <p>{`내용:  ${currentComment.content}`}</p>
+                {!deleteBtn ?
+                    <Button onClick={() => setDeleteBtn(true)}>제거하기</Button>:
+                    <>
+                        <Input 
+                            value={inputValue} 
+                            onChange={(e) => setInputValue(e.target.value)} 
+                            placeholder="제거하려면 비밀번호를 입력하세요."
+                            type="password"
+                        />
+                        <Button onClick={deleteComment}>확인</Button>
+                    </>
+                }
+            </Modal>
         </IconGroup>
     )
 }
 
-const deleteComment = async (commentData, password) => {
-    const {commentId, remembranceId} = commentData;
-    console.log(commentData, password);
-    try {
-        const res = 
-                await axios.delete(`/api/remembrances/${remembranceId}/comments/${commentId}`, {
-                    data: { password: commentData.password }
-                });
-        console.log(res);
-    } catch(err) {
-        console.log(err.response.data.reason);
-    }
-}
+
 
 const handlerFormClear = (formRef) => {
     formRef.current.setFieldsValue({
@@ -170,12 +170,11 @@ const remembrance = () => {
     const [visibleCommentArea, setCommentArea] = useState(false);
     const formRef = useRef(null);
 
-    const getCommentData = (remembranceId, comments) => {
+    const getCommentData = async (remembranceId, comments) => {
         try {
 
             comments.forEach(async (comment) => {
                 const res = await axios.get(`/api/remembrances/${remembranceId}/comments/${comment._id}`);
-                console.log(res);
                 const data = {
                     writer: comment.writer,
                     title: comment.title,
@@ -204,7 +203,6 @@ const remembrance = () => {
                 comments
             } = res.data;
 
-            console.log(res.data);
             setUserData({
                 remembranceId: _id,
                 photo
@@ -216,7 +214,6 @@ const remembrance = () => {
         }
     }
 
-    // console.log(userData);
 
     // 댓글 서버에 등록하기
     const postComment = async (data) => {
@@ -224,12 +221,15 @@ const remembrance = () => {
         try {
             const response =
                 await axios.post(`/api/remembrances/${remembranceId}/comments`, data);
-
+            
             setComments((prev) => [
                 ...prev,
-                data
+                {
+                    ...data,
+                    commentId: response.data._id,
+                    remembranceId
+                }
             ]);
-            console.log(response);
         } catch (error) {
             alert(error.response.data.reason);
             console.log(error.response.data.reason);
@@ -237,7 +237,6 @@ const remembrance = () => {
     }
 
     const handleCommentSubmit = (e) => {
-        console.log(e);
         const data = {
             writer: e.writer,
             title: e.title,
@@ -246,20 +245,12 @@ const remembrance = () => {
         }
 
         setTimeout(() => {
-            console.log('확인')
-            // setComments((prev) => [
-            //     ...prev,
-            //     data
-            // ]);
             postComment(data);
             // 폼 양식 리셋하기
             handlerFormClear(formRef);
         }, 500);
     }
 
-    // useEffect(() => {
-    //     getRemembranceData();
-    // }, [])
 
     useEffect(() => {
         if (!router.isReady) return;
@@ -269,10 +260,8 @@ const remembrance = () => {
             // setLocalRmId(remembranceId);
             getRemembranceData(remembranceId);
         }
-        console.log(remembranceId);
     }, [router.isReady]);
 
-    console.log(userData, userData.photo)
 
     return (
         <>
@@ -280,18 +269,8 @@ const remembrance = () => {
                 <Introduction>
                     <div css={adBoxStyle}>
                         <div css={adContentStyle}>
-                            <h1>따뜻한 말을 남겨주세요..</h1>
-                            <h2>-추모 공간입니다-</h2>
+                            <h1>개인 추모관</h1>
                         </div>
-                        {/* <div css={imageStyle}> */}
-                        <img
-                            src="https://images.unsplash.com/photo-1516967124798-10656f7dca28?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8d2FybSUyMGhlYXJ0fGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=600&q=60"
-                            alt="소개 사진"
-                            width={200}
-                        // layout="fill"
-                        // priority
-                        />
-                        {/* </div> */}
                     </div>
                 </Introduction>
                 <CommentTree>
@@ -316,13 +295,8 @@ const remembrance = () => {
                         </Decorator>
                     </Portrait>
                     {comments.length > 0 &&
-                        // <CommentList comments={comments} />
-                        // <Modal title="Basic Modal" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
-                        //     <p>{`작성자: ${comment.writer}`}</p>
-                        //     <p>{`내용: ${comment.content}`}</p>
-                        // </Modal>
                         <ReachableContext.Provider value="Light">
-                            <CommentList comments={comments} modal={modal} />
+                            <CommentList comments={comments} router={router.pathname} />
                             {contextHolder}
                         </ReachableContext.Provider>
                     }   
@@ -355,21 +329,26 @@ export default remembrance;
 const adBoxStyle = css`
 	display: flex;
 	width: 100%;
-	height: 30rem;
 	align-item: center;
     box-sizing: border-box;
-
+    justify-content: flex-start;
 	&:nth-of-type(even) {
 		flex-direction: row-reverse;
 	}
 `;
 
 const adContentStyle = css`
-	width: 50%;
+	width: 100%;
 	display: flex;
-	flex-direction: column;
-	justify-content: center;
+	// flex-direction: column;
+	// justify-content: center;
 	align-items: center;
+    h1 {
+        display: inline-block;
+        position: absolute;
+        left: 5rem;
+        margin: 0;
+    }
 `;
 
 const imageStyle = css`
@@ -381,18 +360,22 @@ const imageStyle = css`
 
 
 const Introduction = styled.div`
-    height: 300px;
+    height: 5rem;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     text-align: center;
-    background-color: thistle;
+    background-color: #fafafa;
+    border-bottom: 1px solid #dee2e6;
 `
 
 const CommentTree = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
+    background-image: url('https://images.unsplash.com/photo-1581077391553-b92f87f45e9b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MzB8fHRvbWJ8ZW58MHx8MHx8&auto=format&fit=crop&w=600&q=60');
+    background-repeat: no-repeat;
+    background-size: cover;
     .visible_btn {
         width: 8rem;
         margin: 3rem 0;       
@@ -409,9 +392,11 @@ const Frame = styled.div`
     color: dimgray;
     z-index: 1;
     svg.frame_svg {
-        width: 300px;
+        width: 50rem;
         height: auto;
-        color: darkgrey;
+        // color: darkgrey;
+        color: lightslategray;
+        stroke-width: initial;
     }
 `
 
@@ -419,23 +404,27 @@ const Decorator = styled.div`
     position: relative;
     display: inline-block;
     z-index: 2;
-    bottom: 50px;
-    color: lightgoldenrodyellow;
+    bottom: 120px;
+    color: whitesmoke;
+    & > svg {
+        width: 1.5rem;
+        height: 2rem;
+    }
 `
 
 const IconGroup = styled.div`
     display: block;
     position: relative;
-    width: 30rem;
-    min-height: 15rem;
+    width: 45rem;
+    min-height: 25rem;
     margin: auto;
-    background-color: gainsboro;
+    background-color: slategray;
     border-radius: 20px;
 `
 
 const IconComments = styled.div`
     display: inline-grid;
-    grid-column-gap: 0.5rem;
+    grid-column-gap: 1.7rem;
     place-content: center;
     grid-template-columns: repeat(8, minmax(auto, auto));
     position: absolute;
@@ -451,7 +440,8 @@ const CommentArea = styled.div`
 
     form button {
         position: relative;
-        left: 14rem;
+        left: 0;
+        bottom: 1rem;
     }
     
     label, textarea {
@@ -472,20 +462,23 @@ const CommentArea = styled.div`
     label {
         display: block;
         margin-bottom: 10px;
+        color: white;
+        font-size: medium;
     }
 `
 
 const Notice = styled.p`
-    font-size: x-small;
+    font-size: smaller;
     position: relative;
     right: 40px;
+    color: blanchedalmond;
 `
 
 const FlowerIconDiv = styled.div`
     display: inline-block;
     width: fit-content;
     svg {
-        width: 50px;
+        width: 4rem;
         cursor: pointer;
     }
     &:hover {
@@ -504,10 +497,10 @@ const FrameImages = styled.div`
 
     & > img {
         position: absolute;
-        width: 150px;
-        height: 215px;
-        top: 35px;
-        left: 75px;
+        width: 28rem;
+        height: 36rem;
+        top: 116px;
+        left: 175px;
         z-index: -1;
     }
 `

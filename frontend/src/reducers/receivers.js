@@ -16,7 +16,6 @@ const receiverSlice = createSlice({
     reducers: {
         getReceivers(state, action) {
             const { lists } = action.payload;
-            // console.log(lists);
             // 리스트 초기화
             state.familyList = [];
             state.friendList = [];
@@ -24,8 +23,6 @@ const receiverSlice = createSlice({
             state.acquaintanceList = [];
 
             lists.forEach((list) => {
-                // console.log(list);
-
                 // 전체 수신자 아이디 리스트 초기화
                 state.allReceiverList = [...state.allReceiverList, list];
 

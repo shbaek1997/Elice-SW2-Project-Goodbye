@@ -14,14 +14,11 @@ const will_check_page = () => {
     const [willData, setWillData] = useState(null);
     const [emailValue, onChangeEmail, setEmailValue] = useInput('');
 
-    // 임시 willId: 62d7c724bfdeb841449c8e88
-    // console.log(willId);    
     const getWillData = async () => {
         try {
             const res = await axios.post(`/api/users/${localWillId}`, {
                 email: emailValue   
             });
-            console.log(res);
             setWillData({
                 title: res.data.will.title,
                 content: res.data.will.content
@@ -38,7 +35,6 @@ const will_check_page = () => {
         if (willId) {
             setLocalWillId(willId);
         }
-        console.log(willId);
     }, [router.isReady]);
 
 

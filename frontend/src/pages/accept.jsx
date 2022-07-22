@@ -24,7 +24,6 @@ const Accept = () => {
 				},
 			)
 			.then((res) => {
-				//console.log(res);
 				alert(
 					'성공적으로 생사여부를 판단해 줄 신뢰하는 사람으로 확정했습니다.',
 				);
@@ -37,7 +36,6 @@ const Accept = () => {
 		if (!router.isReady) return;
 		if (router.query.token) {
 			setUrlToken(router.query.token);
-			//console.log('query : ' + router.query.token);
 		}
 	}, [router.isReady]);
 

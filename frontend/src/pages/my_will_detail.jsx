@@ -129,7 +129,6 @@ const MyWillDetail = () => {
 	const RegisterForm = useCallback(() => {
 		const { userId, headerAuth } = getData();
 		const url = `/api/auth/${userId}/will`;
-		console.log({ receivers: receiverList });
 		const data = { title, content, receivers: receiverList };
 
 		axios
@@ -159,7 +158,6 @@ const MyWillDetail = () => {
 
 			receiverData.map((item, i) => {
 				if (checkedIndex.indexOf(i) > -1) {
-					console.log('here');
 					receivers_forShow += `${receiverData[i].fullName}(${receiverData[i].relation}) <${receiverData[i].emailAddress}>, `;
 					receivers_forSend.push({
 						email: receiverData[i].emailAddress,
@@ -167,7 +165,6 @@ const MyWillDetail = () => {
 					});
 				}
 			});
-			//console.log(receivers_forSend);
 			setReceivers(receivers_forShow.slice(0, -2));
 			setReceiverList(receivers_forSend);
 			checkedIndex = [];
@@ -231,7 +228,6 @@ const MyWillDetail = () => {
 										itemKey="receiver_list"
 									>
 										{(item, i) => {
-											//console.log(item);
 											const receiverInfo = {
 												fullName: item.fullName,
 												relation: item.relation,

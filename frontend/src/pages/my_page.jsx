@@ -46,21 +46,11 @@ const MyPage = () => {
 				},
 			})
 			.then((res) => {
-				//console.log(res);
 				if (res.data.user.trustedUser) {
 					setTrustedUser(res.data.user.trustedUser.email);
 				}
-				//console.log(res.data.user.managedUsers);
-				//console.log(res.data.user.managedUsers[0].email);
 				if (res.data.user.managedUsers) {
 					setManagedUsers(res.data.user.managedUsers);
-
-					// res.data.user.managedUsers.map((item) => {
-					// 	console.log(item.userId);
-
-					//const date = getDeathOrNot(item.userId);
-					//console.log(date);
-					//});
 				}
 			})
 			.catch((err) => console.log(err.response.data.reason));
@@ -72,7 +62,6 @@ const MyPage = () => {
 				},
 			})
 			.then((res) => {
-				//console.log(res);
 				const photo = res.data.photo;
 				if (!(typeof photo === 'undefined' || photo === '')) {
 					setImageSrc(res.data.photo);
@@ -81,20 +70,6 @@ const MyPage = () => {
 			.catch((err) => console.log(err.response.data.reason));
 	}, [logInState]);
 
-	// const getDeathOrNot = useCallback((userId) => {
-	// 	const token = sessionStorage.getItem('token');
-	// 	axios
-	// 		.get(`/api/auth/${userId}/remembrances`, {
-	// 			headers: {
-	// 				Authorization: `Bearer ${token}`,
-	// 			},
-	// 		})
-	// 		.then((res) => {
-	// 			console.log(res.data);
-	// 			return res.data;
-	// 		})
-	// 		.catch((err) => console.log(err.response.data.reason));
-	// }, []);
 	const onUpdateUser = useCallback(async () => {
 		const userId = sessionStorage.getItem('userId');
 		const token = sessionStorage.getItem('token');
@@ -128,7 +103,6 @@ const MyPage = () => {
 				data: { currentPassword: currentPassword },
 			})
 			.then((res) => {
-				console.log(res);
 				alert('성공적으로 회원 탈퇴 되었습니다.');
 				sessionStorage.removeItem('userId');
 				sessionStorage.removeItem('token');
@@ -141,7 +115,6 @@ const MyPage = () => {
 	const fileChange = (e) => {
 		const userId = sessionStorage.getItem('userId');
 		const token = sessionStorage.getItem('token');
-		console.log(e.target.files[0]);
 
 		const formData = new FormData();
 		formData.append('photo', e.target.files[0]);
@@ -152,7 +125,6 @@ const MyPage = () => {
 				},
 			})
 			.then((res) => {
-				console.log(res.data.photo);
 				alert('성공적으로 등록되었습니다.');
 				setImageSrc(res.data.photo);
 			})
@@ -187,18 +159,14 @@ const MyPage = () => {
 				},
 			)
 			.then((res) => {
-				console.log(res);
 				alert('성공적으로 신뢰할 수 있는 사람을 등록했습니다.');
 				setIsModalVisible(false);
 			})
 			.catch((err) => alert(err.response.data.reason));
 	};
 
-	//const [dateDeathString, setDateDeathString] = useState('2022-01-01');
 	const onChangeDeathDate = useCallback(
 		(date, dateString) => {
-			//console.log(date, dateString);
-			console.log(typeof dateString);
 			setDateOfDeath(dateString);
 			dateDeathString = dateString;
 		},
@@ -213,13 +181,10 @@ const MyPage = () => {
 				content: <DatePicker onChange={onChangeDeathDate} />,
 
 				onOk() {
-					console.log(dateOfDeath);
 					changeLifeDeath(managedUserId);
 				},
 
 				onCancel() {
-					console.log(dateDeathString);
-					//console.log('Cancel');
 				},
 			});
 		},
@@ -228,10 +193,6 @@ const MyPage = () => {
 
 	const changeLifeDeath = useCallback(
 		(managedUserId) => {
-			//console.log('생사변경: 유언장, 추모 링크 발송되고 추모 공개로 전환');
-			//console.log(managedUserId);
-			console.log(dateOfDeath);
-			console.log(dateDeathString);
 			const userId = sessionStorage.getItem('userId');
 			const token = sessionStorage.getItem('token');
 			axios
@@ -245,9 +206,7 @@ const MyPage = () => {
 					},
 				)
 				.then((res) => {
-					console.log(res);
 					alert('성공적으로 유언장을 발송했습니다.');
-					//setIsModalVisible(false);
 				})
 				.catch((err) => alert(err.response.data.reason));
 		},
@@ -433,10 +392,6 @@ const MyPage = () => {
 		</AppLayout>
 	);
 };
-
-// const onChange = (checked) => {
-// 	console.log(`switch to ${checked}`);
-// };
 
 const titleImageStyle = css`
 	position: relative;

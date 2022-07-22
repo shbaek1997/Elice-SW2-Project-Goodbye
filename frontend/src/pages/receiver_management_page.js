@@ -28,7 +28,7 @@ const receiver_page = () => {
 	const [registFormVisible, setRegistFormVisible] = useState(false);
 	// const [relationValue, setRelationValue] = useState('');
 
-	// 구지 할 필요 없을 듯?!
+	
 	const [InputValues, setInputValues] = useState({
 		name: '',
 		email: '',
@@ -69,7 +69,6 @@ const receiver_page = () => {
 	};
 
 	const handleInputValues = (e) => {
-		console.log(e.target.name);
 		setInputValues((prev) => {
 			return {
 				...prev,
@@ -125,7 +124,6 @@ const receiver_page = () => {
 				},
 			)
 			.then((res) => {
-				console.log(res);
 				alert('변경되었습니다!');
 				getReceiverList();
 				setRegistFormVisible(false);
@@ -141,7 +139,6 @@ const receiver_page = () => {
 		const fullName = submitData.get('name');
 		const emailAddress = submitData.get('email');
 		const relation = submitData.get('relation');
-		// console.log(data.get('name'), data.get('input_relation'));
 		axios
 			.post(
 				`/api/auth/${userId}/receiver`,
@@ -159,7 +156,6 @@ const receiver_page = () => {
 				},
 			)
 			.then((res) => {
-				console.log(res);
 				alert('등록되었습니다!');
 				getReceiverList();
 				setRegistFormVisible(false);
@@ -178,7 +174,6 @@ const receiver_page = () => {
 				},
 			})
 			.then((res) => {
-				console.log(res);
 				getReceiverList();
 			})
 			.catch((err) => console.log(err));

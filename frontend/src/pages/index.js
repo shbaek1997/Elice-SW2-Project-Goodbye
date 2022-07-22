@@ -13,19 +13,20 @@ import AppLayout from '../components/AppLayout';
 const Home = () => {
 	const [currentRB, setCurrentRB] = useState([]);
 
-	const getRecentRBData = async () => {
-		try {
-			const res = await axios.get(`/api/remembrances/recent?count=6`);
-			console.log(res);
-			setCurrentRB([...res.data]);
-		} catch (error) {
-			console.log(error);
-		}
-	};
 
-	useEffect(() => {
-		getRecentRBData();
-	}, []);
+  const getRecentRBData = async () => {
+    try {
+      const res = await axios.get(`/api/remembrances/recent?count=6`);
+      setCurrentRB([...res.data])
+    } catch (error) {
+      console.log(error);
+    }
+    
+  } 
+  
+  useEffect(() => {
+      getRecentRBData();
+  }, [])
 
 	return (
 		<AppLayout>
