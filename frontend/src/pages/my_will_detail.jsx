@@ -15,6 +15,7 @@ let checkedIndex = [];
 const MyWillDetail = () => {
 	const router = useRouter();
 	const { willList } = useSelector((state) => state.will);
+	const { logInState } = useSelector((state) => state.user);
 
 	const [title, onChangeTitle, setTitle] = useInput('');
 	const [content, onChangeContent, setContent] = useInput('');
@@ -55,6 +56,10 @@ const MyWillDetail = () => {
 	};
 
 	useEffect(() => {
+		if (!logInState) {
+			alert('서비스를 이용하려면 로그인을 먼저 해주세요!');
+			Router.replace('/sign_in');
+		}
 		getReceiverList();
 		const { id } = router.query;
 		//console.log(id);

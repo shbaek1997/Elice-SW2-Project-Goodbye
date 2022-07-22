@@ -1,17 +1,22 @@
 import React, { useCallback, useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+
 import { css } from '@emotion/react';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { Form, Switch, Modal, Button, Input, DatePicker } from 'antd';
 import 'antd/dist/antd.css';
+const { confirm } = Modal;
+
 import AppLayout from '../components/AppLayout';
 import useInput from '../hooks/useInput';
 import Image from 'next/image';
 import axios from 'axios';
 import Router from 'next/router';
-const { confirm } = Modal;
 
 let dateDeathString = '2022-01-01';
 const MyPage = () => {
+	const { logInState } = useSelector((state) => state.user);
+
 	const [password, onChangePassword, setPassword] = useInput('');
 	const [currentPassword, onChangeCurrentPassword, setCurrentPassword] =
 		useInput('');
@@ -26,6 +31,11 @@ const MyPage = () => {
 	);
 
 	useEffect(() => {
+		if (!logInState) {
+			alert('서비스를 이용하려면 로그인을 먼저 해주세요!');
+			Router.replace('/sign_in');
+		}
+
 		const userId = sessionStorage.getItem('userId');
 		const token = sessionStorage.getItem('token');
 		axios
