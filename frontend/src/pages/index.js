@@ -87,7 +87,7 @@ const Home = () => {
 										css={progessCard}
 									>
 										<a
-											href={`http://kdt-sw2-seoul-team11.elicecoding.com:5001/remembrance?remembranceId=${death._id}`}
+											href={`http://kdt-sw2-seoul-team11.elicecoding.com/remembrance?remembranceId=${death._id}`}
 										>
 											<Card
 												title={death.fullName}
