@@ -10,37 +10,36 @@ import { Button } from '../util/common_styles';
 
 const will_check_page = () => {
     const router = useRouter();
-    const { willId } = router.query;
+    const [localWillId, setLocalWillId] = useState(null);
     const [willData, setWillData] = useState(null);
     const [emailValue, onChangeEmail, setEmailValue] = useInput('');
 
     // 임시 willId: 62d7c724bfdeb841449c8e88
-    console.log(willId);    
+    // console.log(willId);    
     const getWillData = async () => {
-
         try {
-            const emailData = {
-                email: emailValue
-            }
-            // 테스트
-            // const res = await axios.post(`/api/users/62d7c724bfdeb841449c8e88`, {
-            //     email: 'test13@email.com'
-            // });
-            const res = await axios.post(`/api/users/${willId}`, emailData);
+            const res = await axios.post(`/api/users/${localWillId}`, {
+                email: emailValue   
+            });
             console.log(res);
             setWillData({
                 title: res.data.title,
                 content: res.data.content
             })
         } catch (error) {
-            alert(error.response.data.reason);
-            console.log(error.response.data.reason);
+            alert(error);
+            console.log(error);
         }
     }
 
     useEffect(() => {
-        getWillData();
-    }, [])
+        if (!router.isReady) return;
+        const { willId } = router.query;
+        if (willId) {
+            setLocalWillId(willId);
+        }
+        console.log(willId);
+    }, [router.isReady]);
 
 
 
@@ -48,6 +47,7 @@ const will_check_page = () => {
         <>
             <AppLayout>
                 <Wrapper>
+                    {willData ?
                         <Content>
                             <div className="title">
                                 <center>
@@ -58,13 +58,12 @@ const will_check_page = () => {
                             {willData?.title}
                             {willData?.content}
                         </Content>
-                    {/* {willData ?
                         : <EmailInputBox>
                             <p>이메일 주소를 입력하고 유언장을 확인하세요!</p>
                             <EmailInput onChange={onChangeEmail} value={emailValue}/>
                             <Button onClick={getWillData}>확인</Button>
                         </EmailInputBox>
-                    } */}
+                    }
                 </Wrapper>
             </AppLayout>
         </>

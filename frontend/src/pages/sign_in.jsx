@@ -43,7 +43,7 @@ const SignIn = () => {
 					Router.replace(redirectUrl);
 				}
 			})
-			.catch((error) => alert(error.response.data.reason));
+			.catch((error) => console.log(error));
 	}, [email, password]);
 
 	useEffect(() => {

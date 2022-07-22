@@ -5,6 +5,5 @@
 export default function getUserIdToken() {
     const userId = sessionStorage.getItem('userId');
     const token = sessionStorage.getItem('token');
-    const remembranceId = sessionStorage.getItem('remembranceId');
-    return { userId, token, remembranceId };
+    return { userId, token };
 } 

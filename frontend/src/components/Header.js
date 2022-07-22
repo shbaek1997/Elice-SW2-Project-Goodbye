@@ -12,14 +12,12 @@ import { Button } from '../util/common_styles';
 import userLoginCheck from '../util/userLoginCheck';
 
 const Header = () => {
-	// const isLogIn = useMemo(userLoginCheck, []);
 	const [isLogIn, setIsLogIn] = useState(null);
 	const dispatch = useDispatch();
 	const {logInState} = useSelector((state) => state.user);
 
 	// 로그인 확인 부분
 	useEffect(() => {
-		// console.log(logInState);
 		setLoginValue();
 	}, []);
 
@@ -28,8 +26,6 @@ const Header = () => {
 		const checkValue = await userLoginCheck();
 		dispatch(USERACTIONS.setUserData(checkValue));
 		console.log(checkValue, logInState);
-		// 유저 데이터를 헤더에서 받아서 리듀서에 저장해야됨
-		// dispatch(USERACTIONS.setLoginState(userData));
 	}
 
 

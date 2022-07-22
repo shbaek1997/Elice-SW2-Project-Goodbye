@@ -60,24 +60,24 @@ const MyWill = () => {
 	useEffect(() => {
 
 		// 테스트 값 넣기
-		// const { userId, token } = getUserIdToken();
-		// axios.post(`/api/auth/${userId}/will`, {
-		// 	title: 'test1....유언장-21',
-		// 	content: '유언장-21 내용~',
-		// 	userId: userId,
-		// 	receivers: [	
-		// 				{
-		// 					"receiverId": '62d3baea2a0a7050008fbf7b',
-		// 					"email": 'test13@email.com'
-		// 				}
-		// 			]
-		// }, {
-		// 	headers: {
-		// 		Authorization: `Bearer ${token}`
-		// 	}
-		// })
-		// .then(res => console.log(res))
-		// .catch(err => console.log(err));
+		const { userId, token } = getUserIdToken();
+		axios.post(`/api/auth/${userId}/will`, {
+			title: 'test1....유언장-21',
+			content: '유언장-21 내용~',
+			userId: userId,
+			receivers: [	
+						{
+							"receiverId": '62d3baea2a0a7050008fbf7b',
+							"email": 'test13@email.com'
+						}
+					]
+		}, {
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		})
+		.then(res => console.log(res))
+		.catch(err => console.log(err));
 
 		// 로그인 확인 부분
 		loadValues();
