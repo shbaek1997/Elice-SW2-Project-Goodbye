@@ -3,7 +3,9 @@ import { useSelector } from 'react-redux';
 
 import { css } from '@emotion/react';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { TbRectangleVertical } from 'react-icons/tb';
 import { Form, Switch, Modal, Button, Input, DatePicker } from 'antd';
+import styled from '@emotion/styled';
 import 'antd/dist/antd.css';
 const { confirm } = Modal;
 
@@ -26,9 +28,7 @@ const MyPage = () => {
 	const [trustedUser, setTrustedUser] = useState('');
 	const [managedUsers, setManagedUsers] = useState([]);
 	const [dateOfDeath, setDateOfDeath] = useState('2022-01-01');
-	const [imageSrc, setImageSrc] = useState(
-		'https://images.unsplash.com/photo-1528752477378-485b46bedcde?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8dGVzdGFtZW50fGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=600&q=60',
-	);
+	const [imageSrc, setImageSrc] = useState('');
 
 	useEffect(() => {
 		if (logInState === null) return;
@@ -271,9 +271,15 @@ const MyPage = () => {
 						onChange={fileChange}
 					/>
 				</div>
-				<div css={imageStyle}>
+				{/* <div css={imageStyle}>
 					<Image src={imageSrc} alt="나의 영정 사진" layout="fill" />
-				</div>
+				</div> */}
+				<Frame>
+					<FrameImages>
+						<TbRectangleVertical className={'frame_svg'} />
+						<img src={imageSrc} />
+					</FrameImages>
+				</Frame>
 			</div>
 			{/* <div css={adBoxStyle}>
 				<div css={adContentStyle}>
@@ -292,7 +298,7 @@ const MyPage = () => {
 
 			<div css={mainWrapper}>
 				<section css={sectionWrapper}>
-					<h2>개인정보 수정</h2>
+					<h2>비밀번호 수정</h2>
 					<Form onFinish={onUpdateUser}>
 						<div css={inputWrapper}>
 							<input
@@ -524,6 +530,31 @@ const buttonWrapper = css`
 		width: 49%;
 		padding: 10px;
 		cursor: pointer;
+	}
+`;
+
+const Frame = styled.div`
+	position: relative;
+	color: dimgray;
+	z-index: 1;
+	svg.frame_svg {
+		width: 300px;
+		height: auto;
+		color: darkgrey;
+	}
+`;
+
+const FrameImages = styled.div`
+	position: relative;
+	display: inline-block;
+
+	& > img {
+		position: absolute;
+		width: 150px;
+		height: 215px;
+		top: 35px;
+		left: 75px;
+		z-index: -1;
 	}
 `;
 export default MyPage;

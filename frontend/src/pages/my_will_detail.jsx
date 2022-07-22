@@ -15,7 +15,7 @@ import 'antd/dist/antd.css';
 let checkedIndex = [];
 const MyWillDetail = () => {
 	const router = useRouter();
-	const { willList } = useSelector((state) => state.will);
+	//const { willList } = useSelector((state) => state.will);
 	const { logInState } = useSelector((state) => state.user);
 
 	const [title, onChangeTitle, setTitle] = useInput('');
@@ -50,57 +50,15 @@ const MyWillDetail = () => {
 			})
 			.then((res) => {
 				// dispatch(RECEIVERACTIONS.getReceivers({ lists: res.data }));
-				//console.log(res.data);
+				console.log(res.data.length);
 				setReceiverData([...res.data]);
+				if (res.data.length === 0) {
+					alert('수신자 목록을 먼저 등록해주세요!');
+					Router.replace('/receiver_management_page');
+				}
 			})
 			.catch((err) => console.log(err));
 	};
-
-	useEffect(() => {
-		if (!router.isReady) return;
-		//console.log(logInState);
-		if (logInState === null) return;
-		if (!logInState) {
-			alert('서비스를 이용하려면 로그인을 먼저 해주세요!');
-			Router.replace('/sign_in');
-		}
-
-		getReceiverList();
-		const { id } = router.query;
-		if (id) {
-			setIdParam(id);
-			setTitle(willList[0][id].title);
-			setContent(willList[0][id].content);
-			setReceiverList(willList[0][id].receivers);
-			setWillId(willList[0][id]._id);
-
-			const token = sessionStorage.getItem('token');
-			const userId = sessionStorage.getItem('userId');
-			let receivers_forShow = '';
-
-			willList[0][id].receivers.map((item) => {
-				//console.log(item.receiverId);
-				const receiverId = item.receiverId;
-
-				axios
-					.get(`/api/auth/${userId}/receivers/${receiverId}`, {
-						headers: {
-							Authorization: `Bearer ${token}`,
-						},
-					})
-					.then((res) => {
-						// dispatch(RECEIVERACTIONS.getReceivers({ lists: res.data }));
-						//console.log(res.data);
-						//setReceiverData([...res.data]);
-						receivers_forShow += `${res.data.fullName}(${res.data.relation}) <${res.data.emailAddress}>, `;
-					})
-					.catch((err) => console.log(err))
-					.finally(() =>
-						setReceivers(receivers_forShow.slice(0, -2)),
-					);
-			});
-		}
-	}, [logInState, router.isReady]);
 
 	//API 사용을 위한 공통 데이터
 	const getData = () => {
@@ -113,6 +71,58 @@ const MyWillDetail = () => {
 		};
 		return { userId, headerAuth };
 	};
+
+	const getWillData = () => {
+		const { willId } = router.query;
+		if (willId) {
+			setIdParam(willId);
+
+			const { userId, headerAuth } = getData();
+			const url = `/api/auth/${userId}/wills/${willId}`;
+
+			axios
+				.get(url, headerAuth)
+				.then((res) => {
+					//console.log(res.data);
+					const { title, content, receivers, _id } = res.data;
+					setTitle(title);
+					setContent(content);
+					setReceiverList(receivers);
+					setWillId(_id);
+
+					let receivers_forShow = '';
+					receivers.map((item) => {
+						const receiverId = item.receiverId;
+						axios
+							.get(
+								`/api/auth/${userId}/receivers/${receiverId}`,
+								headerAuth,
+							)
+							.then((res) => {
+								receivers_forShow += `${res.data.fullName}(${res.data.relation}) <${res.data.emailAddress}>, `;
+							})
+							.catch((err) => console.log(err))
+							.finally(() =>
+								setReceivers(receivers_forShow.slice(0, -2)),
+							);
+					});
+				})
+				.catch((err) => alert(err.response.data.reason));
+		}
+	};
+
+	useEffect(() => {
+		if (!router.isReady) return;
+		//console.log(logInState);
+		if (logInState === null) return;
+		if (!logInState) {
+			alert('서비스를 이용하려면 로그인을 먼저 해주세요!');
+			Router.replace('/sign_in');
+		}
+
+		getReceiverList();
+		getWillData();
+	}, [logInState, router.isReady]);
 
 	//유언장 등록
 	const RegisterForm = useCallback(() => {

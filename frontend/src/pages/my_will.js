@@ -25,8 +25,6 @@ import { WillACTIONS } from '../reducers/will';
 import { RECEIVERACTIONS } from '../reducers/receivers';
 import getUserIdToken from '../util/getUserIdToken';
 
-
-
 /* 
 	로그인 한 상태에서만 유언장 페이지에 접근가능
 	로그인 하지 않은 상태에서는 로그인, 회원가입 유도 화면 보여줌
@@ -44,7 +42,6 @@ const MyWill = () => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const clickPagination = useCallback(setCurrentPage, []);
 
-
 	const loadValues = () => {
 		// const checkValue = await userLoginCheck();
 		// console.log(logInState);
@@ -53,9 +50,7 @@ const MyWill = () => {
 			getWillsList();
 			getReceiverList();
 		}
-	}
-
-
+	};
 
 	useEffect(() => {
 		// // 테스트 값 넣기
@@ -64,7 +59,7 @@ const MyWill = () => {
 		// 	title: 'test1....유언장-21',
 		// 	content: '유언장-21 내용~',
 		// 	userId: userId,
-		// 	receivers: [	
+		// 	receivers: [
 		// 				{
 		// 					"receiverId": '62d3baea2a0a7050008fbf7b',
 		// 					"email": 'test13@email.com'
@@ -82,8 +77,7 @@ const MyWill = () => {
 		loadValues();
 	}, [logInState]);
 
-
-	// console.log(willList, currentPage, willList.length);
+	//console.log(willList, currentPage, willList.length);
 
 	const pageListUpdate = () => {
 		// 마지막 페이지를 삭제 했다면 현재 페이지 번호 앞으로 이동
@@ -100,24 +94,28 @@ const MyWill = () => {
 	const getReceiverList = () => {
 		const token = sessionStorage.getItem('token');
 		const userId = sessionStorage.getItem('userId');
-		axios.get(`/api/auth/${userId}/receivers`, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		}).then(res => {
-			dispatch(RECEIVERACTIONS.getReceivers({ lists: res.data }));
-		}).catch(err => console.log(err));
-	}
+		axios
+			.get(`/api/auth/${userId}/receivers`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
+			.then((res) => {
+				dispatch(RECEIVERACTIONS.getReceivers({ lists: res.data }));
+			})
+			.catch((err) => console.log(err));
+	};
 
 	const getWillsList = () => {
 		// console.log('겟윌함수');
 		const token = sessionStorage.getItem('token');
 		const userId = sessionStorage.getItem('userId');
-		axios.get(`/api/auth/${userId}/wills`, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		})
+		axios
+			.get(`/api/auth/${userId}/wills`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
 			.then((res) => {
 				// console.log(res.data);
 				dispatch(WillACTIONS.getWills({ lists: res.data }));
@@ -176,9 +174,7 @@ const MyWill = () => {
 						</p>
 						<NoticeBtnGroup>
 							<Link href="/sign_in">
-								<Button>
-									로그인하기
-								</Button>
+								<Button>로그인하기</Button>
 							</Link>
 							<Link href="/sign_up">
 								<Button>회원가입하기</Button>
@@ -190,39 +186,39 @@ const MyWill = () => {
 						<CardGroup>
 							{willList.length > 0
 								? willList[currentPage - 1].map((will, i) => (
-									<Card
-										title={will.title}
-										extra={
-											<CardBtnGroup>
-												<Link
-													href={{
-														pathname:
-															'/my_will_detail',
-														query: `id=${i}`,
-													}}
-												>
-													<a css={aTagStyle}>
-														유언장 상세보기
-													</a>
-												</Link>
-												<Button
-													type="button"
-													onClick={() =>
-														onClickDelete(will)
-													}
-												>
-													유언장 제거하기
-												</Button>
-											</CardBtnGroup>
-										}
-										style={{
-											width: '20rem',
-										}}
-										key={`card-${i}`}
-									>
-										<ReceiverList will={will} />
-									</Card>
-								))
+										<Card
+											title={will.title}
+											extra={
+												<CardBtnGroup>
+													<Link
+														href={{
+															pathname:
+																'/my_will_detail',
+															query: `willId=${will._id}`,
+														}}
+													>
+														<a css={aTagStyle}>
+															유언장 상세보기
+														</a>
+													</Link>
+													<Button
+														type="button"
+														onClick={() =>
+															onClickDelete(will)
+														}
+													>
+														유언장 제거하기
+													</Button>
+												</CardBtnGroup>
+											}
+											style={{
+												width: '20rem',
+											}}
+											key={`card-${i}`}
+										>
+											<ReceiverList will={will} />
+										</Card>
+								  ))
 								: '유언장 정보가 없습니다..'}
 						</CardGroup>
 						<Pagination
