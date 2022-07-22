@@ -261,9 +261,8 @@ const MyPage = () => {
 			</div>
 			<div css={adBoxStyle}>
 				<div css={adContentStyle}>
-					<h2>나의 영정 사진</h2>
+					<h1>나의 영정 사진</h1>
 					<p>밝은 표정이 담긴 사진을 업로드해주세요</p>
-					<p>11x14인치 (28x35cm)</p>
 					<input
 						type="file"
 						accept="image/*"
@@ -298,7 +297,7 @@ const MyPage = () => {
 
 			<div css={mainWrapper}>
 				<section css={sectionWrapper}>
-					<h2>비밀번호 수정</h2>
+					<h1>비밀번호 수정</h1>
 					<Form onFinish={onUpdateUser}>
 						<div css={inputWrapper}>
 							<input
@@ -338,10 +337,10 @@ const MyPage = () => {
 			<div css={mainWrapper}>
 				<section>
 					<div>
-						<h2>
+						<h1>
 							자신의 유언장을 전송, 생사여부를 변경 가능 권한을
 							주고 싶은 사람
-						</h2>
+						</h1>
 						{trustedUser && (
 							<div style={{ left: '40%', marginTop: '2em' }}>
 								등록된 이메일: {trustedUser}
@@ -397,7 +396,7 @@ const MyPage = () => {
 			<div css={mainWrapper}>
 				<section>
 					<div>
-						<h2>내가 생사여부 변경 권한이 있는 사용자 목록</h2>
+						<h1>내가 생사여부 변경 권한이 있는 사용자 목록</h1>
 						{managedUsers && (
 							<div style={{ left: '40%', marginTop: '2em' }}>
 								{managedUsers.map((user, index) => {
@@ -542,6 +541,7 @@ const Frame = styled.div`
 		height: auto;
 		color: darkgrey;
 	}
+	left: 10%;
 `;
 
 const FrameImages = styled.div`

@@ -45,9 +45,13 @@ const Accept = () => {
 		<AppLayout>
 			<div css={mainWrapper}>
 				<section css={sectionWrapper}>
-					확정하시면 생사여부 변경을 하실 수 있고 사망시 유언장을
-					전송됩니다.
-					<Button onClick={sendConfirmation}>확정</Button>
+					<h1>
+						확정하시면 생사여부 변경을 하실 수 있고 사망시 유언장을
+						전송됩니다.
+					</h1>
+					<div style={{ display: 'flex', justifyContent: 'center' }}>
+						<Button onClick={sendConfirmation}>확정</Button>
+					</div>
 				</section>
 			</div>
 		</AppLayout>
@@ -61,7 +65,7 @@ const mainWrapper = css`
 	justify-content: center;
 	width: 100%;
 	// height: 85vh;
-	margin: 10rem; //추가
+	margin: 10em auto; //추가
 `;
 
 const sectionWrapper = css`
