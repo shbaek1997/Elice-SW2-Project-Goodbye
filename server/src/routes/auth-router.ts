@@ -468,7 +468,7 @@ authRouter.get(
 );
 
 authRouter.post(
-    '/:userId/wills',
+    '/:userId/will',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { userId } = req.params;
@@ -583,7 +583,7 @@ authRouter.get(
 );
 
 authRouter.post(
-    '/:userId/receivers',
+    '/:userId/receiver',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { userId } = req.params;

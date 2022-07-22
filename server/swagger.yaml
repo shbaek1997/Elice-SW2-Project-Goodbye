@@ -978,10 +978,10 @@ paths:
       parameters:
       - $ref: "#/components/parameters/userIdParam"
       requestBody:
-        $ref: "#/components/requestsBodies/receiverReq"
+        $ref: "#/components/requestBodies/receiverReq"
       responses:
         200:
-          description: 수신자 정보 수정 성공
+          description: 수신자 정보 저장 성공
           $ref: "#/components/responses/receiverRes"
   /api/auth/{userId}/receivers/{receiverId}:
     get:
@@ -1009,7 +1009,7 @@ paths:
       - $ref: "#/components/parameters/userIdParam"
       - $ref: "#/components/parameters/receiverIdParam"
       requestBody:
-        $ref: "#/components/requestsBodies/receiverReq"
+        $ref: "#/components/requestBodies/receiverReq"
       responses:
         200:
           description: 수신자 정보 수정 성공
