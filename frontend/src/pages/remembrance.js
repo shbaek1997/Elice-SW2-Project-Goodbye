@@ -200,10 +200,16 @@ const remembrance = () => {
             const {
                 _id,
                 photo,
-                comments
+                comments,
+                fullName,
+                dateOfBirth,
+                dateOfDeath,
             } = res.data;
-
+            console.log(res);
             setUserData({
+                fullName,
+                dateOfBirth,
+                dateOfDeath,
                 remembranceId: _id,
                 photo
             })
@@ -277,7 +283,7 @@ const remembrance = () => {
                     <Portrait>
                         <Frame>
                             <FrameImages>
-                                <TbRectangleVertical className={'frame_svg'} />
+                                {/* <TbRectangleVertical className={'frame_svg'} /> */}
                                 <img src={userData.photo} />
                             </FrameImages>
                         </Frame>
@@ -294,6 +300,10 @@ const remembrance = () => {
                             <BsFlower1 />
                         </Decorator>
                     </Portrait>
+                    <TextWrapper>
+                        <h2>{`${userData.fullName}`}</h2>
+                        <p>{`${userData.dateOfBirth} ~ ${userData.dateOfDeath}`}</p>
+                    </TextWrapper>
                     {comments.length > 0 &&
                         <ReachableContext.Provider value="Light">
                             <CommentList comments={comments} router={router.pathname} />
@@ -325,6 +335,22 @@ const remembrance = () => {
 
 export default remembrance;
 
+const TextWrapper = styled.div`
+    position: relative;
+    bottom: 75px;
+   h2 {
+    font-size: 2.5rem;
+    text-align: center;
+   }
+   p {
+    font-size: 1.5rem;
+   }
+
+`
+
+const ImageWrapper = styled.div`
+
+`
 
 const adBoxStyle = css`
 	display: flex;
@@ -373,7 +399,7 @@ const CommentTree = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-image: url('https://images.unsplash.com/photo-1581077391553-b92f87f45e9b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MzB8fHRvbWJ8ZW58MHx8MHx8&auto=format&fit=crop&w=600&q=60');
+    // background-image: url('https://images.unsplash.com/photo-1560238786-aa5717f6ba63?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80');
     background-repeat: no-repeat;
     background-size: cover;
     .visible_btn {
@@ -404,31 +430,33 @@ const Decorator = styled.div`
     position: relative;
     display: inline-block;
     z-index: 2;
-    bottom: 120px;
+    bottom: 102px;
     color: whitesmoke;
     & > svg {
-        width: 1.5rem;
-        height: 2rem;
+        width: 1.2rem;
+        height: 1.5rem;
     }
 `
 
 const IconGroup = styled.div`
+    padding: 1.5rem 0;
     display: block;
     position: relative;
-    width: 45rem;
+    width: 50rem;
     min-height: 25rem;
     margin: auto;
-    background-color: slategray;
+    background-color: rgb(50, 35, 30);
     border-radius: 20px;
 `
 
 const IconComments = styled.div`
     display: inline-grid;
-    grid-column-gap: 1.7rem;
+    grid-column-gap: 1.8rem;
+    grid-row-gap: 1.5rem;
     place-content: center;
     grid-template-columns: repeat(8, minmax(auto, auto));
     position: absolute;
-    left: 10px;
+    left: 38px;
 `
 
 const CommentArea = styled.div`
@@ -462,7 +490,7 @@ const CommentArea = styled.div`
     label {
         display: block;
         margin-bottom: 10px;
-        color: white;
+        color: black;
         font-size: medium;
     }
 `
@@ -471,7 +499,7 @@ const Notice = styled.p`
     font-size: smaller;
     position: relative;
     right: 40px;
-    color: blanchedalmond;
+    color: black;
 `
 
 const FlowerIconDiv = styled.div`
@@ -496,11 +524,13 @@ const FrameImages = styled.div`
     display: inline-block;
 
     & > img {
-        position: absolute;
         width: 28rem;
         height: 36rem;
+        margin: 5rem;
         top: 116px;
         left: 175px;
         z-index: -1;
+        border: 1.5rem solid black;
+        border-radius: 10px;
     }
 `

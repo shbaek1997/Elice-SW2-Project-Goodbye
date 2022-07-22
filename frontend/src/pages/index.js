@@ -156,6 +156,7 @@ const RbImg = styled.div`
 
 const RmBox = styled.div`
 	display: flex;
+	height: 100vh;
 	flex-direction: column;
 	align-items: center;
 `;
@@ -196,7 +197,7 @@ const ObituaryImg = styled.div`
 const adBoxStyle = css`
 	display: flex;
 	width: 100%;
-	height: 30rem;
+	height: 100vh;
 	margin: 10rem 0;
 	padding: 2rem;
 	align-item: center;
@@ -207,6 +208,7 @@ const adBoxStyle = css`
 `;
 const BoxStyle = styled.div`
 	width: 100%;
+	height: 100vh;
 	margin: 10rem 0;
 	padding: 2rem;
 `;
