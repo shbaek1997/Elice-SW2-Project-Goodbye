@@ -125,7 +125,10 @@ remembranceRouter.delete(
     async (req, res, next) => {
         try {
             const { remembranceId, commentId } = req.params;
-            const { password } = req.body;
+            const password = req.get('password');
+            if (!password) {
+                throw new Error('비밀번호가 필요합니다.');
+            }
 
             await deleteCommentJoiSchema.validateAsync(password);
             const result: { result: string } =

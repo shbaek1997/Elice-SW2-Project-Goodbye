@@ -141,7 +141,7 @@ const receiver_page = () => {
 		const relation = submitData.get('relation');
 		axios
 			.post(
-				`/api/auth/${userId}/receiver`,
+				`/api/auth/${userId}/receivers`,
 				{
 					fullName,
 					emailAddress,

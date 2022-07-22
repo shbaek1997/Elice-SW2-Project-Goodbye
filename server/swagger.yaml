@@ -7,7 +7,6 @@ info:
 
 servers:
 - url: http://localhost:5000
-- url: http://kdt-sw2-seoul-team11.elicecoding.com:5000
 
 tags:
   - name: Users
@@ -360,6 +359,12 @@ components:
           description: '상주 이름'
           example: '홍철수'
   parameters:
+    passwordParam:
+      name: password
+      in: header
+      required: true
+      schema:
+        $ref: "#/components/schemas/User/properties/password"
     userIdParam:
       name: userId
       in: path
@@ -717,6 +722,7 @@ paths:
       description: 탈퇴하는 유저의 정보를 DB에서 삭제
       parameters:
       - $ref: "#/components/parameters/userIdParam"
+      - $ref: "#/components/parameters/passwordParam"
       requestBody:
         $ref: "#/components/requestBodies/passwordReq"
       responses:
@@ -891,7 +897,6 @@ paths:
         200:
           description: 여러개의 유언장 정보
           $ref: "#/components/responses/willsRes"
-  /api/auth/{userId}/will:
     post:
       tags:
       - Wills
@@ -967,7 +972,6 @@ paths:
         200:
           description: 여러개의 수신자 데이터
           $ref: "#/components/responses/receiversRes"
-  /api/auth/{userId}/receiver:
     post:
       tags:
       - Receivers
@@ -1131,8 +1135,7 @@ paths:
       parameters:
       - $ref: "#/components/parameters/remembranceIdParam"
       - $ref: "#/components/parameters/commentIdParam"
-      requestBody:
-        $ref: "#/components/requestBodies/passwordReq"
+      - $ref: "#/components/parameters/passwordParam"
       responses:
         201:
           description: "추모글 데이터 삭제"

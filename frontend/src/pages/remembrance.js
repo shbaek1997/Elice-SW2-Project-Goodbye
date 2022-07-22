@@ -36,7 +36,9 @@ const CommentList = ({ comments }) => {
         try {
             const res = 
                     await axios.delete(`/api/remembrances/${remembranceId}/comments/${commentId}`, {
-                        data: { password: inputValue }
+                        headers: {
+                            password: inputValue
+                        },
                     });
             
             // 리다이렉트 하기

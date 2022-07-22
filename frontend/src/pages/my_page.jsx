@@ -99,8 +99,10 @@ const MyPage = () => {
 
 		await axios
 			.delete(`/api/auth/${userId}`, {
-				headers: { Authorization: `Bearer ${token}` },
-				data: { currentPassword: currentPassword },
+				headers: {
+                    Authorization: `Bearer ${token}`,
+                    password: currentPassword
+                },
 			})
 			.then((res) => {
 				alert('성공적으로 회원 탈퇴 되었습니다.');

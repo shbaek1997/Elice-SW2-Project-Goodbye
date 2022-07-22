@@ -128,7 +128,7 @@ const MyWillDetail = () => {
 	//유언장 등록
 	const RegisterForm = useCallback(() => {
 		const { userId, headerAuth } = getData();
-		const url = `/api/auth/${userId}/will`;
+		const url = `/api/auth/${userId}/wills`;
 		const data = { title, content, receivers: receiverList };
 
 		axios
