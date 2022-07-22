@@ -156,7 +156,8 @@ const RbImg = styled.div`
 
 const RmBox = styled.div`
 	display: flex;
-	height: 100vh;
+	height: 90vh;
+	margin: 0 5em;
 	flex-direction: column;
 	align-items: center;
 `;
@@ -208,8 +209,8 @@ const adBoxStyle = css`
 `;
 const BoxStyle = styled.div`
 	width: 100%;
-	height: 100vh;
-	margin: 10rem 0;
+	//height: 100vh;
+	margin-bottom: 10rem;
 	padding: 2rem;
 `;
 
