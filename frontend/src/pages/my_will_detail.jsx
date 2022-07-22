@@ -6,6 +6,7 @@ import axios from 'axios';
 
 import AppLayout from '../components/AppLayout';
 import useInput from '../hooks/useInput';
+import userLoginCheck from '../util/userLoginCheck';
 
 import { css } from '@emotion/react';
 import { Form, Modal, Button, List, Checkbox } from 'antd';
@@ -55,18 +56,17 @@ const MyWillDetail = () => {
 			.catch((err) => console.log(err));
 	};
 
-
 	useEffect(() => {
 		if (!router.isReady) return;
-		console.log(logInState)
+		//console.log(logInState);
 		if (logInState === null) return;
 		if (!logInState) {
 			alert('서비스를 이용하려면 로그인을 먼저 해주세요!');
 			Router.replace('/sign_in');
 		}
+
 		getReceiverList();
 		const { id } = router.query;
-		//console.log(id);
 		if (id) {
 			setIdParam(id);
 			setTitle(willList[0][id].title);
@@ -224,8 +224,8 @@ const MyWillDetail = () => {
 												receiverId: item.receiverId,
 											};
 											return (
-												<Checkbox		
-												    key={`${item._id}+${i}`}
+												<Checkbox
+													key={`${item._id}+${i}`}
 													value={receiverInfo}
 													onChange={onChangeCheckBox}
 													index={i}

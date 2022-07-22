@@ -31,6 +31,7 @@ const MyPage = () => {
 	);
 
 	useEffect(() => {
+		if (logInState === null) return;
 		if (!logInState) {
 			alert('서비스를 이용하려면 로그인을 먼저 해주세요!');
 			Router.replace('/sign_in');
@@ -78,7 +79,7 @@ const MyPage = () => {
 				}
 			})
 			.catch((err) => console.log(err.response.data.reason));
-	}, []);
+	}, [logInState]);
 
 	// const getDeathOrNot = useCallback((userId) => {
 	// 	const token = sessionStorage.getItem('token');
