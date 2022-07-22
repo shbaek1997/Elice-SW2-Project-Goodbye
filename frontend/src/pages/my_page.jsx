@@ -10,6 +10,7 @@ import axios from 'axios';
 import Router from 'next/router';
 const { confirm } = Modal;
 
+let dateDeathString = '2022-01-01';
 const MyPage = () => {
 	const [password, onChangePassword, setPassword] = useInput('');
 	const [currentPassword, onChangeCurrentPassword, setCurrentPassword] =
@@ -19,7 +20,7 @@ const MyPage = () => {
 		useInput('');
 	const [trustedUser, setTrustedUser] = useState('');
 	const [managedUsers, setManagedUsers] = useState([]);
-	const [dateOfDeath, setDateOfDeath] = useState('2000-01-01');
+	const [dateOfDeath, setDateOfDeath] = useState('2022-01-01');
 	const [imageSrc, setImageSrc] = useState(
 		'https://images.unsplash.com/photo-1528752477378-485b46bedcde?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8dGVzdGFtZW50fGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=600&q=60',
 	);
@@ -160,52 +161,65 @@ const MyPage = () => {
 			.catch((err) => alert(err.response.data.reason));
 	};
 
-	const onChangeDeathDate = (date, dateString) => {
-		//console.log(date, dateString);
-		//console.log(typeof dateString);
-		setDateOfDeath(dateString);
-		//console.log(dateOfDeath);
-	};
-	const setDeathDate = (managedUserId) => {
-		confirm({
-			title: `사망일자를 입력해주세요.`, //${managedUserId}님의
-			icon: <ExclamationCircleOutlined />,
-			content: <DatePicker onChange={onChangeDeathDate} />,
+	//const [dateDeathString, setDateDeathString] = useState('2022-01-01');
+	const onChangeDeathDate = useCallback(
+		(date, dateString) => {
+			//console.log(date, dateString);
+			console.log(typeof dateString);
+			setDateOfDeath(dateString);
+			dateDeathString = dateString;
+		},
+		[dateOfDeath],
+	);
 
-			onOk() {
-				changeLifeDeath(managedUserId);
-			},
+	const setDeathDate = useCallback(
+		(managedUserId) => {
+			confirm({
+				title: `사망일자를 입력해주세요.`, //${managedUserId}님의
+				icon: <ExclamationCircleOutlined />,
+				content: <DatePicker onChange={onChangeDeathDate} />,
 
-			onCancel() {
-				//console.log('Cancel');
-			},
-		});
-	};
-
-	const changeLifeDeath = (managedUserId) => {
-		//console.log('생사변경: 유언장, 추모 링크 발송되고 추모 공개로 전환');
-		//console.log(managedUserId);
-		//console.log(dateOfDeath);
-
-		const userId = sessionStorage.getItem('userId');
-		const token = sessionStorage.getItem('token');
-		axios
-			.post(
-				`/api/auth/${userId}/managedUsers/${managedUserId}`,
-				{ dateOfDeath },
-				{
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
+				onOk() {
+					console.log(dateOfDeath);
+					changeLifeDeath(managedUserId);
 				},
-			)
-			.then((res) => {
-				console.log(res);
-				alert('성공적으로 유언장을 발송했습니다.');
-				//setIsModalVisible(false);
-			})
-			.catch((err) => alert(err.response.data.reason));
-	};
+
+				onCancel() {
+					console.log(dateDeathString);
+					//console.log('Cancel');
+				},
+			});
+		},
+		[dateOfDeath],
+	);
+
+	const changeLifeDeath = useCallback(
+		(managedUserId) => {
+			//console.log('생사변경: 유언장, 추모 링크 발송되고 추모 공개로 전환');
+			//console.log(managedUserId);
+			console.log(dateOfDeath);
+			console.log(dateDeathString);
+			const userId = sessionStorage.getItem('userId');
+			const token = sessionStorage.getItem('token');
+			axios
+				.post(
+					`/api/auth/${userId}/managedUsers/${managedUserId}`,
+					{ dateOfDeath: dateDeathString },
+					{
+						headers: {
+							Authorization: `Bearer ${token}`,
+						},
+					},
+				)
+				.then((res) => {
+					console.log(res);
+					alert('성공적으로 유언장을 발송했습니다.');
+					//setIsModalVisible(false);
+				})
+				.catch((err) => alert(err.response.data.reason));
+		},
+		[dateOfDeath],
+	);
 
 	return (
 		<AppLayout>
