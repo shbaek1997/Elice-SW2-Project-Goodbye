@@ -435,7 +435,8 @@ authRouter.patch(
                 secretKey,
             );
             const receivers = [email];
-            const homepage = 'http://localhost:3000';
+            // url link 에 포함될 homepage 변수 세팅
+            const homepage = process.env.HOMEPAGE;
             const subject = `Project Goodbye 서비스의 ${fullName}님이 고객님에게 관리자 역할을 요청하였습니다.`;
             const html = `<!DOCTYPE html>
             <html lang="en">
@@ -578,8 +579,8 @@ authRouter.post(
                 <body>
                     <h1>${fullName}님으로부터 유언장이 도착했습니다</h1>
                     <p>Project Goodbye의 서비스는 유언장을 링크를 통하여 전달해드립니다.</p>
-                    <p>유언장을 열람하시려면 <a href="${homepage}/wills/${willId}">이 링크</a>를 클릭 후, 이 이메일을 받은 이메일 주소를 입력하시면 됩니다.</p>
-                    <p>${fullName}님의 추모식에 참여를 원하시면 <a href="${homepage}/remebrances/${remebranceId}">이 링크</a>를 클릭하시면 됩니다.</p>
+                    <p>유언장을 열람하시려면 <a href="${homepage}/will_check_page?willId=${willId}">이 링크</a>를 클릭 후, 이 이메일을 받은 이메일 주소를 입력하시면 됩니다.</p>
+                    <p>${fullName}님의 추모식에 참여를 원하시면 <a href="${homepage}/remembrance?remembranceId=${remebranceId}">이 링크</a>를 클릭하시면 됩니다.</p>
                 </body>
                 </html>`;
                 sendMailTest(receiversEmails, subject, html);

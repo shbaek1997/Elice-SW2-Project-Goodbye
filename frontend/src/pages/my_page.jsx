@@ -43,6 +43,13 @@ const MyPage = () => {
 				//console.log(res.data.user.managedUsers[0].email);
 				if (res.data.user.managedUsers) {
 					setManagedUsers(res.data.user.managedUsers);
+
+					// res.data.user.managedUsers.map((item) => {
+					// 	console.log(item.userId);
+
+					//const date = getDeathOrNot(item.userId);
+					//console.log(date);
+					//});
 				}
 			})
 			.catch((err) => console.log(err.response.data.reason));
@@ -62,6 +69,21 @@ const MyPage = () => {
 			})
 			.catch((err) => console.log(err.response.data.reason));
 	}, []);
+
+	// const getDeathOrNot = useCallback((userId) => {
+	// 	const token = sessionStorage.getItem('token');
+	// 	axios
+	// 		.get(`/api/auth/${userId}/remembrances`, {
+	// 			headers: {
+	// 				Authorization: `Bearer ${token}`,
+	// 			},
+	// 		})
+	// 		.then((res) => {
+	// 			console.log(res.data);
+	// 			return res.data;
+	// 		})
+	// 		.catch((err) => console.log(err.response.data.reason));
+	// }, []);
 	const onUpdateUser = useCallback(async () => {
 		const userId = sessionStorage.getItem('userId');
 		const token = sessionStorage.getItem('token');
