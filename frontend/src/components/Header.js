@@ -1,25 +1,45 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
+import Router from 'next/router';
+
+import { useDispatch } from 'react-redux';
+import { USERACTIONS } from '../reducers/user';
+import { useSelector } from 'react-redux';
 
 import styled from '@emotion/styled';
 
 import { Button } from '../util/common_styles';
+import userLoginCheck from '../util/userLoginCheck';
 
 const Header = () => {
-	const [isLogIn, setIsLogIn] = useState(false);
+	const [isLogIn, setIsLogIn] = useState(null);
+	const dispatch = useDispatch();
+	const {logInState} = useSelector((state) => state.user);
 
+	// 로그인 확인 부분
 	useEffect(() => {
-		const token = sessionStorage.getItem('token');
-		if (token) {
-			setIsLogIn(true);
-		}
+		setLoginValue();
+	}, []);
+
+
+    const setLoginValue = async () => {
+		const checkValue = await userLoginCheck();
+		dispatch(USERACTIONS.setUserData(checkValue));
+	}
+
+
+	// 로그아웃 버튼 클릭
+	const handleLogOut = useCallback(async () => {
+		await Router.replace('/');
+		sessionStorage.clear();
+		dispatch(USERACTIONS.clearUserData());
 	}, []);
 
 	return (
 		<>
 			<Wrapper>
 				<LoginHeader>
-					{!isLogIn ? (
+					{!logInState ? (
 						<ButtonGroup>
 							<Link href={'/sign_in'}>
 								<Button type="button">로그인</Button>
@@ -33,9 +53,9 @@ const Header = () => {
 							<Link href={'/my_page'}>
 								<Button type="button">마이페이지</Button>
 							</Link>
-							<Link href={'/sign_out'}>
-								<Button type="button">로그아웃</Button>
-							</Link>
+							<Button type="button" onClick={handleLogOut}>
+								로그아웃
+							</Button>
 						</ButtonGroup>
 					)}
 				</LoginHeader>
@@ -50,17 +70,7 @@ const Header = () => {
 							</Link>
 						</li>
 						<li>
-							<Link href={'#'}>
-								<a>나의 장례식</a>
-							</Link>
-						</li>
-						<li>
-							<Link href={'#'}>
-								<a>부고 작성</a>
-							</Link>
-						</li>
-						<li>
-							<Link href={'/receiver_page'}>
+							<Link href={'/receiver_management_page'}>
 								<a>수신인 관리</a>
 							</Link>
 						</li>
@@ -71,7 +81,6 @@ const Header = () => {
 	);
 };
 
-
 export default Header;
 
 const Wrapper = styled.header`
@@ -80,6 +89,8 @@ const Wrapper = styled.header`
 		margin: 0;
 		line-height: 30px;
 		text-align: center;
+		font-size: 1.5em;
+		font-weight: bold;
 	}
 	h1:hover {
 		cursor: pointer;
@@ -102,6 +113,10 @@ const NavBar = styled.section`
 
 	ul {
 		margin: 0;
+	}
+
+	ul a {
+		text-decoration: none;
 	}
 
 	ul li {

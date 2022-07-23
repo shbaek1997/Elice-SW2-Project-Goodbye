@@ -1,7 +1,11 @@
 import bcrypt from 'bcrypt';
 import { IComment } from '../db/schemas/comment-schema';
-import { commentModel, CommentModel, IUpdateComment } from '../db';
+import { commentModel, CommentModel, IUpdateComment, ResComment } from '../db';
 import { remembranceService } from './remembrance-service';
+
+interface IUpdateInput extends IUpdateComment {
+    password: string;
+}
 
 class CommentService {
     commentModel: CommentModel;
@@ -10,8 +14,35 @@ class CommentService {
         this.commentModel = commentModel;
     }
 
+    // 비밀번호 확인 함수
+    async checkPassword(
+        commentId: string,
+        currentPassword: string,
+    ): Promise<void> {
+        // 작성자 확인을 위해 해당 추모글의 비밀번호 조회
+        const comment = await this.commentModel.findById(commentId);
+        const hashedPassword = comment.password;
+
+        const isPasswordCorrect = await bcrypt.compare(
+            currentPassword,
+            hashedPassword,
+        );
+        if (!isPasswordCorrect) {
+            throw new Error(
+                '비밀번호가 일치하지 않습니다. 다시 확인해 주세요.',
+            );
+        }
+    }
+
     // 새 추모글 생성
-    async addComment(remembranceId: string, commentInfo: IComment) {
+    async addComment(
+        remembranceId: string,
+        commentInfo: IComment,
+    ): Promise<ResComment> {
+        // 추모 데이터에 접근 가능한지 확인 - 접근 불가능하다면 Error 발생
+        await remembranceService.getRemembranceById(remembranceId);
+
+        // 비밀번호 암호화
         const { password } = commentInfo;
         const hashedPassword = await bcrypt.hash(
             password as string,
@@ -30,13 +61,8 @@ class CommentService {
     }
 
     // 특정 추모글 조회
-    async getCommentById(commentId: string) {
-        const comment = await this.commentModel.findById(commentId);
-        if (!comment) {
-            throw new Error(
-                '해당 추모 글은 존재하지 않습니다. 다시 확인해 주세요.',
-            );
-        }
+    getCommentById(commentId: string): Promise<ResComment> {
+        const comment = this.commentModel.findById(commentId);
 
         return comment;
     }
@@ -44,27 +70,13 @@ class CommentService {
     // 추모글 수정
     async setCommet(
         commentId: string,
-        currentPassword: string,
-        update: IUpdateComment,
-    ) {
-        // 작성자 확인을 위해 해당 추모글의 비밀번호 조회
-        const comment = await this.getCommentById(commentId);
-        const hashedPassword = comment.password;
+        commentInfo: IUpdateInput,
+    ): Promise<ResComment> {
+        const { password, ...update } = commentInfo;
 
-        const isPasswordCorrect = await bcrypt.compare(
-            currentPassword,
-            hashedPassword,
-        );
-        if (!isPasswordCorrect) {
-            throw new Error(
-                '비밀번호가 일치하지 않습니다. 다시 확인해 주세요.',
-            );
-        }
+        await this.checkPassword(commentId, password);
 
-        const updatedComment = await this.commentModel.update(
-            commentId,
-            update,
-        );
+        const updatedComment = this.commentModel.update(commentId, update);
 
         return updatedComment;
     }
@@ -74,33 +86,17 @@ class CommentService {
         remembranceId: string,
         commentId: string,
         currentPassword: string,
-    ) {
-        // 작성자 확인을 위해 해당 추모글의 비밀번호 조회
-        const comment = await this.getCommentById(commentId);
-        const hashedPassword = comment.password;
-
-        const isPasswordCorrect = await bcrypt.compare(
-            currentPassword,
-            hashedPassword,
-        );
-        if (!isPasswordCorrect) {
-            throw new Error(
-                '비밀번호가 일치하지 않습니다. 다시 확인해 주세요.',
-            );
-        }
+    ): Promise<{ result: string }> {
+        await this.checkPassword(commentId, currentPassword);
 
         const deletedComment = await this.commentModel.delete(commentId);
-        if (deletedComment) {
-            remembranceService.setComment(
-                remembranceId,
-                deletedComment._id,
-                'delete',
-            );
+        remembranceService.setComment(
+            remembranceId,
+            deletedComment._id,
+            'delete',
+        );
 
-            return { result: 'success' };
-        }
-
-        throw new Error('추모글이 삭제되지 않았습니다.');
+        return { result: 'success' };
     }
 }
 

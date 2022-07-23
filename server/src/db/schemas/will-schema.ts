@@ -4,7 +4,7 @@ interface InterfaceWill {
     title: string;
     content: string;
     userId: string;
-    receivers: string[];
+    receivers: any[];
 }
 
 const WillSchema = new Schema<InterfaceWill>(
@@ -22,7 +22,13 @@ const WillSchema = new Schema<InterfaceWill>(
             required: true,
         },
         receivers: {
-            type: [String],
+            type: [
+                {
+                    receiverId: String,
+                    email: String,
+                    _id: false,
+                },
+            ],
             required: true,
         },
     },

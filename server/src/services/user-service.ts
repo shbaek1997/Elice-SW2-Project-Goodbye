@@ -45,6 +45,7 @@ class UserService {
 
         // db에 저장
         const createdNewUser = await this.userModel.create(newUserInfo);
+
         return createdNewUser;
     }
 
@@ -53,13 +54,50 @@ class UserService {
         return user;
     }
 
+    async setManagedUsers(userId: string, managedUser: any) {
+        const user = await this.userModel.findById(userId);
+        // db에서 찾지 못한 경우, 에러 메시지 반환
+        if (!user) {
+            throw new Error('가입 내역이 없습니다. 다시 한 번 확인해 주세요.');
+        }
+
+        await this.userModel.addManagedUser(userId, managedUser);
+        const updatedUser = await this.userModel.findById(userId);
+        return updatedUser;
+    }
+
+    async removeManagedUsers(userId: string, managedUserId: string) {
+        const user = await this.userModel.findById(userId);
+        // db에서 찾지 못한 경우, 에러 메시지 반환
+        if (!user) {
+            throw new Error('가입 내역이 없습니다. 다시 한 번 확인해 주세요.');
+        }
+
+        await this.userModel.removeManagedUser(userId, managedUserId);
+        const updatedUser = await this.userModel.findById(userId);
+        return updatedUser;
+    }
+
+    async confirmManagedUsers(userId: string, toUpdate: any) {
+        // 우선 해당 id의 유저가 db에 있는지 확인
+        const user = await this.userModel.findById(userId);
+
+        // db에서 찾지 못한 경우, 에러 메시지 반환
+        if (!user) {
+            throw new Error('가입 내역이 없습니다. 다시 한 번 확인해 주세요.');
+        }
+        // 업데이트 진행
+        const updatedUser = await this.userModel.updateById(userId, toUpdate);
+        return updatedUser;
+    }
+
     // 유저정보 수정, 현재 비밀번호가 있어야 수정 가능함.
     async setUser(userInfoRequired: InterfaceUserInfoRequired, toUpdate: any) {
         // 객체 destructuring
         const { userId, currentPassword } = userInfoRequired;
 
         // 우선 해당 id의 유저가 db에 있는지 확인
-        let user = await this.userModel.findById(userId);
+        const user = await this.userModel.findById(userId);
 
         // db에서 찾지 못한 경우, 에러 메시지 반환
         if (!user) {
@@ -91,15 +129,9 @@ class UserService {
             toUpdate.password = newPasswordHash;
         }
 
-        // 이미지 변경하는 경우 기존 이미지 삭제 후 새 이미지 저장
-        const { photo } = toUpdate;
-        if (photo && user.photo) {
-            ImageService.deleteImage(user.photo);
-        }
-
         // 업데이트 진행
-        user = await this.userModel.updateById(userId, toUpdate);
-        return user;
+        const updatedUser = await this.userModel.updateById(userId, toUpdate);
+        return updatedUser;
     }
 
     async deleteUser(userInfoRequired: InterfaceUserInfoRequired) {
@@ -130,7 +162,7 @@ class UserService {
 
         // 저장된 이미지가 있는 경우 s3에서도 삭제
         if (user.photo) {
-            ImageService.deleteImage(user.photo);
+            ImageService.deleteImage(userId, user.photo);
         }
 
         // 삭제 진행

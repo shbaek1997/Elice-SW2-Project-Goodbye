@@ -4,9 +4,8 @@
     "version": "1.0.0",
     "private": true,
     "scripts": {
-        "dev": "ts-node index.ts",
-        "start": "node index.js",
-        "lint": "eslint ."
+        "dev": "ts-node src/app.ts",
+        "start": "tsc && node dist/app.js"
     },
     "dependencies": {
         "abbrev": "^1.1.1",
@@ -19,21 +18,20 @@
         "dotenv": "^16.0.1",
         "express": "~4.16.1",
         "http-errors": "~1.6.3",
-        "jade": "~1.11.0",
         "jmespath": "^0.16.0",
         "joi": "^17.6.0",
         "jsonwebtoken": "^8.5.1",
         "mongoose": "^6.4.2",
-        "morgan": "~1.9.1",
         "multer": "^1.4.5-lts.1",
         "multer-s3": "^2.10.0",
+        "nodemailer": "^6.7.7",
         "passport": "^0.6.0",
         "passport-jwt": "^4.0.0",
         "passport-local": "^1.0.0",
         "readable-stream": "^4.0.0",
         "string-width": "^5.1.2",
-        "swagger-jsdoc": "^6.2.1",
-        "swagger-ui-express": "^4.4.0"
+        "swagger-ui-express": "^4.4.0",
+        "yamljs": "^0.3.0"
     },
     "devDependencies": {
         "@types/bcrypt": "^5.0.0",
@@ -44,11 +42,12 @@
         "@types/multer": "^1.4.7",
         "@types/multer-s3": "^2.7.12",
         "@types/node": "^18.0.3",
+        "@types/nodemailer": "^6.4.4",
         "@types/passport": "^1.0.9",
         "@types/passport-jwt": "^3.0.6",
         "@types/passport-local": "^1.0.34",
-        "@types/swagger-jsdoc": "^6.0.1",
         "@types/swagger-ui-express": "^4.1.3",
+        "@types/yamljs": "^0.2.31",
         "@typescript-eslint/eslint-plugin": "^5.30.5",
         "@typescript-eslint/parser": "^5.30.5",
         "eslint": "^8.19.0",

@@ -1,109 +1,202 @@
 import React, { useEffect, useCallback, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { css } from '@emotion/react';
-import AppLayout from '../components/AppLayout';
-import { Form, Modal, Button, Input } from 'antd';
-import 'antd/dist/antd.css';
-import Image from 'next/image';
-import axios from 'axios';
-import useInput from '../hooks/useInput';
+import { useSelector } from 'react-redux';
 import Router, { useRouter } from 'next/router';
+import VirtualList from 'rc-virtual-list';
+import axios from 'axios';
 
+import AppLayout from '../components/AppLayout';
+import useInput from '../hooks/useInput';
+import userLoginCheck from '../util/userLoginCheck';
+
+import { css } from '@emotion/react';
+import styled from '@emotion/styled';
+import { Form, Modal, Button, List, Checkbox } from 'antd';
+import 'antd/dist/antd.css';
+
+let checkedIndex = [];
 const MyWillDetail = () => {
 	const router = useRouter();
-	const { willList } = useSelector((state) => state.will);
-	//const params = new URLSearchParams(window.location.search);
-	//const id = params.get('id');
+	//const { willList } = useSelector((state) => state.will);
+	const { logInState } = useSelector((state) => state.user);
 
 	const [title, onChangeTitle, setTitle] = useInput('');
 	const [content, onChangeContent, setContent] = useInput('');
-	const [name, onChangeName, setName] = useInput('');
-	const [email, onChangeEmail, setEmail] = useInput('');
-	const [relation, onChangeRelation, setRelation] = useInput('');
 
-	const [receivers, setReceivers] = useState([]); //receiver Id 목록
-	const [receiverList, setReceiverList] = useState([]); //To 목록
+	const [receivers, setReceivers] = useState([]); //To 목록
+	const [receiverList, setReceiverList] = useState([]); //receiver Id 목록
+
+	const [willId, setWillId] = useState('');
+	const [idParam, setIdParam] = useState('');
+
+	const ContainerHeight = 400;
+	const [receiverData, setReceiverData] = useState([]);
 
 	//팝업 띄우기 관련
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const showModal = () => {
 		setIsModalVisible(true);
 	};
-	const handleOk = () => {
-		setIsModalVisible(false);
-	};
 	const handleCancel = () => {
 		setIsModalVisible(false);
 	};
 
-	useEffect(() => {
-		const { id } = router.query;
-		console.log(willList);
-		if (willList.length > 0) {
-			setTitle(willList[0][id].title);
-			setContent(willList[0][id].content);
-			setReceivers(willList[0][id].receivers);
-		}
-	}, []);
+	const getReceiverList = () => {
+		const token = sessionStorage.getItem('token');
+		const userId = sessionStorage.getItem('userId');
+		axios
+			.get(`/api/auth/${userId}/receivers`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
+			.then((res) => {
+				// dispatch(RECEIVERACTIONS.getReceivers({ lists: res.data }));
+				console.log(res.data.length);
+				setReceiverData([...res.data]);
+				if (res.data.length === 0) {
+					alert('수신자 목록을 먼저 등록해주세요!');
+					Router.replace('/receiver_management_page');
+				}
+			})
+			.catch((err) => console.log(err));
+	};
 
-	//받는 사람 선택 팝업
-	const addReceiver = useCallback(() => {
+	//API 사용을 위한 공통 데이터
+	const getData = () => {
 		const userId = sessionStorage.getItem('userId');
 		const token = sessionStorage.getItem('token');
-		const fullName = name;
-		const emailAddress = email;
-		const role = 'receiver';
+		const headerAuth = {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		};
+		return { userId, headerAuth };
+	};
+
+	const getWillData = () => {
+		const { willId } = router.query;
+		if (willId) {
+			setIdParam(willId);
+
+			const { userId, headerAuth } = getData();
+			const url = `/api/auth/${userId}/wills/${willId}`;
+
+			axios
+				.get(url, headerAuth)
+				.then((res) => {
+					//console.log(res.data);
+					const { title, content, receivers, _id } = res.data;
+					setTitle(title);
+					setContent(content);
+					setReceiverList(receivers);
+					setWillId(_id);
+
+					let receivers_forShow = '';
+					receivers.map((item) => {
+						const receiverId = item.receiverId;
+						axios
+							.get(
+								`/api/auth/${userId}/receivers/${receiverId}`,
+								headerAuth,
+							)
+							.then((res) => {
+								receivers_forShow += `${res.data.fullName}(${res.data.relation}) <${res.data.emailAddress}>, `;
+							})
+							.catch((err) => console.log(err))
+							.finally(() =>
+								setReceivers(receivers_forShow.slice(0, -2)),
+							);
+					});
+				})
+				.catch((err) => alert(err.response.data.reason));
+		}
+	};
+
+	useEffect(() => {
+		if (!router.isReady) return;
+		//console.log(logInState);
+		if (logInState === null) return;
+		if (!logInState) {
+			alert('서비스를 이용하려면 로그인을 먼저 해주세요!');
+			Router.replace('/sign_in');
+		}
+
+		getReceiverList();
+		getWillData();
+	}, [logInState, router.isReady]);
+
+	//유언장 등록
+	const RegisterForm = useCallback(() => {
+		const { userId, headerAuth } = getData();
+		const url = `/api/auth/${userId}/wills`;
+		const data = { title, content, receivers: receiverList };
+
 		axios
-			.post(
-				`/api/auth/${userId}/receiver`,
-				{
-					fullName,
-					emailAddress,
-					relation,
-					role,
-				},
-				{
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				},
-			)
-			.then((res) => {
-				//To 항목에 보여줄 수신자 목록
-				const receiver = `${res.data.fullName}(${res.data.relation}) <${res.data.emailAddress}>, `;
-				setReceiverList([receiver, ...receiverList]);
-
-				//수신자 id 목록
-				const receiverId = res.data._id;
-				setReceivers([receiverId, ...receivers]);
-
-				//input 값 초기화
-				setName('');
-				setRelation('');
-				setEmail('');
-				alert('성공적으로 추가되었습니다.');
+			.post(url, data, headerAuth)
+			.then(() => {
+				alert('성공적으로 유언장이 등록되었습니다.');
+				Router.replace('/my_will');
 			})
 			.catch((err) => alert(err.response.data.reason));
 	});
 
-	//유언장 등록
-	const onSubmitForm = useCallback(() => {
-		const userId = sessionStorage.getItem('userId');
-		const token = sessionStorage.getItem('token');
+	const onChangeCheckBox = useCallback((e) => {
+		const index = e.target.index;
+
+		if (checkedIndex.indexOf(index) > -1) {
+			checkedIndex = checkedIndex.filter((item) => item != index);
+		} else {
+			checkedIndex.push(index);
+		}
+	}, []);
+
+	// 수신인 선택완료 클릭
+	const onOkReceiverList = useCallback(
+		(e) => {
+			let receivers_forShow = '';
+			let receivers_forSend = [];
+
+			receiverData.map((item, i) => {
+				if (checkedIndex.indexOf(i) > -1) {
+					receivers_forShow += `${receiverData[i].fullName}(${receiverData[i].relation}) <${receiverData[i].emailAddress}>, `;
+					receivers_forSend.push({
+						email: receiverData[i].emailAddress,
+						receiverId: receiverData[i]._id,
+					});
+				}
+			});
+			setReceivers(receivers_forShow.slice(0, -2));
+			setReceiverList(receivers_forSend);
+			checkedIndex = [];
+			setIsModalVisible(false);
+		},
+		[receiverData],
+	);
+
+	//유언장 수정
+	const ChangeForm = useCallback(() => {
+		const { userId, headerAuth } = getData();
+		const data = { title, content, receivers: receiverList };
+		const url = `/api/auth/${userId}/wills/${willId}`;
 
 		axios
-			.post(
-				`/api/auth/${userId}/will`,
-				{ title, content, receivers },
-				{
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				},
-			)
-			.then((res) => {
-				console.log(res);
-				alert('성공적으로 유언장이 등록되었습니다.');
+			.patch(url, data, headerAuth)
+			.then(() => {
+				alert('성공적으로 유언장이 수정되었습니다.');
+				Router.replace('/my_will');
+			})
+			.catch((err) => alert(err.response.data.reason));
+	});
+
+	//유언장 삭제
+	const DeleteForm = useCallback(() => {
+		const { userId, headerAuth } = getData();
+		const url = `/api/auth/${userId}/wills/${willId}`;
+
+		axios
+			.delete(url, headerAuth)
+			.then(() => {
+				alert('성공적으로 유언장이 삭제되었습니다.');
 				Router.replace('/my_will');
 			})
 			.catch((err) => alert(err.response.data.reason));
@@ -111,77 +204,54 @@ const MyWillDetail = () => {
 
 	return (
 		<AppLayout>
-			{/* <div css={adBoxStyle}>
-				<div css={adContentStyle}>
-					<h2>나의 유언장</h2>
-				</div>
-				<div css={imageStyle}>
-					<Image
-						src="https://images.unsplash.com/photo-1528752477378-485b46bedcde?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8dGVzdGFtZW50fGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=600&q=60"
-						alt="나의 유언장"
-						layout="fill"
-					/>
-				</div>
-			</div> */}
-			<main css={mainWrapper}>
-				<section css={willsectionWrapper}>
-					{/* <div css={headerWrapper}>
-						<div></div>
-						<div>
-							유언장을 보낼 사람 이메일{' '}
-							<input type="button" value="선택" />
-						</div>
-						<div>
-							유언장을 받을 사람{' '}
-							<input type="button" value="선택" />
-						</div>
-					</div> */}
-					{/* <ReceiverList /> */}
+			<Wrapper>
+				<Content>
+					{/* <main css={mainWrapper}>
+						<section css={willsectionWrapper}> */}
 					<div>
-						To <span>{receiverList}</span>
-						<Button onClick={showModal}>받는 사람 선택</Button>
+						<div>
+							<Button onClick={showModal}>받는 사람 선택</Button>
+						</div>
+						To <span>{receivers}</span>
 						<Modal
-							title="받는 사람"
+							title="받는 사람 선택"
 							visible={isModalVisible}
-							onOk={handleOk}
+							onOk={onOkReceiverList}
 							onCancel={handleCancel}
 						>
-							<Input
-								placeholder="이름"
-								style={{
-									width: '15%',
-								}}
-								value={name}
-								onChange={onChangeName}
-							/>
-							<Input
-								placeholder="관계"
-								style={{
-									width: '15%',
-								}}
-								value={relation}
-								onChange={onChangeRelation}
-							/>
-							<Input
-								placeholder="이메일"
-								style={{
-									width: '50%',
-								}}
-								value={email}
-								onChange={onChangeEmail}
-							/>
-							<Button
-								type="button"
-								style={{
-									width: '20%',
-								}}
-								onClick={addReceiver}
-							>
-								추가
-							</Button>
+							<List>
+								<Checkbox.Group>
+									<VirtualList
+										data={receiverData}
+										height={ContainerHeight}
+										itemHeight={47}
+										itemKey="receiver_list"
+									>
+										{(item, i) => {
+											const receiverInfo = {
+												fullName: item.fullName,
+												relation: item.relation,
+												email: item.emailAddress,
+												receiverId: item.receiverId,
+											};
+											return (
+												<Checkbox
+													key={`${item._id}+${i}`}
+													value={receiverInfo}
+													onChange={onChangeCheckBox}
+													index={i}
+												>
+													<p>{`이름: ${item.fullName}`}</p>
+													<p>{`이메일: ${item.emailAddress}`}</p>
+												</Checkbox>
+											);
+										}}
+									</VirtualList>
+								</Checkbox.Group>
+							</List>
 						</Modal>
 					</div>
-					<Form onFinish={onSubmitForm}>
+					<Form>
 						<div css={letterWrapper}>
 							<div css={headerWrapper}>
 								<input
@@ -200,7 +270,7 @@ const MyWillDetail = () => {
 							/>
 						</div>
 						<div css={buttonWrapper}>
-							{willList.length <= 0 && (
+							{!idParam && (
 								<div>
 									<input
 										type="button"
@@ -214,19 +284,30 @@ const MyWillDetail = () => {
 										type="submit"
 										value="생성"
 										style={{ cursor: 'pointer' }}
+										onClick={RegisterForm}
 									/>
 								</div>
 							)}
-							{willList.length > 0 && (
+							{idParam && (
 								<div>
-									<input type="button" value="삭제" />
-									<input type="submit" value="수정" />
+									<input
+										type="button"
+										value="삭제"
+										onClick={DeleteForm}
+									/>
+									<input
+										type="submit"
+										value="수정"
+										onClick={ChangeForm}
+									/>
 								</div>
 							)}
 						</div>
 					</Form>
-				</section>
-			</main>
+					{/* </section>
+					</main> */}
+				</Content>
+			</Wrapper>
 		</AppLayout>
 	);
 };
@@ -268,10 +349,10 @@ const letterWrapper = css`
 	box-sizing: border-box;
 	width: 100%;
 	height: 100vh;
-	border: 1px solid #d1dbb1;
-	margin: 1rem auto;
-	padding: 5rem;
-	background-color: #d1dbbd;
+	//border: 1px solid #d1dbb1;
+	margin: 1rem;
+	padding: 1rem;
+	//background-color: #d1dbbd;
 
 	& > textarea {
 		width: 100%;
@@ -287,8 +368,9 @@ const letterWrapper = css`
 const buttonWrapper = css`
 	width: 100%;
 	margin-top: 3rem;
+	padding: 3rem;
 	& > div > input[type='submit'] {
-		margin-right: 2%;
+		margin-right: 0.5em;
 		background-color: #3e606f;
 	}
 
@@ -299,34 +381,42 @@ const buttonWrapper = css`
 		border: none;
 		width: 5rem;
 		padding: 10px;
-		border-radius: 1rem;
+		border-radius: 0.2rem;
+		cursor: pointer;
 	}
 `;
 
-const adBoxStyle = css`
-	display: flex;
-	width: 100%;
-	height: 30rem;
-	margin: 10rem 0;
-	padding: 2rem;
-	align-item: center;
-	&:nth-of-type(even) {
-		flex-direction: row-reverse;
+const Wrapper = styled.div`
+	max-width: 650px;
+	min-height: inherit;
+	margin: 5em auto;
+	font-family: helvetica, arial;
+	background: url(https://images.unsplash.com/photo-1618635245221-a1974f59cb02?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTAwfHxsZXR0ZXJ8ZW58MHx8MHx8&auto=format&fit=crop&w=600&q=60);
+	padding: 40px 50px 15px 50px;
+	border-radius: 50px;
+`;
+
+const Content = styled.div`
+	.title {
+		font-size: 2em;
 	}
+
+	p {
+		position: relative;
+		top: 2rem;
+		font-family: 'Cinzel', serif;
+		font-size: 18px;
+	}
+
+	width: 80%;
+	min-height: inherit;
+	padding: 5%;
+	margin: auto;
+	background: rgb(254, 254, 254, 0.65);
+	border-radius: 50px;
+	border: none;
+	font-size: 1.15em;
+	font-family: book antiqua;
 `;
 
-const adContentStyle = css`
-	width: 50%;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-`;
-
-const imageStyle = css`
-	position: relative;
-	width: 50%;
-	line-height: 10rem;
-	background-color: silver;
-`;
 export default MyWillDetail;

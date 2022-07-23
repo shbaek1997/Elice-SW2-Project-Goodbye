@@ -6,9 +6,6 @@ const initialState = {
 }
 
 
-// createSlice에는 내부적으로  createAction and createReducer 를 사용한다.
-// 따라서 자동으로 action과 리듀서를 생성한다.
-
 const willSlice = createSlice({
     name: 'wills',
     initialState,

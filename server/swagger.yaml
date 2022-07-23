@@ -1,0 +1,1207 @@
+openapi: '3.0.0'
+
+info:
+  title: 'Project GoodBye'
+  version: '1.0.0'
+  description: '온라인 유언장 서비스 API Docs'
+
+servers:
+- url: http://localhost:5000
+
+tags:
+  - name: Users
+    description: '유저 관련 API'
+  - name: Auth
+    description: '인증된 유저 관련 API'
+  - name: Wills
+    description: '유언장 관련 API'
+  - name: Receivers
+    description: '유언장 수신자 관련 API'
+  - name: Remembrances
+    description: '추모 관련 API'
+  - name: Comments
+    description: '추모글 관련 API'
+  - name: Obituaries
+    description: '부고 관련 API'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: "유저의 objectId"
+          example: "62ce0b33ae074e2a043f1d09"
+        fullName:
+          type: string
+          description: '유저 이름'
+          example: '김철수'
+        email:
+          type: string
+          description: "유저 이메일"
+          example: "email@email.com"
+        dateOfBirth:
+          type: string
+          description: "유저 생년월일"
+          example: "1997-06-23"
+        password:
+          type: string
+          description: "비밀번호"
+          example: "abcde123"
+        wills:
+          type: array
+          items:
+            type: string
+            description: "유언장의 objectId"
+            example: "62cfdc9235dc3ae2670e05bd"
+          description: "유저가 작성한 유언장 리스트"
+        receivers:
+          type: array
+          items:
+            type: string
+            description: "수신자의 objectId"
+            example: "62d0e380a665e5eb53d0a80f"
+          description: "유저가 작성한 유언장의 수신자 리스트"
+    Will:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: '유언장 objectId'
+          example: "62cfdc9235dc3ae2670e05bd"
+        title:
+          type: string
+          description: '유언장 제목'
+          example: '사랑하는 어머니께'
+        content:
+          type: string
+          description: '유언장 내용'
+          example: '보고싶을거에요..'
+        userId:
+          type: string
+          description: '유언장을 작성한 유저의 objectId'
+          example: "62ce0b33ae074e2a043f1d09"
+        receivers:
+          type: array
+          items:
+            type: object
+            properties:
+              receiverId:
+                type: string
+                description: '수신자 objectId'
+              email:
+                type: string
+                description: '수신자 이메일'
+    Receiver:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: '수신자의 objectId'
+          example: '62d91857136d85aefdee0e5f'
+        fullName:
+          type: string
+          description: '수신자 이름'
+          example: '홍길동'
+        emailAddress:
+          type: string
+          description:  '수신자 이메일'
+          example: 'abc@email.com'
+        userId:
+          type: string
+          description: '유언장을 작성한 유저의 objectId'
+          example: '62d7b9e42f66fc6992fe82de'
+        relation:
+          type: string
+          description: '유저와의 관계'
+          example: '가족'
+    Remembrance:
+      type: object
+      required:
+      - userId
+      - fullName
+      - dateOfBirth
+      properties:
+        _id:
+          type: string
+          description: '추모 objectId'
+          example: '62d05d9f1eed1cb973a7f36c'
+        userId:
+          type: string
+          description: '유저 objectId'
+          example: '62c7d6d0aa14441e00d23232'
+        fullName:
+          type: string
+          description: '회원 이름'
+          example: '홍길동'
+        dateOfBirth:
+          type: string
+          description: '회원 태어난 날짜'
+          example: '1999-01-01'
+        dateOfDeath:
+          type: string
+          description: '회원 사망 날짜'
+          example: '2099-01-01'
+        photo:
+          type: string
+          description: '회원 영정 사진 url'
+    RemembranceWithCommentId:
+      allOf:
+      - $ref: "#/components/schemas/Remembrance"
+      - type: object
+        properties:
+          comments:
+            type: array
+            items:
+              $ref: "#/components/schemas/Comment/properties/_id"
+            description: '추모글 id 배열'
+    Comment:
+      type: object
+      required:
+      - writer
+      - title
+      - content
+      - password
+      properties:
+        _id:
+          type: string
+          description: '추모글 objectId'
+          example: '62d0661abd3ff204df02a869'
+        writer:
+          type: string
+          description: '추모글 작성자'
+          example: '김철수'
+        title:
+          type: string
+          description: '추모글 제목'
+          example: '보고싶어요'
+        content:
+          type: string
+          description: '추모글 내용'
+          example: '그립습니다.'
+        password:
+          type: string
+          description: '추모글 비밀번호'
+    Obituary:
+      type: object
+      required:
+        - deceased
+        - dateOfBirth
+        - dateOfDeath
+        - age
+        - sex
+        - family
+        - funeral
+        - password
+      properties:
+        _id:
+          type: string
+          description: '부고 objectId'
+          example: '62d567dfd4d86996e6973c9e'
+        deceased:
+          type: string
+          description: '고인 이름'
+          example: '홍길동'
+        dateOfBirth:
+          type: string
+          format: date
+          description: '고인 탄생일'
+          example: '1999-12-30'
+        dateOfDeath:
+          type: string
+          format: date
+          description: '고인 사망일 : 탄생일 ~ 오늘날짜 사이 값'
+          example: '2022-01-01'
+        age:
+          type: number
+          description: '고인 나이'
+          example: 100
+        sex:
+          type: string
+          enum: ['남자', '여자']
+          description: '고인 성별'
+          example: '남자'
+        family:
+          type: array
+          items:
+            $ref: "#/components/schemas/Family"
+          description: '상주 리스트'
+        funeral:
+          type: string
+          description: '장례식장 주소'
+          example: '하늘시 어디구 행복동 편안장례식장'
+        dateOfCremate:
+          type: string
+          format: date
+          description: '발인 날짜: 사망일 이후 날짜'
+          example: '2099-01-04'
+        comment:
+          type: string
+          description: '전할 말'
+        password:
+          type: string
+          description: '부고 비밀번호'
+          example: 'qwerty'
+    ObituaryCreate:
+      type: object
+      required:
+        - deceased
+        - dateOfBirth
+        - dateOfDeath
+        - sex
+        - family
+        - funeral
+        - password
+      properties:
+        deceased:
+          type: string
+          description: '고인 이름'
+          example: '홍길동'
+        dateOfBirth:
+          type: string
+          format: date
+          description: '고인 탄생일'
+          example: '1999-12-30'
+        dateOfDeath:
+          type: string
+          format: date
+          description: '고인 사망일 : 탄생일 ~ 오늘날짜 사이 값'
+          example: '2022-01-01'
+        sex:
+          type: string
+          enum: ['남자', '여자']
+          description: '고인 성별'
+          example: '남자'
+        family:
+          type: array
+          items:
+            $ref: "#/components/schemas/Family"
+          description: '상주 리스트'
+        funeral:
+          type: string
+          description: '장례식장 주소'
+          example: '하늘시 어디구 행복동 편안장례식장'
+        dateOfCremate:
+          type: string
+          format: date
+          description: '발인 날짜: 사망일 이후 날짜'
+          example: '2099-01-04'
+        comment:
+          type: string
+          description: '전할 말'
+        password:
+          type: string
+          description: '부고 비밀번호'
+          example: 'qwerty'
+    ObituaryUpdate:
+      type: object
+      required:
+      - password
+      properties:
+        deceased:
+          type: string
+          description: '고인 이름'
+          example: '홍길동'
+        dateOfBirth:
+          type: string
+          format: date
+          description: '고인 탄생일'
+          example: '1999-12-30'
+        dateOfDeath:
+          type: string
+          format: date
+          description: '고인 사망일 : 탄생일 ~ 오늘날짜 사이 값'
+          example: '2022-01-01'
+        sex:
+          type: string
+          enum: ['남자', '여자']
+          description: '고인 성별'
+          example: '남자'
+        family:
+          type: array
+          items:
+            $ref: "#/components/schemas/Family"
+          description: '상주 리스트'
+        funeral:
+          type: string
+          description: '장례식장 주소'
+          example: '하늘시 어디구 행복동 편안장례식장'
+        dateOfCremate:
+          type: string
+          format: date
+          description: '발인 날짜: 사망일 이후 날짜'
+          example: '2099-01-04'
+        comment:
+          type: string
+          description: '전할 말'
+        password:
+          type: string
+          description: '부고 비밀번호'
+          example: 'qwerty'
+    Family:
+      type: object
+      required:
+      - relation
+      - fullName
+      properties:
+        relation:
+          type: string
+          description: '고인과의 관계'
+          example: '장남'
+        fullName:
+          type: string
+          description: '상주 이름'
+          example: '홍철수'
+  parameters:
+    passwordParam:
+      name: password
+      in: header
+      required: true
+      schema:
+        $ref: "#/components/schemas/User/properties/password"
+    userIdParam:
+      name: userId
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/User/properties/_id"
+    willIdParam:
+      name: willId
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/Will/properties/_id"
+    receiverIdParam:
+      name: receiverId
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/Receiver/properties/_id"
+    remembranceIdParam:
+      name: remembranceId
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/Remembrance/properties/_id"
+    commentIdParam:
+      name: commentId
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/Comment/properties/_id"
+    obituaryIdParam:
+      name: obituaryId
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/Obituary/properties/_id"
+  requestBodies:
+    passwordReq:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+            - password
+            properties:
+              password:
+                $ref: "#/components/schemas/User/properties/password"
+    willReq:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - title
+              - content
+              - receivers
+            properties:
+              title:
+                $ref: "#/components/schemas/Will/properties/title"
+              content:
+                $ref: "#/components/schemas/Will/properties/content"
+              receivers:
+                $ref: "#/components/schemas/Will/properties/receivers"
+    receiverReq:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+            - fullName
+            - emailAddress
+            - relation
+            properties:
+              fullName:
+                $ref: "#/components/schemas/Receiver/properties/fullName"
+              emailAddress:
+                $ref: "#/components/schemas/Receiver/properties/emailAddress"
+              relation:
+                      $ref: "#/components/schemas/Receiver/properties/relation"
+    commentReq:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - password
+            properties:
+              writer:
+                $ref: "#/components/schemas/Comment/properties/writer"
+              title:
+                $ref: "#/components/schemas/Comment/properties/title"
+              content:
+                $ref: "#/components/schemas/Comment/properties/content"
+              password:
+                $ref: "#/components/schemas/Comment/properties/password"
+  responses:
+    resultRes:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              result:
+                type: string
+                example: "success"
+    userRes:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/User"
+    willRes:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Will"
+    willsRes:
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Will"
+    receiverRes:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Receiver"
+    receiversRes:
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Receiver"
+    remembranceRes:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RemembranceWithCommentId"
+    remembrancesRes:
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/RemembranceWithCommentId"
+    remembranceWithCommentsRes:
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: "#/components/schemas/Remembrance"
+            - type: object
+              properties:
+                comments:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Comment"
+                  description: '추모글 배열'
+    commentRes:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Comment"
+    obituaryRes:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Obituary"
+
+paths:
+  /api/users/register:
+    post:
+      tags:
+      - Users
+      summary: 유저 회원가입
+      description: 이름, 이메일, 생일, 비밀번호를 입력받아 유저 회원가입, 추모 데이터 생성
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - fullName
+                - email
+                - dateOfBirth
+                - password
+                - repeatPassword
+              properties:
+                fullName:
+                  $ref: "#/components/schemas/User/properties/fullName"
+                email:
+                  $ref: "#/components/schemas/User/properties/email"
+                dateOfBirth:
+                  $ref: "#/components/schemas/User/properties/dateOfBirth"
+                password:
+                  $ref: "#/components/schemas/User/properties/password"
+                repeatPassword:
+                  $ref: "#/components/schemas/User/properties/password"
+      responses:
+        201:
+          description: 회원 가입 성공한 유저 데이터
+          $ref: "#/components/responses/userRes"
+  /api/users/login:
+    post:
+      tags:
+      - Users
+      summary: 유저 로그인
+      description: 이메일과 비밀번호를 받아 유저 로그인 후 JWT 토큰과 userId 반환
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - email
+              - password
+              properties:
+                email:
+                  $ref: "#/components/schemas/User/properties/email"
+                password:
+                  $ref: "#/components/schemas/User/properties/password"
+      responses:
+        200:
+          description: 유저 로그인 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: "로그인 성공한 유저의 JWT Token"
+                  userId:
+                    type: string
+                    description: "로그인 성공한 유저의 userId"
+  /api/users/sendEmail:
+    post:
+      tags:
+      - Users
+      summary: 이메일 전송
+      description: 수신자, 제목, html 형식의 내용을 받아 이메일로 전송
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - receivers
+                - subject
+                - html
+              properties:
+                receivers:
+                  type: array
+                  items:
+                    type: string
+                  description: "이메일 수신자 리스트"
+                  example: ["email@email.com","example@email.com"]
+                subject:
+                  type: string
+                  description: "이메일 제목"
+                  example: "Hello"
+                html:
+                  type: string
+                  description: "html 형식으로 작성된 이메일 본문"
+                  example: "<h1>Hello world</h1>"
+      responses:
+        200:
+          description: 이메일 전송 성공
+          $ref: "#/components/responses/resultRes"
+  /api/users/:willId:
+    post:
+      tags:
+      - Users
+      summary: 유언장 상세 - 수신자 Ver
+      description: willId와 수신자의 이메일을 전달 받아 해당 유언장의 수신자로 등록된 이메일이 맞는지 확인 후 유언장 데이터 반환
+      parameters:
+      - $ref: "#/components/parameters/willIdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - email
+              properties:
+                email:
+                  type: string
+                  description: "유언장 수신자의 이메일"
+                  example: "email@email.com"
+      responses:
+        200:
+          description: 수신자 확인 성공
+          $ref: "#/components/responses/willRes"
+
+  /api/auth/{userId}:
+    get:
+      tags:
+      - Auth
+      security:
+      - bearerAuth: []
+      summary: 로그인한 유저의 정보 조회
+      description: 로그인한 유저의 JWT token을 이용해 인증 진행 후 유저 데이터 반환
+      parameters:
+      - $ref: "#/components/parameters/userIdParam"
+      responses:
+        200:
+          description: '로그인 유저 인증 성공'
+          $ref: "#/components/responses/userRes"
+    patch:
+      tags:
+      - Auth
+      security:
+      - bearerAuth: []
+      summary: 유저 정보 수정
+      description: 수정될 유저 데이터와 현재 비밀번호를 입력 받아 유저 정보 수정, 추모 데이터에 반영
+      parameters:
+      - $ref: "#/components/parameters/userIdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - currentPassword
+              properties:
+                fullName:
+                  $ref: "#/components/schemas/User/properties/fullName"
+                dateOfBirth:
+                  $ref: "#/components/schemas/User/properties/dateOfBirth"
+                password:
+                  description: "유저의 새 비밀번호"
+                  $ref: "#/components/schemas/User/properties/password"
+                currentPassword:
+                  $ref: "#/components/schemas/User/properties/password"
+      responses:
+        200:
+          description: 유저 정보 수정 성공
+          $ref: "#/components/responses/userRes"
+    delete:
+      tags:
+      - Auth
+      security:
+      - bearerAuth: []
+      summary: 회원 탈퇴
+      description: 탈퇴하는 유저의 정보를 DB에서 삭제
+      parameters:
+      - $ref: "#/components/parameters/userIdParam"
+      - $ref: "#/components/parameters/passwordParam"
+      requestBody:
+        $ref: "#/components/requestBodies/passwordReq"
+      responses:
+        200:
+          description: 회원 정보 삭제 성공
+          $ref: "#/components/responses/resultRes"
+  /api/auth/{userId}/image:
+    post:
+      tags:
+      - Auth
+      security:
+      - bearerAuth: []
+      summary: 유저 사진 등록 - 신규 등록 및 변경
+      description: 사진을 AWS S3에 저장하고 유저 및 추모 데이터에 반영. 기존 사진이 있는 경우 자동 삭제 후 진행
+      parameters:
+      - $ref: "#/components/parameters/userIdParam"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                photo:
+                  type: string
+                  format: binary
+      responses:
+        201:
+          description: 이미지 등록 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  photo:
+                    type: string
+                    example: "https://d3vx2tv8yhh0mv.cloudfront.net/photo/1658392297366.jpg"
+  /api/auth/{userId}/image/{imageUrl}:
+    delete:
+      tags:
+      - Auth
+      security:
+      - bearerAuth: []
+      summary: 유저 사진 삭제
+      description: 사진을 AWS S3에서 삭제 후 유저 및 추모 데이터에 반영. 유저가 사진 정보를 지우고 싶을 때 사용.
+      parameters:
+      - $ref: "#/components/parameters/userIdParam"
+      - in: path
+        name: imageUrl
+        schema:
+          type: string
+          example: "https://d3vx2tv8yhh0mv.cloudfront.net/photo/1658392297366.jpg"
+          required: true
+      responses:
+        201:
+          description: 사진 삭제 성공
+          $ref: "#/components/responses/resultRes"
+  /api/auth/{userId}/trustedUser:
+    patch:
+      tags:
+      - Auth
+      security:
+      - bearerAuth: []
+      summary: 신뢰하는 유저 등록 요청
+      description: 자신의 사망 처리를 맡길(신뢰하는) 유저 등록, 수락 요청 이메일 전송.
+      parameters:
+      - $ref: "#/components/parameters/userIdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - email
+              - currentPassword
+              properties:
+                email:
+                  $ref: "#/components/schemas/User/properties/email"
+                currentPassword:
+                  $ref: "#/components/schemas/User/properties/password"
+      responses:
+        200:
+          description: 신뢰하는 유저 등록 요청 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  updatedUserInfo:
+                    $ref: "#/components/responses/userRes"
+                    description: '요청한(현재 로그인된) 유저의 정보'
+                  token:
+                    type: string
+                    description: '요청한 유저와 요청 받은 유저의 정보가 담긴 토큰'
+                  isUpdated:
+                    type: boolean
+                    description: '신뢰하는 유저를 변경하는지 여부'
+  /api/auth/{userId}/confirmation:
+    patch:
+      tags:
+      - Auth
+      security:
+      - bearerAuth: []
+      summary: 신뢰하는 유저 등록 수락
+      description: 유저 로그인 시 신뢰하는 유저 등록을 수락하는 것으로 간주. 로그인한 유저의 managedUser에 요청 유저 정보 저장, 요청 유저의 trusedUser에 로그인한 유저 정보 저장
+      parameters:
+      - $ref: "#/components/parameters/userIdParam"
+      - in: query
+        name: token
+        required: true
+        schema:
+          type: string
+        description: 요청한 유저와 요청 받은 유저의 정보가 담긴 토큰
+      responses:
+        200:
+          description: 신뢰하는 유저 등록 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mainUserInfo:
+                    $ref: "#/components/responses/userRes"
+                    description: '요청한 유저의 정보'
+                  toUpdateTrustedUser:
+                    $ref: "#/components/responses/userRes"
+                    description: '요청 받은(현재 로그인된) 유저의 정보'
+  /api/auth/{userId}/managedUsers/{managedUserId}:
+    patch:
+      tags:
+      - Auth
+      security:
+      - bearerAuth: []
+      summary: 유저의 사망 정보 등록 및 유언장 발송
+      description: 로그인한 유저(A)를 신뢰하는 유저로 등록한 유저(B)가 사망 시 사망일자를 입력하고 B의 유언장을 전송
+      parameters:
+      - $ref: "#/components/parameters/userIdParam"
+      - in: path
+        name: managedUserId
+        required: true
+        schema:
+          type: string
+        description: '사망 처리할 유저의 objectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - dateOfDeath
+              properties:
+                dateOfDeath:
+                  $ref: "#/components/schemas/Remembrance/properties/dateOfDeath"
+      responses:
+        200:
+          description: 사망 처리 성공
+          $ref: "#/components/responses/resultRes"
+
+  /api/auth/{userId}/wills:
+    get:
+      tags:
+      - Wills
+      security:
+      - bearerAuth: []
+      summary: 유언장 전체 조회
+      description: 로그인한 유저가 작성한 모든 유언장 전달
+      parameters:
+      - $ref: "#/components/parameters/userIdParam"
+      responses:
+        200:
+          description: 여러개의 유언장 정보
+          $ref: "#/components/responses/willsRes"
+    post:
+      tags:
+      - Wills
+      security:
+      - bearerAuth: []
+      summary: 유언장 작성
+      description: 제목, 내용, 수신자를 받아 유언장을 작성하고 DB에 저장
+      parameters:
+      - $ref: "#/components/parameters/userIdParam"
+      requestBody:
+        $ref: "#/components/requestBodies/willReq"
+      responses:
+        200:
+          description: 유언장 등록 성공
+          $ref: "#/components/schemas/Will"
+  /api/auth/{userId}/wills/{willId}:
+    get:
+      tags:
+      - Wills
+      security:
+      - bearerAuth: []
+      summary: 특정 유언장 조회
+      description: willId를 이용해 로그인한 유저의 유언장 중 특정 유언장의 데이터만 가져옴
+      parameters:
+      - $ref: "#/components/parameters/userIdParam"
+      - $ref: "#/components/parameters/willIdParam"
+      responses:
+        200:
+          description: 하나의 유언장 데이터
+          $ref: "#/components/responses/willRes"
+    patch:
+      tags:
+      - Wills
+      security:
+      - bearerAuth: []
+      summary: 유언장 수정
+      description: 로그인한 유저의 특정 유언장 수정
+      parameters:
+      - $ref: "#/components/parameters/userIdParam"
+      - $ref: "#/components/parameters/willIdParam"
+      requestBody:
+        $ref: "#/components/requestBodies/willReq"
+      responses:
+        200:
+          description: 유언장 수정 성공
+          $ref: "#/components/responses/willRes"
+    delete:
+      tags:
+      - Wills
+      security:
+      - bearerAuth: []
+      summary: 유언장 삭제
+      description: 유언장 정보 DB에서 삭제
+      parameters:
+      - $ref: "#/components/parameters/userIdParam"
+      - $ref: "#/components/parameters/willIdParam"
+      responses:
+        200:
+          description: 유언장 삭제 성공
+          $ref: "#/components/responses/resultRes"
+  
+  /api/auth/{userId}/receivers:
+    get:
+      tags:
+      - Receivers
+      security:
+      - bearerAuth: []
+      summary: 전체 유언장 수신자 리스트
+      description: 유저가 작성한 전체 유언장의 수신자 리스트 출력
+      parameters:
+      - $ref: "#/components/parameters/userIdParam"
+      responses:
+        200:
+          description: 여러개의 수신자 데이터
+          $ref: "#/components/responses/receiversRes"
+    post:
+      tags:
+      - Receivers
+      security:
+      - bearerAuth: []
+      summary: 수신자 등록
+      description: 새 수신자 정보를 DB에 저장
+      parameters:
+      - $ref: "#/components/parameters/userIdParam"
+      requestBody:
+        $ref: "#/components/requestBodies/receiverReq"
+      responses:
+        200:
+          description: 수신자 정보 저장 성공
+          $ref: "#/components/responses/receiverRes"
+  /api/auth/{userId}/receivers/{receiverId}:
+    get:
+      tags:
+      - Receivers
+      security:
+      - bearerAuth: []
+      summary: 특정 수신자 조회
+      description: receiverId로 특정 수신자의 정보 전달
+      parameters:
+      - $ref: "#/components/parameters/userIdParam"
+      - $ref: "#/components/parameters/receiverIdParam"
+      responses:
+        200:
+          description: 하나의 수신자 데이터
+          $ref: "#/components/responses/receiverRes"
+    patch:
+      tags:
+      - Receivers
+      security:
+      - bearerAuth: []
+      summary: 수신자 정보 수정
+      description: 특정 수신자의 정보를 수정하고 DB에 반영
+      parameters:
+      - $ref: "#/components/parameters/userIdParam"
+      - $ref: "#/components/parameters/receiverIdParam"
+      requestBody:
+        $ref: "#/components/requestBodies/receiverReq"
+      responses:
+        200:
+          description: 수신자 정보 수정 성공
+          $ref: "#/components/responses/receiverRes"
+    delete:
+      tags:
+      - Receivers
+      security:
+      - bearerAuth: []
+      summary: 수신자 삭제
+      description: 등록된 수신자 정보를 DB에서 삭제
+      parameters:
+      - $ref: "#/components/parameters/userIdParam"
+      - $ref: "#/components/parameters/receiverIdParam"
+      responses:
+        200:
+          description: 수신자 정보 삭제 성공
+          $ref: "#/components/responses/resultRes"
+
+  /api/auth/{userId}/remembrances:
+    get:
+      tags:
+      - Remembrances
+      security:
+      - bearerAuth: []
+      summary: userId로 추모 데이터 조회
+      description: 로그인한 유저의 추모 데이터 조회
+      parameters:
+      - $ref: "#/components/parameters/userIdParam"
+      responses:
+        200:
+          description: 하나의 추모 데이터 조회
+          $ref: "#/components/responses/remembranceWithCommentsRes"
+  /api/remembrances:
+    get:
+      tags:
+      - Remembrances
+      summary: "전체 추모 데이터 조회"
+      description: "전체 사망한 유저의 추모 데이터를 최근 업데이트된 순으로 조회"
+      responses:
+        200:
+          description: "여러개의 추모 데이터 조회"
+          $ref: "#/components/responses/remembrancesRes"
+  /api/remembrances/recent?count={count}:
+    get:
+      tags:
+      - Remembrances
+      summary: "최신 추모 데이터 조회"
+      description: "최근 업데이트된 추모 데이터를 count(default 8) 개수만큼 조회"
+      parameters:
+      - name: count
+        in: query
+        schema:
+          type: number
+          description: 가져올 데이터의 개수
+          example: 8
+      responses:
+        200:
+          description: "여러개의 추모 데이터 조회"
+          $ref: "#/components/responses/remembrancesRes"
+  /api/remembrances/{remembranceId}:
+    get:
+      tags:
+      - Remembrances
+      summary: "특정 추모 데이터 조회"
+      description: "remembranceId로 특정 추모 데이터 조회"
+      parameters:
+      - $ref: "#/components/parameters/remembranceIdParam"
+      responses:
+        200:
+          description: "하나의 추모 데이터 조회"
+          $ref: "#/components/responses/remembranceWithCommentsRes"
+  /api/remembrances/{remembranceId}/comments:
+    post:
+      tags:
+      - Comments
+      summary: "추모글 생성"
+      description: "remembrancId로 추모 데이터 조회 후 추모글 추가"
+      parameters:
+      - $ref: "#/components/parameters/remembranceIdParam"
+      requestBody:
+        $ref: "#/components/requestBodies/commentReq"
+      responses:
+        201:
+          description: "추모글 생성"
+          $ref: "#/components/responses/commentRes"
+  /api/remembrances/{remembranceId}/comments/{commentId}:
+    get:
+      tags:
+      - Comments
+      summary: "특정 추모글 조회"
+      description: "remembranceId와 commentId로 특정 추모의 특정 추모글 조회"
+      parameters:
+      - $ref: "#/components/parameters/remembranceIdParam"
+      - $ref: "#/components/parameters/commentIdParam"
+      responses:
+        200:
+          description: "하나의 추모글 조회"
+          $ref: "#/components/responses/commentRes"
+    patch:
+      tags:
+      - Comments
+      summary: "추모글 수정"
+      description: "remembranceId와 commentId로 추모글 조회 후 수정"
+      parameters:
+      - $ref: "#/components/parameters/remembranceIdParam"
+      - $ref: "#/components/parameters/commentIdParam"
+      requestBody:
+        $ref: "#/components/requestBodies/commentReq"
+      responses:
+        200:
+          description: "추모글 수정"
+          $ref: "#/components/responses/commentRes"
+    delete:
+      tags:
+      - Comments
+      summary: "추모글 삭제"
+      description: "remembranceId와 commentId로 추모글 조회 후 삭제"
+      parameters:
+      - $ref: "#/components/parameters/remembranceIdParam"
+      - $ref: "#/components/parameters/commentIdParam"
+      - $ref: "#/components/parameters/passwordParam"
+      responses:
+        201:
+          description: "추모글 데이터 삭제"
+          $ref: "#/components/responses/resultRes"
+  /api/obituaries:
+    post:
+      tags:
+      - Obituaries
+      summary: "부고 데이터 생성"
+      description: "사망자 정보 및 장례식장 정보 등을 입력받아 부고 데이터 생성"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObituaryCreate"
+      responses:
+        201:
+          description: "부고 데이터 생성"
+          $ref: "#/components/responses/obituaryRes"
+  /api/obituaries/{obituaryId}:
+    get:
+      tags:
+      - Obituaries
+      summary: "특정 부고 데이터 조회"
+      description: "부고 objectId를 이용해 특정 부고 데이터 조회"
+      parameters:
+      - $ref: "#/components/parameters/obituaryIdParam"
+      responses:
+        200:
+          description: "하나의 부고 데이터 조회"
+          $ref: "#/components/responses/obituaryRes"
+    patch:
+      tags:
+      - Obituaries
+      summary: "부고 데이터 수정"
+      description: "objectId를 이용해 부고 데이터 조회 후 일부 수정"
+      parameters:
+      - $ref: "#/components/parameters/obituaryIdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObituaryUpdate"
+      responses:
+        201:
+          description: "부고 데이터 일부 수정"
+          $ref: "#/components/responses/obituaryRes"
+    delete:
+      tags:
+      - Obituaries
+      summary: "부고 데이터 삭제"
+      description: "objectId를 이용해 부고 데이터 조회 수 삭제"
+      parameters:
+      - $ref: "#/components/parameters/obituaryIdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  $ref: "#/components/schemas/Obituary/properties/password"
+      responses:
+        201:
+          description: "부고 데이터 삭제"
+          $ref: "#/components/responses/resultRes"

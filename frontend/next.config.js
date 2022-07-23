@@ -6,6 +6,7 @@ const nextConfig = {
 			'images.unsplash.com',
 			'basicincomekorea.org',
 			'media.istockphoto.com',
+			'd3vx2tv8yhh0mv.cloudfront.net',
 		],
 	},
 	async rewrites() {
@@ -15,6 +16,13 @@ const nextConfig = {
 				source: '/api/:path*',
 			},
 		];
+	},
+	webpack(config) {
+		config.module.rules.push({
+			test: /\.svg$/,
+			use: ["@svgr/webpack"]
+		});
+		return config
 	},
 };
 

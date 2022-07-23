@@ -10,93 +10,51 @@ import axios from 'axios';
 
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { Card } from 'antd';
 import 'antd/dist/antd.css';
 
 import Image from 'next/image';
 import Link from 'next/link';
 import AppLayout from '../components/AppLayout';
 import Pagination from '../components/Pagination';
-import { Card } from 'antd';
-
 import ReceiverList from '../components/ReceiverList';
 
+import { Button } from '../util/common_styles';
+import userLoginCheck from '../util/userLoginCheck';
 import { WillACTIONS } from '../reducers/will';
+import { RECEIVERACTIONS } from '../reducers/receivers';
+import getUserIdToken from '../util/getUserIdToken';
 
 /* 
-    로그인 한 상태에서만 유언장 페이지에 접근가능
-    로그인 하지 않은 상태에서는 로그인, 회원가입 유도 화면 보여줌
+	로그인 한 상태에서만 유언장 페이지에 접근가능
+	로그인 하지 않은 상태에서는 로그인, 회원가입 유도 화면 보여줌
 */
 
 const MyWill = () => {
-	const [isLogIn, setIsLogIn] = useState(false);
-	const [currentPage, setCurrentPage] = useState(1);
-
 	const dispatch = useDispatch();
-	const { willList } = useSelector((state) => state.will);
-
-	const loginBtnHandler = useCallback(() => {
-		setIsLogIn((prev) => !prev);
-	}, []);
-
+	const [willList, allReceiverList] = useSelector((state) => {
+		return [state.will.willList, state.receivers.allReceiverList];
+	});
+	const { logInState } = useSelector((state) => state.user);
+	const [currentPage, setCurrentPage] = useState(1);
 	const clickPagination = useCallback(setCurrentPage, []);
 
-	// 로그인 예시 useEffect
-	// useEffect(() => {
-	//     // axios.post('/api/users/register', {
-	//     //     email: 'test@email.com',
-	//     //     fullName: '테스트',
-	//     //     password: '1234',
-	//     //     repeatPassword: '1234',
-	//     //     dateOfBirth: '01.24'
-	//     // }, {
-	//     //     headers: {
-	//     //         'Content-Type': 'application/json'
-	//     //     }
-	//     // })
-	//     // .then(res => console.log(res))
-	//     // .catch(err => console.log(err));
-
-	//     axios.post('/api/users/login', {
-	//         email: 'test@email.com',
-	//         password: '1234'
-	//     })
-	//     .then(res => {
-	//         console.log(res);
-	//         sessionStorage.setItem('token', res.data.token);
-	//         sessionStorage.setItem('userId', res.data.userId)
-	//     })
-	//     .catch(err => console.log(err));
-	// }, [])
-
-	// 유언장에 데이터 넣기 예시
-	// useEffect(() => {
-	//     const userId = sessionStorage.getItem('userId');
-	//     const token = sessionStorage.getItem('token');
-	//     axios.post(`/api/auth/${userId}/will`, {
-	//         title: '유언장-21',
-	//         content: '유언장-21 내용~',
-	//         userId: userId,
-	//         receivers: Array(50).fill('').map((item, i) => `친구 ${i + 1}`)
-	//     }, {
-	//         headers: {
-	//             Authorization: `Bearer ${token}`
-	//         }
-	//     })
-	//     .then(res => console.log(res))
-	//     .catch(err => console.log(err));
-	// }, [])
+	const loadValues = () => {
+		// 로그인 했을 경우 정보 불러오기
+		if (logInState) {
+			getWillsList();
+			getReceiverList();
+		}
+	};
 
 	useEffect(() => {
-		console.log('렌더링a');
-		getWillsList();
-	}, []);
+		// 로그인 확인 부분
+		loadValues();
+	}, [logInState]);
 
-	console.log(willList, currentPage, willList.length);
 
 	const pageListUpdate = () => {
 		// 마지막 페이지를 삭제 했다면 현재 페이지 번호 앞으로 이동
-		console.log('페이지업뎃 함수', currentPage);
 		setCurrentPage((currentPageNum) => {
 			const updatePageNum =
 				willList[currentPageNum - 1] === undefined
@@ -107,8 +65,22 @@ const MyWill = () => {
 		});
 	};
 
+	const getReceiverList = () => {
+		const token = sessionStorage.getItem('token');
+		const userId = sessionStorage.getItem('userId');
+		axios
+			.get(`/api/auth/${userId}/receivers`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
+			.then((res) => {
+				dispatch(RECEIVERACTIONS.getReceivers({ lists: res.data }));
+			})
+			.catch((err) => console.log(err));
+	};
+
 	const getWillsList = () => {
-		console.log('겟윌함수');
 		const token = sessionStorage.getItem('token');
 		const userId = sessionStorage.getItem('userId');
 		axios
@@ -125,7 +97,6 @@ const MyWill = () => {
 	};
 
 	const onClickDelete = (will) => {
-		console.log(will);
 		const token = sessionStorage.getItem('token');
 		const userId = sessionStorage.getItem('userId');
 
@@ -137,8 +108,6 @@ const MyWill = () => {
 				},
 			})
 			.then(() => {
-				// dispatch(WillACTIONS.removeWill({ will }));
-				console.log('확인3');
 				getWillsList();
 			})
 			.catch((err) => console.log(err));
@@ -167,17 +136,19 @@ const MyWill = () => {
 						/>
 					</div>
 				</div>
-				{!isLogIn ? (
+				{!logInState ? (
 					<NoticeBox>
 						<p>
 							유언장을 열람하시거나 작성하려면 로그인이나
 							회원가입을 해주세요!
 						</p>
 						<NoticeBtnGroup>
-							<Button onClick={loginBtnHandler}>
-								로그인하기
-							</Button>
-							<Button>회원가입하기</Button>
+							<Link href="/sign_in">
+								<Button>로그인하기</Button>
+							</Link>
+							<Link href="/sign_up">
+								<Button>회원가입하기</Button>
+							</Link>
 						</NoticeBtnGroup>
 					</NoticeBox>
 				) : (
@@ -193,7 +164,7 @@ const MyWill = () => {
 														href={{
 															pathname:
 																'/my_will_detail',
-															query: `id=${i}`,
+															query: `willId=${will._id}`,
 														}}
 													>
 														<a css={aTagStyle}>
@@ -263,14 +234,6 @@ const imageStyle = css`
 	background-color: silver;
 `;
 
-//==========================
-
-const Button = styled.button`
-	color: #3e606f;
-	background-color: #d1dbbd;
-	border: none;
-`;
-
 const aTagStyle = css`
 	color: #3e606f;
 	background-color: #d1dbbd;
@@ -296,13 +259,19 @@ const NoticeBtnGroup = styled.div`
 		margin-right: 1.5rem;
 	}
 `;
-// 페이지 가로 크기에 따라 정렬될 카드 개수 유동적으로 만들기
+
+
 const CardGroup = styled.div`
 	display: grid;
 	grid-template-columns: repeat(3, 20rem);
 	grid-row-gap: 3rem;
 	grid-column-gap: 3rem;
 	justify-content: center;
+	
+    & > div {
+		border-radius: 20px;
+		border: 1px solid darkslategray;	
+	}
 
 	@media (max-width: 70rem) {
 		grid-template-columns: repeat(2, 20rem);
