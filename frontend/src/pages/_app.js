@@ -30,9 +30,6 @@ function MyApp({ Component }) {
 				<Head>
 					<meta charSet="utf-8" />
 					<link rel="shortcut icon" href="#" />
-					<style>
-					@import url('https://fonts.googleapis.com/css2?family=Cinzel&display=swap');
-					</style>
 					<title>GoodBye</title>
 				</Head>
 				<Component />

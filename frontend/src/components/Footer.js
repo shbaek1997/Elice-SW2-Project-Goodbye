@@ -6,21 +6,41 @@ import {
     FaInstagram,
     FaTwitter,
 } from 'react-icons/fa';
-
+import { Button, Modal } from 'antd';
 import styled from '@emotion/styled';
-
-
+import RemembranceList from '../components/remembranceList'
 
 const Footer = () => {
-    const menu = [ '서비스 안내', '유언장 보내기', '온라인 부고', '추모 공간'];
+    const [modal2Visible, setModal2Visible] = useState(false);
+    const showRemembranceList = () => {
+        console.log('test')
+    }
+
+    const menu = [ 
+    <a href="/info">서비스 안내</a>, 
+    <a href="/my_will_detail">유언장 보내기</a>, 
+    <a href="/receiver_management_page">수신인 관리</a>, 
+    <span onClick={() => setModal2Visible(true)}>추모 공간</span>,
+    <a href="/my_page">마이페이지</a>,
+    ];
 
     return (
         <Wrapper>
             <ItemWrapper>
                 <FooterItems>
-                    {menu.map((item, i) => <li key={`footer-menu-${i}`}><a href="#">{item}</a></li>)}
+                    {menu.map((item, i) => <li key={`footer-menu-${i}`}>{item}</li>)}
                 </FooterItems>
             </ItemWrapper>
+            <Modal
+                title="추모 공간"
+                centered
+                visible={modal2Visible}
+                onOk={() => setModal2Visible(false)}
+                onCancel={() => setModal2Visible(false)}
+                width={900}
+            >
+			    <RemembranceList />
+            </Modal>
         </Wrapper>
     )
 }
@@ -51,7 +71,10 @@ const FooterItems = styled.ul`
         a {
             text-decoration: none;
             color: #193441;
-            cursor: default;
+            cursor: pointer;
+        }
+        span {
+            cursor: pointer;
         }
     }    
     li:first-of-type {

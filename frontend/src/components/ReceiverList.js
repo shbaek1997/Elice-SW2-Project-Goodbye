@@ -160,6 +160,7 @@ const ListWrapper = styled.div`
 const ListSpreadBtnStyle = css`
     float: right;
     margin-bottom: 0.5rem;
+    width: 6em;
 `
 
 const HumanList = styled.div`

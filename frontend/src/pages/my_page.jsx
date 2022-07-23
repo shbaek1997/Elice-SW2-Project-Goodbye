@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 
 import { css } from '@emotion/react';
@@ -17,8 +17,11 @@ import Router from 'next/router';
 
 let dateDeathString = '2022-01-01';
 const MyPage = () => {
+	const birthRef = useRef();
 	const { logInState } = useSelector((state) => state.user);
 
+	const [fullName, onChangeFullName, setFullName] = useInput('');
+	const [dateOfBirth, setDateOfBirth] = useState('2022-01-01');
 	const [password, onChangePassword, setPassword] = useInput('');
 	const [currentPassword, onChangeCurrentPassword, setCurrentPassword] =
 		useInput('');
@@ -27,7 +30,6 @@ const MyPage = () => {
 		useInput('');
 	const [trustedUser, setTrustedUser] = useState('');
 	const [managedUsers, setManagedUsers] = useState([]);
-	const [dateOfDeath, setDateOfDeath] = useState('2022-01-01');
 	const [imageSrc, setImageSrc] = useState('');
 
 	useEffect(() => {
@@ -70,14 +72,17 @@ const MyPage = () => {
 			.catch((err) => console.log(err.response.data.reason));
 	}, [logInState]);
 
+	//회원 정보 수정
 	const onUpdateUser = useCallback(async () => {
 		const userId = sessionStorage.getItem('userId');
 		const token = sessionStorage.getItem('token');
+		const data = {fullName, dateOfBirth, currentPassword, password};
+		//const result = data.filter(item => item !== '')
 
 		await axios
 			.patch(
 				`/api/auth/${userId}`,
-				{ currentPassword, password },
+				data,
 				{
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -87,12 +92,17 @@ const MyPage = () => {
 			.then((res) => {
 				console.log(res);
 				alert('성공적으로 수정되었습니다.');
+				setFullName('');
+				//setDateOfBirth('');
+				birthRef.current.value = ''; //초기화 안됨..
 				setPassword('');
 				setCurrentPassword('');
+				//Router.replace('/my_page');
 			})
 			.catch((err) => alert(err.response.data.reason));
 	}, [currentPassword, password]);
 
+	//회원 탈퇴
 	const onDeleteUser = useCallback(async () => {
 		const userId = sessionStorage.getItem('userId');
 		const token = sessionStorage.getItem('token');
@@ -167,12 +177,18 @@ const MyPage = () => {
 			.catch((err) => alert(err.response.data.reason));
 	};
 
+	const onChangeDateOfBirth = useCallback(
+		(date, dateString) => {
+			setDateOfBirth(dateString);
+		},
+		[],
+	);
+
 	const onChangeDeathDate = useCallback(
 		(date, dateString) => {
-			setDateOfDeath(dateString);
 			dateDeathString = dateString;
 		},
-		[dateOfDeath],
+		[],
 	);
 
 	const setDeathDate = useCallback(
@@ -189,7 +205,7 @@ const MyPage = () => {
 				onCancel() {},
 			});
 		},
-		[dateOfDeath],
+		[],
 	);
 
 	const changeLifeDeath = useCallback(
@@ -211,7 +227,7 @@ const MyPage = () => {
 				})
 				.catch((err) => alert(err.response.data.reason));
 		},
-		[dateOfDeath],
+		[],
 	);
 
 	return (
@@ -261,10 +277,25 @@ const MyPage = () => {
 			<div css={mainWrapper}>
 				<section css={sectionWrapper}>
 					<Wrapper>
-						<h1>비밀번호 수정</h1>
+						<h1>회원 정보 수정</h1>
 						<div>
 							<Form onFinish={onUpdateUser}>
 								<div css={inputWrapper}>
+									<input
+										type="text"
+										placeholder="이름"
+										name="fullName"
+										value={fullName}
+										onChange={onChangeFullName}
+										required
+									/>
+									<DatePicker 
+										placeholder="생년월일"
+										name="dateOfBirth"
+										onChange={onChangeDateOfBirth}
+										ref={birthRef} 
+										required	
+									/>
 									<input
 										type="password"
 										placeholder="현재 비밀번호"
@@ -441,7 +472,7 @@ const sectionWrapper = css`
 const inputWrapper = css`
     display: flex;
     flex-direction: column;
-    width: 100%
+    width: 20em;
     line-height: 3rem;
 
     & > input {
@@ -496,6 +527,7 @@ const buttonWrapper = css`
 		width: 49%;
 		padding: 10px;
 		cursor: pointer;
+		line-height: 2em;
 	}
 `;
 

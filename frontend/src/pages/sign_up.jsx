@@ -1,7 +1,7 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
-import { Form } from 'antd';
+import { Form, Modal, Button, DatePicker } from 'antd';
 import { css } from '@emotion/react';
 import useInput from '../hooks/useInput';
 import AppLayout from '../components/AppLayout';
@@ -13,12 +13,13 @@ import userLoginCheck from '../util/userLoginCheck';
 const SignUp = () => {
 	const router = useRouter();
 	const [redirectUrl, setRedirectUrl] = useState('/sign_in');
+	const termRef = useRef();
 	// const [isLogIn, setIsLogIn] = useState(null);
 	// const userData = useSelector((state) => state.user);
 
 	const [email, onChangeEmail] = useInput('');
 	const [fullName, onChangeFullName] = useInput('');
-	const [dateOfBirth, onChangeDateOfBirth] = useInput('');
+	const [dateOfBirth, setDateOfBirth] = useState('');
 	const [password, onChangePassword] = useInput('');
 	const [repeatPassword, onChangeRepeatPassword] = useInput('');
 	const [term, onChangeTerm] = useState(false);
@@ -30,6 +31,13 @@ const SignUp = () => {
 			Router.replace('/');
 		}
 	};
+	
+	const onChangeDateOfBirth = useCallback(
+		(date, dateString) => {
+			setDateOfBirth(dateString);
+		},
+		[],
+	);
 
 	//  추모 데이터 생성
 	// const createRemembranceData = async (userData) => {
@@ -70,6 +78,30 @@ const SignUp = () => {
 			});
 	}, [email, fullName, dateOfBirth, password, repeatPassword, term]);
 
+	const info = () => {
+		Modal.info({
+		  title: '약관',
+		  content: (
+			<div>
+				<p>
+				1. 개인정보의 처리 목적<br />
+			  	처리한 개인정보는 서비스 제공 등을 목적외의 용도로는 사용되지 않습니다.<br /><br />
+			  	2. 법적 효력<br />
+				유언장 작성은 서면, 공증 등 일정한 과정을 거쳐야 법률상 효력이 생기며 본 서비스는 해당하지 않습니다.<br />
+				</p>
+			</div>
+		  ),
+		  onOk() {},
+		});
+	  };
+	
+	const onClickTermComment = useCallback(() => {
+		//console.log('test');
+		info()
+		termRef.current.checked = !termRef.current.checked;
+		console.log(termRef.current.checked)
+	},[term])
+
 	useEffect(() => {
 		// 로그인한 유저가 접속하지 못하게 하는 부분
 		preventUserAccess();
@@ -106,14 +138,20 @@ const SignUp = () => {
 								required
 								onChange={onChangeFullName}
 							/>
-							<input
+							<DatePicker 
+								placeholder="생년월일"
+								name="dateOfBirth"
+								onChange={onChangeDateOfBirth}
+								required
+							 />
+							{/* <input
 								type="text"
 								placeholder="생년월일"
 								name="dateOfBirth"
 								value={dateOfBirth}
 								required
 								onChange={onChangeDateOfBirth}
-							/>
+							/> */}
 							<input
 								type="password"
 								placeholder="비밀번호"
@@ -137,9 +175,12 @@ const SignUp = () => {
 									name="term"
 									value={term}
 									onChange={onChangeTerm}
+									ref={termRef}
 									required
 								/>
-								약관에 동의합니다.
+								<span onClick={onClickTermComment} style={{cursor:'Pointer'}}>
+									약관에 동의합니다. <Button>확인</Button>
+								</span>
 							</span>
 						</div>
 						<div css={buttonWrapper}>

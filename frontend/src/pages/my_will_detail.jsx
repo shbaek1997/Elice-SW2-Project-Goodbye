@@ -214,7 +214,7 @@ const MyWillDetail = () => {
 						</div>
 						To <span>{receivers}</span>
 						<Modal
-							title="ReceiverList Modal"
+							title="받는 사람 선택"
 							visible={isModalVisible}
 							onOk={onOkReceiverList}
 							onCancel={handleCancel}

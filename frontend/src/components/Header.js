@@ -29,10 +29,10 @@ const Header = () => {
 
 
 	// 로그아웃 버튼 클릭
-	const handleLogOut = useCallback(() => {
+	const handleLogOut = useCallback(async () => {
+		await Router.replace('/');
 		sessionStorage.clear();
 		dispatch(USERACTIONS.clearUserData());
-		Router.replace('/');
 	}, []);
 
 	return (

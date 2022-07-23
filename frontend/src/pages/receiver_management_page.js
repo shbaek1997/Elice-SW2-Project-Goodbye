@@ -220,9 +220,10 @@ const receiver_page = () => {
 			</ButtonWrapper>
 			{registFormVisible && (
 				<Modal
-					title="registerForm"
+					title="리스트 등록하기"
 					visible={registFormVisible}
 					onCancel={handleCancel}
+					width={300}
 					footer={[
 						<Button
 							form="registerForm"
@@ -238,31 +239,34 @@ const receiver_page = () => {
 				>
 					<form id="registerForm" onSubmit={onSubmitRegistForm}>
 						<div>
-							<label htmlFor="name">
-								이름:
+							<label htmlFor="name" style={{display:'flex'}}>
+								<span style={{width:'5em'}}>이름:</span>
 								<Input
 									name="name"
 									onChange={handleInputValues}
 									value={InputValues.name}
+									style={{marginLeft: '1em'}}
 								/>
 							</label>
 						</div>
 						<div>
-							<label htmlFor="email">
-								이메일:
+							<label htmlFor="email" style={{display:'flex'}}>
+							<span style={{width:'5em'}}>이메일:</span>
 								<Input
 									name="email"
 									onChange={handleInputValues}
 									value={InputValues.email}
+									style={{marginLeft: '1em'}}
 								/>
 							</label>
 						</div>
 						<div>
-							<label htmlFor="relation">
-								관계:
-								<select onChange={(e) => handleSelect(e)}>
+							<label htmlFor="relation" style={{display:'flex'}}>
+							<span style={{width:'5em'}}>관계:</span>
+								<select onChange={(e) => handleSelect(e)} 
+									style={{marginLeft: '1em', width: '8em'}}>
 									<option value="">
-										--관계를 선택하세요--
+										--관계 선택--
 									</option>
 									<option value="가족">가족</option>
 									<option value="친척">친척</option>
@@ -275,6 +279,7 @@ const receiver_page = () => {
 									ref={inputEl}
 									onChange={handleInputValues}
 									value={InputValues.relation}
+									style={{marginLeft: '0.5em', width: '6.5em'}}
 								/>
 							</label>
 						</div>
@@ -394,7 +399,7 @@ const ButtonWrapper = styled.div`
 	height: 70px;
 	& > button {
 		position: absolute;
-		right: 85px;
+		right: 10em;
 		bottom: 0;
 	}
 `;
