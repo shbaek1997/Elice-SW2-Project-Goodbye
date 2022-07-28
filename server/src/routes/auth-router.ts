@@ -363,6 +363,9 @@ authRouter.post(
                 const receiversEmails: string[] = [];
                 const { receivers, _id } = will;
                 const willId = _id;
+                if (receivers.length === 0) {
+                    return;
+                }
                 receivers.forEach((receiver: any) =>
                     receiversEmails.push(receiver.email),
                 );
