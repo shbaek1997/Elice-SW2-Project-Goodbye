@@ -117,6 +117,13 @@ export class RemembranceModel {
 
         await this.Remembrance.findByIdAndUpdate(filter, query);
     }
+
+    // 추모 데이터 삭제
+    async delete(userId: string): Promise<void> {
+        const filter = { userId };
+
+        await this.Remembrance.findOneAndDelete(filter);
+    }
 }
 
 const remembranceModel = new RemembranceModel();

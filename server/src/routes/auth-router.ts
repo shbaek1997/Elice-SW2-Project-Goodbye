@@ -421,9 +421,9 @@ authRouter.delete(
             receivers.forEach(async (receiverId: string) => {
                 await receiverService.deleteReceiver(receiverId);
             });
+            // 해당 유저의 추모 데이터도 삭제
+            remembranceService.deleteRemembrance(userId);
 
-            // 유저 관련 유언장과 수신자삭제 완료
-            // 추모도 삭제해야하나?
             // 만약에 정상적으로 delete가 되어서 delete한 유저 정보가 있다면,
             if (deletedUserInfo) {
                 res.status(200).json({ result: 'success' });
