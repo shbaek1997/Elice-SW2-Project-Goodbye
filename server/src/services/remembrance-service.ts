@@ -82,6 +82,11 @@ class RemembranceService {
             });
         }
     }
+
+    // 추모 데이터 삭제
+    deleteRemembrance(userId: string): void {
+        this.remembranceModel.delete(userId);
+    }
 }
 
 const remembranceService = new RemembranceService();

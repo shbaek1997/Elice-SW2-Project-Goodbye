@@ -16,6 +16,7 @@ import 'antd/dist/antd.css';
 let checkedIndex = [];
 const MyWillDetail = () => {
 	const router = useRouter();
+	const [editForm, setEditForm] = useState(false);
 	//const { willList } = useSelector((state) => state.will);
 	const { logInState } = useSelector((state) => state.user);
 
@@ -77,7 +78,7 @@ const MyWillDetail = () => {
 		const { willId } = router.query;
 		if (willId) {
 			setIdParam(willId);
-
+			setEditForm(false);
 			const { userId, headerAuth } = getData();
 			const url = `/api/auth/${userId}/wills/${willId}`;
 
@@ -183,6 +184,7 @@ const MyWillDetail = () => {
 			.patch(url, data, headerAuth)
 			.then(() => {
 				alert('성공적으로 유언장이 수정되었습니다.');
+				setEditForm(false);
 				Router.replace('/my_will');
 			})
 			.catch((err) => alert(err.response.data.reason));
@@ -202,110 +204,170 @@ const MyWillDetail = () => {
 			.catch((err) => alert(err.response.data.reason));
 	});
 
+	//유언장 수정 가능하게 수정
+	const ChangeToEditForm = useCallback(() => {
+		setEditForm(true);
+	}, [editForm]);
+
+	//유언장 수정 취소
+	const ChangeToViewForm = useCallback(() => {
+		setEditForm(false);
+	}, [editForm]);
+
 	return (
 		<AppLayout>
 			<Wrapper>
 				<Content>
-					{/* <main css={mainWrapper}>
-						<section css={willsectionWrapper}> */}
-					<div>
-						<div>
-							<Button onClick={showModal}>받는 사람 선택</Button>
-						</div>
-						To <span>{receivers}</span>
-						<Modal
-							title="받는 사람 선택"
-							visible={isModalVisible}
-							onOk={onOkReceiverList}
-							onCancel={handleCancel}
-						>
-							<List>
-								<Checkbox.Group>
-									<VirtualList
-										data={receiverData}
-										height={ContainerHeight}
-										itemHeight={47}
-										itemKey="receiver_list"
-									>
-										{(item, i) => {
-											const receiverInfo = {
-												fullName: item.fullName,
-												relation: item.relation,
-												email: item.emailAddress,
-												receiverId: item.receiverId,
-											};
-											return (
-												<Checkbox
-													key={`${item._id}+${i}`}
-													value={receiverInfo}
-													onChange={onChangeCheckBox}
-													index={i}
-												>
-													<p>{`이름: ${item.fullName}`}</p>
-													<p>{`이메일: ${item.emailAddress}`}</p>
-												</Checkbox>
-											);
-										}}
-									</VirtualList>
-								</Checkbox.Group>
-							</List>
-						</Modal>
-					</div>
-					<Form>
-						<div css={letterWrapper}>
-							<div css={headerWrapper}>
-								<input
-									type="text"
-									name="title"
-									value={title}
-									onChange={onChangeTitle}
-									placeholder="제목을 입력해주세요."
-								/>
+					{(!idParam || editForm) && (
+						<>
+							<div>
+								<div>
+									<Button onClick={showModal}>
+										받는 사람 선택
+									</Button>
+								</div>
+								To <span>{receivers}</span>
+								<Modal
+									title="ReceiverList Modal"
+									visible={isModalVisible}
+									onOk={onOkReceiverList}
+									onCancel={handleCancel}
+								>
+									<List>
+										<Checkbox.Group>
+											<VirtualList
+												data={receiverData}
+												height={ContainerHeight}
+												itemHeight={47}
+												itemKey="receiver_list"
+											>
+												{(item, i) => {
+													const receiverInfo = {
+														fullName: item.fullName,
+														relation: item.relation,
+														email: item.emailAddress,
+														receiverId:
+															item.receiverId,
+													};
+													return (
+														<Checkbox
+															key={`${item._id}+${i}`}
+															value={receiverInfo}
+															onChange={
+																onChangeCheckBox
+															}
+															index={i}
+														>
+															<p>{`이름: ${item.fullName}`}</p>
+															<p>{`이메일: ${item.emailAddress}`}</p>
+														</Checkbox>
+													);
+												}}
+											</VirtualList>
+										</Checkbox.Group>
+									</List>
+								</Modal>
 							</div>
-							<textarea
-								name="content"
-								value={content}
-								onChange={onChangeContent}
-								placeholder="유언장을 자유롭게 작성해주세요."
-							/>
-						</div>
-						<div css={buttonWrapper}>
-							{!idParam && (
-								<div>
-									<input
-										type="button"
-										value="취소"
-										style={{ cursor: 'pointer' }}
-										onClick={() => {
-											Router.replace('/my_will');
-										}}
-									/>
-									<input
-										type="submit"
-										value="생성"
-										style={{ cursor: 'pointer' }}
-										onClick={RegisterForm}
+							<Form>
+								<div css={letterWrapper}>
+									<HeaderWrapper>
+										<input
+											type="text"
+											name="title"
+											value={title}
+											onChange={onChangeTitle}
+											placeholder="제목을 입력해주세요."
+										/>
+									</HeaderWrapper>
+									<textarea
+										name="content"
+										value={content}
+										onChange={onChangeContent}
+										placeholder="유언장을 자유롭게 작성해주세요."
 									/>
 								</div>
-							)}
-							{idParam && (
+								<div css={buttonWrapper}>
+									{idParam && editForm && (
+										<div>
+											<input
+												type="button"
+												value="취소"
+												style={{ cursor: 'pointer' }}
+												onClick={ChangeToViewForm}
+											/>
+											<input
+												type="submit"
+												value="수정 완료"
+												onClick={ChangeForm}
+											/>
+										</div>
+									)}
+									{!idParam && (
+										<div>
+											<input
+												type="button"
+												value="취소"
+												style={{ cursor: 'pointer' }}
+												onClick={() => {
+													Router.replace('/my_will');
+												}}
+											/>
+											<input
+												type="submit"
+												value="생성"
+												style={{ cursor: 'pointer' }}
+												onClick={RegisterForm}
+											/>
+										</div>
+									)}
+								</div>
+							</Form>
+						</>
+					)}
+					{idParam && !editForm && (
+						<>
+							<div>
 								<div>
-									<input
-										type="button"
-										value="삭제"
-										onClick={DeleteForm}
-									/>
-									<input
-										type="submit"
-										value="수정"
-										onClick={ChangeForm}
+									<Button onClick={ChangeToEditForm}>
+										유언장 수정 바로가기
+									</Button>
+								</div>
+								To <span>{receivers}</span>
+							</div>
+							<Form>
+								<div css={letterWrapper}>
+									<HeaderWrapper read>
+										<input
+											type="text"
+											name="title"
+											value={title}
+											readOnly
+										/>
+									</HeaderWrapper>
+									<textarea
+										name="content"
+										value={content}
+										readOnly
 									/>
 								</div>
-							)}
-						</div>
-					</Form>
-					{/* </section>
-					</main> */}
+								<div css={buttonWrapper}>
+									<div>
+										<input
+											type="button"
+											value="삭제"
+											onClick={DeleteForm}
+										/>
+										<input
+											type="submit"
+											value="수정"
+											onClick={ChangeToEditForm}
+											// onClick={ChangeForm}
+										/>
+									</div>
+								</div>
+							</Form>
+						</>
+					)}
 				</Content>
 			</Wrapper>
 		</AppLayout>
@@ -328,7 +390,7 @@ const willsectionWrapper = css`
 	padding: 5rem;
 `;
 
-const headerWrapper = css`
+const HeaderWrapper = styled.div`
 	width: 100%;
 
 	& > input {
@@ -337,7 +399,8 @@ const headerWrapper = css`
 		font-size: 1.3rem;
 		background: transparent;
 		border: none;
-		border-bottom: solid 1px #193441;
+		border-bottom: ${(props) =>
+			props.read ? 'none' : 'solid 1px #193441'};
 		:focus {
 			outline: none;
 		}
@@ -348,7 +411,7 @@ const letterWrapper = css`
 	display: inline-block;
 	box-sizing: border-box;
 	width: 100%;
-	height: 100vh;
+	height: 73vh;
 	//border: 1px solid #d1dbb1;
 	margin: 1rem;
 	padding: 1rem;
@@ -367,8 +430,11 @@ const letterWrapper = css`
 
 const buttonWrapper = css`
 	width: 100%;
-	margin-top: 3rem;
-	padding: 3rem;
+	margin-top: 6rem;
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+
 	& > div > input[type='submit'] {
 		margin-right: 0.5em;
 		background-color: #3e606f;
@@ -388,7 +454,7 @@ const buttonWrapper = css`
 
 const Wrapper = styled.div`
 	max-width: 650px;
-	min-height: inherit;
+	height: 100vh;
 	margin: 5em auto;
 	font-family: helvetica, arial;
 	background: url(https://images.unsplash.com/photo-1618635245221-a1974f59cb02?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTAwfHxsZXR0ZXJ8ZW58MHx8MHx8&auto=format&fit=crop&w=600&q=60);
@@ -409,7 +475,7 @@ const Content = styled.div`
 	}
 
 	width: 80%;
-	min-height: inherit;
+	height: 92vh;
 	padding: 5%;
 	margin: auto;
 	background: rgb(254, 254, 254, 0.65);
